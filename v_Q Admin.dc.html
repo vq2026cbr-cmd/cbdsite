@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script src="./vq-orders.js"></script>
+<script type="module" src="./vq-firebase.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #f2f3f4; color: #16181c; font-family: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1a6b3c; text-decoration: none; }
+  a:hover { color: #0f4a28; text-decoration: underline; }
+  input, select, textarea { font-family: inherit; }
+</style>
+</helmet>
+
+<sc-if value="{{ locked }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height: 100vh; background: #16181c; display: flex; align-items: center; justify-content: center; padding: 24px">
+    <div style="width: 100%; max-width: 380px; background: #ffffff; padding: 38px 32px; border-radius: 4px">
+      <div style="font-family: 'Roboto Mono', monospace; font-size: 10px; letter-spacing: 0.24em; color: #1a6b3c; margin-bottom: 10px">V_Q ADMIN</div>
+      <div style="font-size: 20px; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 6px">管理画面ログイン</div>
+      <p style="font-size: 12px; line-height: 1.85; color: #6b7280; margin: 0 0 26px">スタッフアカウントでログインしてください。</p>
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <label style="display: block">
+          <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 7px">メールアドレス</span>
+          <input type="email" value="{{ email }}" onChange="{{ setEmail }}" placeholder="admin@v-q.jp" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 11px 12px; font-size: 13px" />
+        </label>
+        <label style="display: block">
+          <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 7px">パスワード</span>
+          <input type="password" value="{{ pw }}" onChange="{{ setPw }}" placeholder="••••••••" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 11px 12px; font-size: 13px" />
+        </label>
+        <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}">
+          <div style="background: #fdeeee; border: 1px solid #f0c2c2; color: #a32222; padding: 11px 12px; font-size: 12px; line-height: 1.7; border-radius: 3px">{{ err }}</div>
+        </sc-if>
+        <button type="button" onClick="{{ doLogin }}" style="border: none; background: #16181c; color: #ffffff; padding: 13px; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; border-radius: 3px; cursor: pointer" style-hover="background:#1a6b3c">ログイン</button>
+      </div>
+      <div style="font-family: 'Roboto Mono', monospace; font-size: 10px; color: #9ca3af; margin-top: 20px; line-height: 1.8">DEMO — admin@v-q.jp / vqadmin</div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ unlocked }}" hint-placeholder-val="{{ false }}">
+<div style="min-height: 100vh; display: grid; grid-template-columns: minmax(0, 218px) minmax(0, 1fr)">
+  <div style="background: #16181c; color: #d7dade; padding: 0 0 30px; position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; box-sizing: border-box">
+    <div style="padding: 22px 20px; border-bottom: 1px solid #262a30">
+      <div style="font-family: 'Roboto Mono', monospace; font-size: 11px; letter-spacing: 0.22em; color: #8fd694">V_Q ADMIN</div>
+      <div style="font-size: 11px; color: #7b828c; margin-top: 7px">{{ staffName }}／{{ staffRole }}</div>
+      <div style="font-family: 'Roboto Mono', monospace; font-size: 10px; color: #5b616b; margin-top: 6px">ver 2026.10.01-b2</div>
+    </div>
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="9">
+      <button type="button" onClick="{{ n.select }}" style="display: block; width: 100%; border: none; border-left: 3px solid {{ n.mark }}; background: {{ n.bg }}; color: {{ n.fg }}; padding: 12px 18px; text-align: left; font-size: 12.5px; cursor: pointer" style-hover="color:#ffffff">{{ n.label }}</button>
+    </sc-for>
+    <div style="padding: 18px 20px; margin-top: 14px; border-top: 1px solid #262a30; display: flex; flex-direction: column; gap: 10px; align-items: flex-start">
+      <sc-if value="{{ embedded }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ viewStore }}" style="border: 1px solid #1a6b3c; background: transparent; color: #8fd1a8; padding: 8px 14px; font-size: 11px; border-radius: 3px; cursor: pointer" style-hover="background:#1a6b3c;color:#ffffff">ストアを表示 →</button></sc-if>
+      <button type="button" onClick="{{ doLogout }}" style="border: 1px solid #3a4048; background: transparent; color: #9ca3af; padding: 8px 14px; font-size: 11px; border-radius: 3px; cursor: pointer" style-hover="color:#ffffff;border-color:#6b7280">ログアウト</button>
+    </div>
+  </div>
+
+  <div style="min-width: 0">
+    <div style="background: #ffffff; border-bottom: 1px solid #e0e2e6; padding: 15px 26px; display: flex; align-items: center; gap: 18px; position: sticky; top: 0; z-index: 10">
+      <div style="font-size: 16px; font-weight: 700; letter-spacing: 0.02em">{{ pageTitle }}</div>
+      <div style="font-size: 11.5px; color: #6b7280">{{ pageSub }}</div>
+      <div style="margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 11px; color: {{ connFg }}; background: {{ connBg }}; border: 1px solid {{ connBd }}; padding: 5px 10px; border-radius: 999px; white-space: nowrap"><span style="width: 7px; height: 7px; border-radius: 50%; background: {{ connFg }}"></span>{{ connLabel }}</div>
+      <div style="font-family: 'Roboto Mono', monospace; font-size: 11px; color: #9ca3af">{{ today }}</div>
+    </div>
+    <sc-if value="{{ connWarn }}" hint-placeholder-val="{{ false }}">
+      <div style="margin: 16px 26px 0; background: #fdeeee; border: 1px solid #f0c2c2; color: #a32222; padding: 12px 14px; border-radius: 4px; font-size: 12px; line-height: 1.8">{{ connWarnText }}</div>
+    </sc-if>
+    <sc-if value="{{ canSeed }}" hint-placeholder-val="{{ false }}">
+      <div style="margin: 16px 26px 0; background: #e8f3ec; border: 1px solid #bcd9c6; color: #1a6b3c; padding: 12px 14px; border-radius: 4px; font-size: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+        <span>Firebase に商品データがありません。初期データ（商品7点・共通設定・紹介コード3件）を投入できます。</span>
+        <button type="button" onClick="{{ seedFire }}" style="margin-left: auto; border: none; background: #1a6b3c; color: #ffffff; padding: 6px 14px; font-size: 11px; font-weight: 700; border-radius: 3px; cursor: pointer">{{ seedLabel }}</button>
+      </div>
+    </sc-if>
+
+    <div style="padding: 24px 26px 60px">
+
+      <sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 26px">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+              <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 17px 18px">
+                <div style="font-size: 11px; color: #6b7280; margin-bottom: 9px">{{ k.label }}</div>
+                <div style="font-size: 25px; font-weight: 700; letter-spacing: -0.01em">{{ k.value }}</div>
+                <div style="font-size: 11px; color: {{ k.dFg }}; margin-top: 7px">{{ k.delta }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px">
+            <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 18px">
+              <div style="font-size: 13px; font-weight: 700; margin-bottom: 4px">日次売上（直近14日）</div>
+              <div style="font-size: 11px; color: #6b7280; margin-bottom: 20px">税込・送料含む</div>
+              <div style="display: flex; align-items: flex-end; gap: 6px; height: 150px">
+                <sc-for list="{{ chart }}" as="c" hint-placeholder-count="14">
+                  <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; gap: 6px">
+                    <div style="width: 100%; background: {{ c.fill }}; height: {{ c.h }}"></div>
+                    <div style="font-family: 'Roboto Mono', monospace; font-size: 9px; color: #9ca3af">{{ c.day }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 18px">
+              <div style="font-size: 13px; font-weight: 700; margin-bottom: 4px">対応待ちのタスク</div>
+              <div style="font-size: 11px; color: #6b7280; margin-bottom: 16px">クリックで各管理画面へ</div>
+              <div style="display: flex; flex-direction: column; gap: 1px">
+                <sc-for list="{{ tasks }}" as="t" hint-placeholder-count="5">
+                  <button type="button" onClick="{{ t.go }}" style="display: flex; align-items: center; gap: 12px; border: none; border-bottom: 1px solid #eceef1; background: transparent; padding: 13px 4px; text-align: left; cursor: pointer; width: 100%" style-hover="background:#f7f8f9">
+                    <span style="width: 7px; height: 7px; border-radius: 50%; background: {{ t.dot }}; flex-shrink: 0"></span>
+                    <span style="font-size: 12.5px; color: #16181c">{{ t.label }}</span>
+                    <span style="margin-left: auto; font-family: 'Roboto Mono', monospace; font-size: 13px; font-weight: 700; color: {{ t.dot }}">{{ t.n }}</span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 18px">
+            <div style="font-size: 13px; font-weight: 700; margin-bottom: 16px">商品別 売上構成（当月）</div>
+            <div style="display: flex; flex-direction: column; gap: 12px">
+              <sc-for list="{{ mix }}" as="m" hint-placeholder-count="5">
+                <div style="display: grid; grid-template-columns: minmax(0, 230px) minmax(0, 1fr) 92px 62px; gap: 14px; align-items: center">
+                  <span style="font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ m.name }}</span>
+                  <span style="height: 8px; background: #eceef1; border-radius: 4px; overflow: hidden; display: block">
+                    <span style="display: block; height: 100%; width: {{ m.w }}; background: #1a6b3c"></span>
+                  </span>
+                  <span style="font-family: 'Roboto Mono', monospace; font-size: 12px; text-align: right">¥{{ m.amount }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; font-size: 11px; color: #6b7280; text-align: right">{{ m.pct }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px">
+            <sc-for list="{{ orderFilters }}" as="f" hint-placeholder-count="5">
+              <button type="button" onClick="{{ f.select }}" style="border: 1px solid {{ f.bd }}; background: {{ f.bg }}; color: {{ f.fg }}; padding: 8px 14px; font-size: 11.5px; border-radius: 3px; cursor: pointer">{{ f.label }}</button>
+            </sc-for>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; background: #e8f3ec; border: 1px solid #bcd9c6; color: #1a6b3c; padding: 10px 14px; border-radius: 4px; font-size: 11.5px; margin-bottom: 14px">
+            <span style="width: 7px; height: 7px; border-radius: 50%; background: #1a6b3c"></span>
+            <span>{{ syncText }}</span>
+            <span style="margin-left: auto; display: flex; gap: 8px">
+              <sc-if value="{{ canSeed }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ seedFire }}" style="border: none; background: #1a6b3c; color: #ffffff; padding: 5px 12px; font-size: 11px; font-weight: 700; border-radius: 3px; cursor: pointer">{{ seedLabel }}</button></sc-if>
+              <sc-if value="{{ isDemoData }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ resetOrders }}" style="border: 1px solid #bcd9c6; background: #ffffff; color: #1a6b3c; padding: 5px 10px; font-size: 11px; border-radius: 3px; cursor: pointer">デモデータに戻す</button></sc-if>
+            </span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 12px 14px; margin-bottom: 14px">
+            <span style="font-size: 11.5px; font-weight: 700; margin-right: 6px">発送準備中 {{ prepCount }}件</span>
+            <button type="button" onClick="{{ printPrep }}" style="border: 1px solid #d3d6db; background: #ffffff; color: #16181c; padding: 7px 12px; font-size: 11.5px; border-radius: 3px; cursor: pointer" style-hover="border-color:#1a6b3c;color:#1a6b3c">納品書を一括印刷</button>
+            <button type="button" onClick="{{ exportB2 }}" style="border: none; background: #16181c; color: #ffffff; padding: 8px 12px; font-size: 11.5px; border-radius: 3px; cursor: pointer" style-hover="background:#1a6b3c">B2クラウド用CSVを出力</button>
+            <label style="border: 1px solid #d3d6db; background: #ffffff; color: #16181c; padding: 7px 12px; font-size: 11.5px; border-radius: 3px; cursor: pointer">追跡番号CSVを取込<input type="file" accept=".csv,text/csv" onChange="{{ importTracking }}" style="display: none" /></label>
+            <sc-if value="{{ hasB2Msg }}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; color: {{ b2Fg }}">{{ b2Msg }}</span></sc-if>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; overflow-x: auto">
+            <div style="min-width: 1080px">
+              <div style="display: grid; grid-template-columns: 138px 104px minmax(0, 1fr) 72px 48px 92px 116px 172px; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #e0e2e6; background: #f7f8f9; font-size: 11px; font-weight: 700; color: #4b5563">
+                <span>注文番号</span><span>受注日</span><span>顧客</span><span>支払</span><span>点数</span><span>金額</span><span>ステータス</span><span>操作</span>
+              </div>
+              <sc-for list="{{ orderRows }}" as="o" hint-placeholder-count="8">
+                <div style="border-bottom: 1px solid #eceef1">
+                <div style="display: grid; grid-template-columns: 138px 104px minmax(0, 1fr) 72px 48px 92px 116px 172px; gap: 12px; padding: 12px 16px; font-size: 12px; align-items: center">
+                  <span style="font-family: 'Roboto Mono', monospace; font-size: 11.5px">{{ o.no }}</span>
+                  <span style="font-size: 11px; color: #6b7280">{{ o.date }}</span>
+                  <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ o.customer }}<span style="color: #9ca3af; margin-left: 8px; font-size: 11px">{{ o.memberId }}</span></span>
+                  <span style="font-size: 11px; color: #4b5563">{{ o.payLabel }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; text-align: right">{{ o.qty }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; text-align: right">¥{{ o.total }}</span>
+                  <span style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start"><span style="background: {{ o.stBg }}; color: {{ o.stFg }}; padding: 4px 9px; font-size: 10.5px; border-radius: 2px; white-space: nowrap">{{ o.status }}</span><span style="font-family: 'Roboto Mono', monospace; font-size: 10px; color: #9ca3af">{{ o.sub }}</span></span>
+                  <span style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center"><sc-if value="{{ o.canPrint }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ o.print }}" title="領収書兼納品書を印刷" style="border: 1px solid #d3d6db; background: #ffffff; color: #4b5563; padding: 6px 8px; font-size: 11px; border-radius: 3px; cursor: pointer; white-space: nowrap" style-hover="border-color:#1a6b3c;color:#1a6b3c">納品書</button></sc-if><sc-if value="{{ o.canAct }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ o.advance }}" style="border: 1px solid #d3d6db; background: #ffffff; color: #16181c; padding: 6px 10px; font-size: 11px; border-radius: 3px; cursor: pointer; white-space: nowrap" style-hover="border-color:#1a6b3c;color:#1a6b3c">{{ o.action }}</button></sc-if><sc-if value="{{ o.canCancel }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ o.cancel }}" style="border: none; background: transparent; color: #9ca3af; padding: 6px 4px; font-size: 11px; cursor: pointer; text-decoration: underline" style-hover="color:#a32222">取消</button></sc-if><sc-if value="{{ o.canRefund }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ o.openRefund }}" style="border: none; background: transparent; color: #9ca3af; padding: 6px 4px; font-size: 11px; cursor: pointer; text-decoration: underline; white-space: nowrap" style-hover="color:#a32222">返品・返金</button></sc-if></span>
+                </div>
+                <sc-if value="{{ o.refundOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; padding: 12px 16px 16px; background: #fdf6f6; border-top: 1px dashed #f0c2c2">
+                    <label style="display: block">
+                      <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">返金額（円）</span>
+                      <input type="text" value="{{ rfAmount }}" onChange="{{ setRfAmount }}" style="width: 130px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-family: 'Roboto Mono', monospace; font-size: 12px; text-align: right" />
+                    </label>
+                    <label style="display: block">
+                      <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">理由</span>
+                      <input type="text" value="{{ rfReason }}" onChange="{{ setRfReason }}" placeholder="破損・誤配送など" style="width: 220px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px" />
+                    </label>
+                    <label style="display: flex; gap: 6px; align-items: center; font-size: 12px; color: #4b5563; padding-bottom: 8px"><input type="checkbox" checked="{{ rfRestock }}" onChange="{{ setRfRestock }}" />在庫に戻す</label>
+                    <button type="button" onClick="{{ confirmRefund }}" style="border: none; background: #a32222; color: #ffffff; padding: 9px 16px; font-size: 12px; font-weight: 700; border-radius: 3px; cursor: pointer">返品・返金を確定</button>
+                    <button type="button" onClick="{{ closeRefund }}" style="border: none; background: transparent; color: #6b7280; padding: 9px 6px; font-size: 12px; cursor: pointer; text-decoration: underline">閉じる</button>
+                    <span style="font-size: 11px; color: #6b7280">確定すると支払い状況が「返金済み」になり、売上から返金額が差し引かれます。</span>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ o.shipOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; padding: 12px 16px 16px; background: #f7f8f9; border-top: 1px dashed #e0e2e6">
+                    <label style="display: block">
+                      <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">配送業者</span>
+                      <input type="text" value="{{ shipCarrier }}" onChange="{{ setShipCarrier }}" style="width: 160px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px" />
+                    </label>
+                    <label style="display: block">
+                      <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">追跡番号（必須）</span>
+                      <input type="text" value="{{ shipTrack }}" onChange="{{ setShipTrack }}" placeholder="4821-0000-0000" style="width: 200px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-family: 'Roboto Mono', monospace; font-size: 12px" />
+                    </label>
+                    <button type="button" onClick="{{ confirmShip }}" style="border: none; background: #16181c; color: #ffffff; padding: 9px 16px; font-size: 12px; font-weight: 700; border-radius: 3px; cursor: pointer" style-hover="background:#1a6b3c">発送を確定</button>
+                    <button type="button" onClick="{{ closeShip }}" style="border: none; background: transparent; color: #6b7280; padding: 9px 6px; font-size: 12px; cursor: pointer; text-decoration: underline">閉じる</button>
+                    <span style="font-size: 11px; color: #6b7280">{{ o.shipTo }}</span>
+                  </div>
+                </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isProducts }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; overflow-x: auto; margin-bottom: 14px">
+            <div style="min-width: 940px">
+              <div style="display: grid; grid-template-columns: 52px minmax(0, 1fr) 140px 108px 88px 84px 168px; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #e0e2e6; background: #f7f8f9; font-size: 11px; font-weight: 700; color: #4b5563">
+                <span></span><span>商品名</span><span>SKU</span><span>価格（税込）</span><span>在庫</span><span>公開</span><span>操作</span>
+              </div>
+              <sc-for list="{{ productRows }}" as="p" hint-placeholder-count="5">
+                <div style="display: grid; grid-template-columns: 52px minmax(0, 1fr) 140px 108px 88px 84px 168px; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #eceef1; font-size: 12px; align-items: center">
+                  <span style="width: 40px; height: 40px; background: #eceef1 url({{ p.imgUrl }}) center/cover no-repeat; border-radius: 2px; display: block"></span>
+                  <input type="text" value="{{ p.name }}" onChange="{{ p.setName }}" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 7px 9px; font-size: 12px" />
+                  <input type="text" value="{{ p.sku }}" onChange="{{ p.setSku }}" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 7px 9px; font-family: 'Roboto Mono', monospace; font-size: 11px; color: #4b5563" />
+                  <input type="text" value="{{ p.price }}" onChange="{{ p.setPrice }}" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 7px 9px; font-family: 'Roboto Mono', monospace; font-size: 12px; text-align: right" />
+                  <input type="text" value="{{ p.stock }}" onChange="{{ p.setStock }}" style="width: 100%; box-sizing: border-box; border: 1px solid {{ p.stockBd }}; border-radius: 3px; padding: 7px 9px; font-family: 'Roboto Mono', monospace; font-size: 12px; text-align: right; color: {{ p.stockFg }}" />
+                  <button type="button" onClick="{{ p.toggle }}" style="border: 1px solid {{ p.pubBd }}; background: {{ p.pubBg }}; color: {{ p.pubFg }}; padding: 6px 9px; font-size: 11px; border-radius: 3px; cursor: pointer">{{ p.pubLabel }}</button>
+                  <span style="display: flex; gap: 6px">
+                    <button type="button" onClick="{{ p.save }}" style="border: none; background: #16181c; color: #ffffff; padding: 7px 10px; font-size: 11px; border-radius: 3px; cursor: pointer; white-space: nowrap" style-hover="background:#1a6b3c">{{ p.saveLabel }}</button>
+                    <button type="button" onClick="{{ p.remove }}" style="border: 1px solid #f0c2c2; background: #ffffff; color: #a32222; padding: 6px 10px; font-size: 11px; border-radius: 3px; cursor: pointer; white-space: nowrap">{{ p.removeLabel }}</button>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 18px; margin-bottom: 14px">
+            <div style="font-size: 13px; font-weight: 700; margin-bottom: 14px">商品を追加</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end">
+              <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">商品名</span><input type="text" value="{{ npName }}" onChange="{{ setNpName }}" placeholder="v_Q ○○ 1.0 mL" style="width: 240px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px" /></label>
+              <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">SKU</span><input type="text" value="{{ npSku }}" onChange="{{ setNpSku }}" placeholder="VQ-XXX-01" style="width: 140px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-family: 'Roboto Mono', monospace; font-size: 12px" /></label>
+              <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">価格（税込）</span><input type="text" value="{{ npPrice }}" onChange="{{ setNpPrice }}" style="width: 100px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-family: 'Roboto Mono', monospace; font-size: 12px; text-align: right" /></label>
+              <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">在庫</span><input type="text" value="{{ npStock }}" onChange="{{ setNpStock }}" style="width: 80px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-family: 'Roboto Mono', monospace; font-size: 12px; text-align: right" /></label>
+              <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">カテゴリ</span>
+                <select value="{{ npCat }}" onChange="{{ setNpCat }}" style="width: 150px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px; background: #ffffff">
+                  <option value="cbg">CBG</option><option value="cbd">CBD</option><option value="cbx">CBX</option><option value="referral">紹介コード限定</option>
+                </select>
+              </label>
+              <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">画像URL（任意）</span><input type="text" value="{{ npImg }}" onChange="{{ setNpImg }}" placeholder="https://…" style="width: 220px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px" /></label>
+              <button type="button" onClick="{{ addProduct }}" style="border: none; background: #16181c; color: #ffffff; padding: 10px 18px; font-size: 12px; font-weight: 700; border-radius: 3px; cursor: pointer" style-hover="background:#1a6b3c">追加</button>
+            </div>
+            <sc-if value="{{ npHasMsg }}" hint-placeholder-val="{{ false }}"><div style="margin-top: 12px; font-size: 12px; color: {{ npMsgFg }}">{{ npMsg }}</div></sc-if>
+          </div>
+          <div style="background: #fff9e8; border: 1px solid #ecd9a0; border-radius: 4px; padding: 14px 16px; font-size: 12px; line-height: 1.85; color: #6b5a25">商品名・SKU・価格・在庫・公開状態の変更は「保存」でストアに反映されます。在庫が10個を下回った商品は在庫アラートに表示されます。削除はボタンを2回押すと確定します。</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCustomers }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; overflow-x: auto">
+            <div style="min-width: 1000px">
+              <div style="display: grid; grid-template-columns: 116px minmax(0, 1fr) 190px 132px 132px 76px 104px 88px; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #e0e2e6; background: #f7f8f9; font-size: 11px; font-weight: 700; color: #4b5563">
+                <span>会員ID</span><span>氏名</span><span>メール</span><span>限定製品</span><span>紹介元コード</span><span>注文数</span><span>累計購入額</span><span>状態</span>
+              </div>
+              <sc-for list="{{ customerRows }}" as="c" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: 116px minmax(0, 1fr) 190px 132px 132px 76px 104px 88px; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #eceef1; font-size: 12px; align-items: center">
+                  <span title="{{ c.fullId }}" style="font-family: 'Roboto Mono', monospace; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0">{{ c.shortId }}</span>
+                  <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ c.name }}</span>
+                  <span style="font-size: 11.5px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ c.email }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; font-size: 11px; color: #1a6b3c">{{ c.code }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; font-size: 11px; color: #6b7280">{{ c.invitedBy }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; text-align: right">{{ c.orders }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; text-align: right">¥{{ c.ltv }}</span>
+                  <span><button type="button" onClick="{{ c.toggle }}" style="border: 1px solid {{ c.bd }}; background: {{ c.bg }}; color: {{ c.fg }}; padding: 5px 9px; font-size: 10.5px; border-radius: 2px; cursor: pointer; white-space: nowrap">{{ c.state }}</button></span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 18px; margin-top: 16px">
+            <div style="font-size: 13px; font-weight: 700; margin-bottom: 4px">紹介コードの発行</div>
+            <p style="font-size: 12px; line-height: 1.85; color: #6b7280; margin: 0 0 16px">会員登録には紹介コードが必須です。新規会員へ渡すコードをここで発行します。停止したコードは登録に使用できません。</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 18px">
+              <label style="display: block">
+                <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">発行先（既存会員 / 空欄なら管理者発行）</span>
+                <input type="text" value="{{ issueTo }}" onChange="{{ setIssueTo }}" placeholder="会員ID または氏名" style="width: 260px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 9px 11px; font-size: 12.5px" />
+              </label>
+              <button type="button" onClick="{{ issueCode }}" style="border: none; background: #16181c; color: #ffffff; padding: 10px 18px; font-size: 12px; font-weight: 700; border-radius: 3px; cursor: pointer" style-hover="background:#1a6b3c">コードを発行</button>
+            </div>
+            <div style="border: 1px solid #e0e2e6; border-radius: 3px; overflow-x: auto">
+              <div style="min-width: 720px">
+                <div style="display: grid; grid-template-columns: 148px minmax(0, 1fr) 106px 86px 92px 92px; gap: 12px; padding: 10px 14px; border-bottom: 1px solid #e0e2e6; background: #f7f8f9; font-size: 11px; font-weight: 700; color: #4b5563">
+                  <span>コード</span><span>保有者</span><span>発行日</span><span>利用回数</span><span>状態</span><span>操作</span>
+                </div>
+                <sc-for list="{{ codeRows }}" as="r" hint-placeholder-count="4">
+                  <div style="display: grid; grid-template-columns: 148px minmax(0, 1fr) 106px 86px 92px 92px; gap: 12px; padding: 11px 14px; border-bottom: 1px solid #eceef1; font-size: 12px; align-items: center">
+                    <span style="font-family: 'Roboto Mono', monospace; font-size: 11.5px; letter-spacing: 0.04em">{{ r.code }}</span>
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ r.owner }}</span>
+                    <span style="font-family: 'Roboto Mono', monospace; font-size: 11px; color: #6b7280">{{ r.issued }}</span>
+                    <span style="font-family: 'Roboto Mono', monospace; text-align: right">{{ r.uses }}</span>
+                    <span style="color: {{ r.stFg }}; font-size: 11px">{{ r.state }}</span>
+                    <span><button type="button" onClick="{{ r.toggle }}" style="border: 1px solid #d3d6db; background: #ffffff; color: #16181c; padding: 5px 9px; font-size: 11px; border-radius: 3px; cursor: pointer" style-hover="border-color:#1a6b3c;color:#1a6b3c">{{ r.action }}</button></span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCoa }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 18px; margin-bottom: 16px">
+            <div style="font-size: 13px; font-weight: 700; margin-bottom: 14px">分析書（PDF）を登録</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end">
+              <label style="display: block">
+                <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">商品</span>
+                <select value="{{ cfProduct }}" onChange="{{ setCfProduct }}" style="width: 240px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px; background: #ffffff">
+                  <sc-for list="{{ coaProductOpts }}" as="op" hint-placeholder-count="3"><option value="{{ op.id }}">{{ op.name }}</option></sc-for>
+                </select>
+              </label>
+              <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">ロット番号</span><input type="text" value="{{ cfLot }}" onChange="{{ setCfLot }}" placeholder="LOT-26J-0001" style="width: 140px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-family: 'Roboto Mono', monospace; font-size: 12px" /></label>
+              <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">検査機関</span><input type="text" value="{{ cfLab }}" onChange="{{ setCfLab }}" style="width: 160px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px" /></label>
+              <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">THC</span><input type="text" value="{{ cfThc }}" onChange="{{ setCfThc }}" style="width: 130px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px" /></label>
+              <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">分析日</span><input type="date" value="{{ cfDate }}" onChange="{{ setCfDate }}" style="width: 150px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 7px 10px; font-size: 12px" /></label>
+              <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">PDF（5MBまで）</span><input type="file" accept="application/pdf" onChange="{{ setCfFile }}" style="font-size: 12px; width: 230px" /></label>
+              <button type="button" onClick="{{ addCoa }}" style="border: none; background: #16181c; color: #ffffff; padding: 10px 18px; font-size: 12px; font-weight: 700; border-radius: 3px; cursor: pointer" style-hover="background:#1a6b3c">{{ cfBtn }}</button>
+            </div>
+            <sc-if value="{{ cfHasMsg }}" hint-placeholder-val="{{ false }}"><div style="margin-top: 12px; font-size: 12px; color: {{ cfMsgFg }}">{{ cfMsg }}</div></sc-if>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; overflow-x: auto">
+            <div style="min-width: 960px">
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) 132px 130px 110px 100px minmax(0, 180px) 132px; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #e0e2e6; background: #f7f8f9; font-size: 11px; font-weight: 700; color: #4b5563">
+                <span>商品</span><span>ロット番号</span><span>検査機関</span><span>THC</span><span>分析日</span><span>ファイル</span><span>操作</span>
+              </div>
+              <sc-for list="{{ coaRows }}" as="c" hint-placeholder-count="3">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) 132px 130px 110px 100px minmax(0, 180px) 132px; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #eceef1; font-size: 12px; align-items: center">
+                  <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ c.name }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; font-size: 11.5px">{{ c.lot }}</span>
+                  <span style="font-size: 11.5px; color: #6b7280">{{ c.lab }}</span>
+                  <span style="font-size: 11.5px; color: #1a6b3c">{{ c.thc }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; font-size: 11px; color: #6b7280">{{ c.date }}</span>
+                  <span style="font-size: 11px; color: {{ c.fFg }}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ c.file }}</span>
+                  <span style="display: flex; gap: 6px">
+                    <sc-if value="{{ c.hasFile }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ c.view }}" style="border: 1px solid #d3d6db; background: #ffffff; color: #16181c; padding: 6px 10px; font-size: 11px; border-radius: 3px; cursor: pointer" style-hover="border-color:#1a6b3c;color:#1a6b3c">表示</button></sc-if>
+                    <button type="button" onClick="{{ c.remove }}" style="border: 1px solid #f0c2c2; background: #ffffff; color: #a32222; padding: 6px 10px; font-size: 11px; border-radius: 3px; cursor: pointer">{{ c.removeLabel }}</button>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background: #fff9e8; border: 1px solid #ecd9a0; border-radius: 4px; padding: 14px 16px; font-size: 12px; line-height: 1.85; color: #6b5a25; margin-top: 14px">分析書は入荷ロットごとに登録してください。COAが登録されていない商品はダッシュボードの対応待ちに表示されます。</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCoupon }}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start">
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 18px">
+            <div style="font-size: 13px; font-weight: 700; margin-bottom: 16px">新規クーポン</div>
+            <div style="display: flex; flex-direction: column; gap: 14px">
+              <label style="display: block">
+                <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">クーポンコード</span>
+                <input type="text" value="{{ cpCode }}" onChange="{{ setCpCode }}" placeholder="AUTUMN15" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 10px 11px; font-family: 'Roboto Mono', monospace; font-size: 12.5px" />
+              </label>
+              <label style="display: block">
+                <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">割引</span>
+                <input type="text" value="{{ cpValue }}" onChange="{{ setCpValue }}" placeholder="15% または 1000円" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 10px 11px; font-size: 12.5px" />
+              </label>
+              <label style="display: block">
+                <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">有効期限</span>
+                <input type="text" value="{{ cpUntil }}" onChange="{{ setCpUntil }}" placeholder="2026/10/31" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 10px 11px; font-family: 'Roboto Mono', monospace; font-size: 12.5px" />
+              </label>
+              <button type="button" onClick="{{ addCoupon }}" style="border: none; background: #16181c; color: #ffffff; padding: 11px; font-size: 12px; font-weight: 700; border-radius: 3px; cursor: pointer" style-hover="background:#1a6b3c">発行する</button>
+            </div>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; overflow-x: auto">
+            <div style="min-width: 520px">
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) 96px 104px 78px 86px; gap: 10px; padding: 11px 16px; border-bottom: 1px solid #e0e2e6; background: #f7f8f9; font-size: 11px; font-weight: 700; color: #4b5563">
+                <span>コード</span><span>割引</span><span>期限</span><span>利用</span><span>操作</span>
+              </div>
+              <sc-for list="{{ couponRows }}" as="c" hint-placeholder-count="4">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) 96px 104px 78px 86px; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #eceef1; font-size: 12px; align-items: center">
+                  <span style="font-family: 'Roboto Mono', monospace; font-size: 11.5px; color: {{ c.fg }}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ c.code }}</span>
+                  <span>{{ c.value }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; font-size: 11px; color: #6b7280">{{ c.until }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; text-align: right">{{ c.uses }}</span>
+                  <span><button type="button" onClick="{{ c.toggle }}" style="border: 1px solid #d3d6db; background: #ffffff; padding: 5px 9px; font-size: 11px; border-radius: 3px; cursor: pointer" style-hover="border-color:#1a6b3c;color:#1a6b3c">{{ c.action }}</button></span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isMail }}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; align-items: start">
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 18px">
+            <div style="font-size: 13px; font-weight: 700; margin-bottom: 4px">メルマガ配信</div>
+            <p style="font-size: 12px; line-height: 1.85; color: #6b7280; margin: 0 0 16px">配信対象は受信に同意した会員のみです。効能効果をうたう表現は使用できません。</p>
+            <div style="display: flex; flex-direction: column; gap: 14px">
+              <label style="display: block">
+                <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">配信対象</span>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px">
+                  <sc-for list="{{ segments }}" as="sg" hint-placeholder-count="4">
+                    <button type="button" onClick="{{ sg.select }}" style="border: 1px solid {{ sg.bd }}; background: {{ sg.bg }}; color: {{ sg.fg }}; padding: 8px 13px; font-size: 11.5px; border-radius: 3px; cursor: pointer">{{ sg.label }}（{{ sg.n }}）</button>
+                  </sc-for>
+                </div>
+              </label>
+              <label style="display: block">
+                <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">件名</span>
+                <input type="text" value="{{ mlSubject }}" onChange="{{ setMlSubject }}" placeholder="【v_Q】新作リキッド入荷のお知らせ" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 10px 11px; font-size: 12.5px" />
+              </label>
+              <label style="display: block">
+                <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">本文</span>
+                <textarea value="{{ mlBody }}" onChange="{{ setMlBody }}" rows="7" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 11px; font-size: 12.5px; line-height: 1.8; resize: vertical"></textarea>
+              </label>
+              <div style="display: flex; gap: 10px">
+                <button type="button" onClick="{{ sendMail }}" style="border: none; background: #16181c; color: #ffffff; padding: 11px 20px; font-size: 12px; font-weight: 700; border-radius: 3px; cursor: pointer" style-hover="background:#1a6b3c">{{ sendLabel }}</button>
+                <button type="button" onClick="{{ noop }}" style="border: 1px solid #d3d6db; background: #ffffff; padding: 11px 20px; font-size: 12px; border-radius: 3px; cursor: pointer">下書き保存</button>
+              </div>
+            </div>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; overflow: hidden">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 92px 78px 72px; gap: 10px; padding: 11px 16px; border-bottom: 1px solid #e0e2e6; background: #f7f8f9; font-size: 11px; font-weight: 700; color: #4b5563">
+              <span>件名</span><span>配信日</span><span>配信数</span><span>開封率</span>
+            </div>
+            <sc-for list="{{ mailLog }}" as="m" hint-placeholder-count="4">
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) 92px 78px 72px; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #eceef1; font-size: 12px; align-items: center">
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ m.subject }}</span>
+                <span style="font-family: 'Roboto Mono', monospace; font-size: 11px; color: #6b7280">{{ m.date }}</span>
+                <span style="font-family: 'Roboto Mono', monospace; text-align: right">{{ m.sent }}</span>
+                <span style="font-family: 'Roboto Mono', monospace; text-align: right; color: #1a6b3c">{{ m.open }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isShip }}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start">
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 18px">
+            <div style="font-size: 13px; font-weight: 700; margin-bottom: 4px">B2クラウド連携</div>
+            <div style="font-size: 11.5px; color: #6b7280; line-height: 1.8; margin-bottom: 16px">送り状発行用CSVに入るご依頼主情報と契約情報です。</div>
+            <div style="display: flex; flex-direction: column; gap: 12px">
+              <sc-for list="{{ b2Fields }}" as="fd" hint-placeholder-count="6">
+                <label style="display: block">
+                  <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">{{ fd.label }}</span>
+                  <input type="text" value="{{ fd.value }}" onChange="{{ fd.set }}" placeholder="{{ fd.ph }}" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px" />
+                </label>
+              </sc-for>
+              <label style="display: block">
+                <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">送り状種類</span>
+                <select value="{{ slipType }}" onChange="{{ setSlipType }}" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px; background: #ffffff">
+                  <sc-for list="{{ slipOpts }}" as="op" hint-placeholder-count="4"><option value="{{ op.v }}">{{ op.label }}</option></sc-for>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 16px">
+            <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 18px">
+              <div style="font-size: 13px; font-weight: 700; margin-bottom: 4px">領収書兼納品書の発行者</div>
+              <div style="font-size: 11.5px; color: #6b7280; line-height: 1.8; margin-bottom: 16px">印刷する帳票の右上に表示されます。</div>
+              <div style="display: flex; flex-direction: column; gap: 12px">
+                <sc-for list="{{ issuerFields }}" as="fd" hint-placeholder-count="4">
+                  <label style="display: block">
+                    <span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">{{ fd.label }}</span>
+                    <input type="text" value="{{ fd.value }}" onChange="{{ fd.set }}" placeholder="{{ fd.ph }}" style="width: 100%; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px" />
+                  </label>
+                </sc-for>
+              </div>
+            </div>
+            <button type="button" onClick="{{ saveShipCfg }}" style="border: none; background: #16181c; color: #ffffff; padding: 12px 18px; font-size: 12.5px; font-weight: 700; border-radius: 3px; cursor: pointer" style-hover="background:#1a6b3c">{{ shipSaveLabel }}</button>
+            <div style="background: #fff9e8; border: 1px solid #ecd9a0; border-radius: 4px; padding: 14px 16px; font-size: 12px; line-height: 1.9; color: #6b5a25">
+              <b>出荷の流れ</b><br />
+              1. 注文管理で「B2クラウド用CSVを出力」<br />
+              2. B2クラウド「外部データから発行」で取り込み、送り状を印刷<br />
+              3. 「納品書を一括印刷」して同梱<br />
+              4. B2クラウドの発行済データから、伝票番号入りのCSVを出力<br />
+              5. 注文管理で「追跡番号CSVを取込」→ 自動で発送済みになり、会員の注文履歴に反映
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isReport }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 18px">
+            <sc-for list="{{ reportKpis }}" as="k" hint-placeholder-count="4">
+              <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 17px 18px">
+                <div style="font-size: 11px; color: #6b7280; margin-bottom: 9px">{{ k.label }}</div>
+                <div style="font-size: 23px; font-weight: 700">{{ k.value }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; overflow-x: auto">
+            <div style="min-width: 820px">
+              <div style="display: grid; grid-template-columns: 96px repeat(5, minmax(0, 1fr)); gap: 12px; padding: 11px 16px; border-bottom: 1px solid #e0e2e6; background: #f7f8f9; font-size: 11px; font-weight: 700; color: #4b5563">
+                <span>月</span><span>売上</span><span>注文数</span><span>客単価</span><span>新規会員</span><span>紹介経由</span>
+              </div>
+              <sc-for list="{{ reportRows }}" as="r" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: 96px repeat(5, minmax(0, 1fr)); gap: 12px; padding: 12px 16px; border-bottom: 1px solid #eceef1; font-size: 12px; align-items: center">
+                  <span style="font-family: 'Roboto Mono', monospace; font-size: 11.5px">{{ r.month }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; text-align: right">¥{{ r.sales }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; text-align: right">{{ r.orders }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; text-align: right">¥{{ r.aov }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; text-align: right">{{ r.newMembers }}</span>
+                  <span style="font-family: 'Roboto Mono', monospace; text-align: right; color: #1a6b3c">{{ r.referred }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isStock }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; overflow: hidden">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 92px 92px 108px 132px; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #e0e2e6; background: #f7f8f9; font-size: 11px; font-weight: 700; color: #4b5563">
+              <span>商品</span><span>在庫</span><span>閾値</span><span>状態</span><span>操作</span>
+            </div>
+            <sc-for list="{{ alertRows }}" as="a" hint-placeholder-count="3">
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) 92px 92px 108px 132px; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #eceef1; font-size: 12px; align-items: center">
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ a.name }}</span>
+                <span style="font-family: 'Roboto Mono', monospace; text-align: right; color: {{ a.fg }}; font-weight: 700">{{ a.stock }}</span>
+                <span style="font-family: 'Roboto Mono', monospace; text-align: right; color: #6b7280">{{ a.threshold }}</span>
+                <span><span style="background: {{ a.bg }}; color: {{ a.fg }}; padding: 4px 9px; font-size: 10.5px; border-radius: 2px">{{ a.state }}</span></span>
+                <span><button type="button" onClick="{{ a.go }}" style="border: 1px solid #d3d6db; background: #ffffff; padding: 6px 11px; font-size: 11px; border-radius: 3px; cursor: pointer" style-hover="border-color:#1a6b3c;color:#1a6b3c">商品管理へ</button></span>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ noAlerts }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 40px; text-align: center; font-size: 12.5px; color: #6b7280; margin-top: 14px">在庫が閾値を下回っている商品はありません。</div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+
+    </div>
+  </div>
+</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:960},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;onLogout&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onViewStore&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
+const YEN = n => n.toLocaleString('ja-JP');
+
+const NAV = [
+  { key: 'dash', label: 'ダッシュボード', title: 'ダッシュボード', sub: '売上サマリと対応待ちの確認' },
+  { key: 'orders', label: '注文管理', title: '注文管理', sub: 'ステータスの更新と出荷処理' },
+  { key: 'products', label: '商品管理', title: '商品管理', sub: '在庫・価格・公開状態' },
+  { key: 'stock', label: '在庫アラート', title: '在庫アラート', sub: '閾値を下回った商品' },
+  { key: 'customers', label: '顧客・紹介コード管理', title: '顧客・紹介コード管理', sub: '会員情報と紹介コードの発行・停止' },
+  { key: 'coa', label: 'COA／分析書管理', title: 'COA／分析書管理', sub: 'ロットごとの成分分析書' },
+  { key: 'coupon', label: 'クーポン発行', title: 'クーポン発行', sub: '割引コードの作成と停止' },
+  { key: 'mail', label: 'メルマガ配信', title: 'メルマガ配信', sub: '受信同意済み会員への配信' },
+  { key: 'report', label: '売上レポート', title: '売上レポート', sub: '月次推移と紹介経由の内訳' },
+  { key: 'ship', label: '出荷・帳票設定', title: '出荷・帳票設定', sub: 'B2クラウド連携と納品書の発行者情報' }
+];
+
+const ADMIN = { email: 'admin@v-q.jp', pw: 'vqadmin', name: '管理者', role: 'オーナー' };
+
+const PRODUCTS = [
+  { id: 'cbx10-og', name: 'CBX10% OG KUSH リキッド', sku: 'VQ-LQD-CBX10', price: 8800, stock: 42, pub: true,
+    img: 'https://mageneko.com/wp-content/uploads/2026/09/S__13385732-600x600.jpg' },
+  { id: 'oni-kyusoku', name: '鬼の一撃 / 鬼の休息 リキッド', sku: 'VQ-LQD-ONI01', price: 11000, stock: 8, pub: true,
+    img: 'https://mageneko.com/wp-content/uploads/2026/09/1B99E95A-F9F0-4AC6-91B7-3CAE3128712E-600x600.png' },
+  { id: 'h4cbh-cbg', name: 'H4CBH × CBG モーニングスイッチ', sku: 'VQ-LQD-H4CBG', price: 7700, stock: 26, pub: true,
+    img: 'https://mageneko.com/wp-content/uploads/2025/09/12-600x600.jpg' },
+  { id: 'cbg-power', name: 'CBG POWER リキッド', sku: 'VQ-LQD-CBGP', price: 7700, stock: 4, pub: true,
+    img: 'https://mageneko.com/wp-content/uploads/2026/07/CCF2C7EA-8F79-4E82-8194-71DBDE780497-600x600.png' },
+  { id: 'generation', name: 'LIL GANJA GENERATION', sku: 'LIL-LI-A34', price: 9900, stock: 19, pub: false,
+    img: 'https://lilganjastore.com/wp-content/uploads/2026/07/GENERATION-600x600.png' }
+];
+
+const VQO = () => window.VQOrders;
+const stOf = o => o.payStatus === 'cancelled' ? 'キャンセル' : o.payStatus === 'expired' ? '期限切れ' : o.payStatus === 'refunded' ? '返金済み'
+  : o.payStatus !== 'paid' ? '入金待ち' : o.shipStatus === 'shipped' ? '発送済み' : o.shipStatus === 'delivered' ? '配達完了' : o.shipStatus === 'returned' ? '返送' : '発送準備中';
+const FLOW = { '入金待ち': '入金確認', '発送準備中': '発送開始', '発送済み': '配達完了' };
+const ST_COLOR = {
+  '入金待ち': ['#fff5e3', '#8a6116'], '発送準備中': ['#fdeeee', '#a32222'],
+  '発送済み': ['#e8f3ec', '#1a6b3c'], '配達完了': ['#f0f1f3', '#4b5563'], 'キャンセル': ['#f0f1f3', '#9ca3af'], '期限切れ': ['#f0f1f3', '#9ca3af'], '返金済み': ['#f0f1f3', '#9ca3af'], '返送': ['#fdeeee', '#a32222']
+};
+
+const CUSTOMERS = [
+  { id: 'VQ-0000875', name: '森本 涼', email: 'ryo.m@example.com', code: 'VQ-1A9C-TT02', invitedBy: '管理者発行', orders: 14, ltv: 184800, active: true },
+  { id: 'VQ-0001120', name: '青山 恵', email: 'megumi.a@example.com', code: 'VQ-6D3M-LZ88', invitedBy: 'VQ-1A9C-TT02', orders: 9, ltv: 96800, active: true },
+  { id: 'VQ-0001842', name: '佐藤 慶', email: 'demo@v-q.jp', code: 'VQ-8F2K-QN41', invitedBy: 'VQ-1A9C-TT02', orders: 11, ltv: 132400, active: true },
+  { id: 'VQ-0002044', name: '石田 美咲', email: 'misaki.i@example.com', code: 'VQ-3K7P-WD19', invitedBy: 'VQ-8F2K-QN41', orders: 5, ltv: 61600, active: true },
+  { id: 'VQ-0002488', name: '林 千尋', email: 'chihiro.h@example.com', code: 'VQ-9R2B-XC53', invitedBy: 'VQ-6D3M-LZ88', orders: 3, ltv: 33000, active: true },
+  { id: 'VQ-0002931', name: '中村 拓海', email: 'takumi.n@example.com', code: 'VQ-5T8J-MV27', invitedBy: 'VQ-8F2K-QN41', orders: 2, ltv: 17600, active: false }
+];
+
+const CODES = [
+  { code: 'VQ-1A9C-TT02', owner: '森本 涼（VQ-0000875）', issued: '2025/11/04', uses: 3, active: true },
+  { code: 'VQ-8F2K-QN41', owner: '佐藤 慶（VQ-0001842）', issued: '2026/01/22', uses: 2, active: true },
+  { code: 'VQ-6D3M-LZ88', owner: '青山 恵（VQ-0001120）', issued: '2026/03/09', uses: 1, active: true },
+  { code: 'VQ-5T8J-MV27', owner: '中村 拓海（VQ-0002931）', issued: '2026/08/30', uses: 0, active: false }
+];
+
+const COA = [
+  { id: 'cbx10-og', lot: 'LOT-26G-0412', lab: '日本カンナビノイド分析', thc: '0.00%（不検出）', date: '2026/07/18', file: '公開中' },
+  { id: 'oni-kyusoku', lot: 'LOT-26H-0088', lab: '日本カンナビノイド分析', thc: '0.00%（不検出）', date: '2026/08/02', file: '公開中' },
+  { id: 'h4cbh-cbg', lot: 'LOT-26F-0301', lab: 'JCLA', thc: '0.00%（不検出）', date: '2026/06/27', file: '公開中' },
+  { id: 'cbg-power', lot: 'LOT-26H-0142', lab: 'JCLA', thc: '0.00%（不検出）', date: '2026/08/21', file: '公開中' },
+  { id: 'generation', lot: 'LOT-26I-0007', lab: '—', thc: '—', date: '—', file: '未添付' }
+];
+
+const COUPONS = [
+  { code: 'WELCOME1000', value: '1,000円', until: '2026/12/31', uses: 128, active: true },
+  { code: 'REFER10', value: '10%', until: '期限なし', uses: 64, active: true },
+  { code: 'SUMMER15', value: '15%', until: '2026/08/31', uses: 211, active: false },
+  { code: 'LOT26G', value: '5%', until: '2026/09/30', uses: 17, active: true }
+];
+
+const SEGMENTS = [
+  { key: 'all', label: '受信同意済み全会員', n: 1842 },
+  { key: 'active', label: '直近90日の購入者', n: 613 },
+  { key: 'lapsed', label: '180日以上購入なし', n: 274 },
+  { key: 'sub', label: '定期購入中', n: 96 }
+];
+
+const MAIL_LOG = [
+  { subject: '【v_Q】鬼の一撃シリーズ 入荷のお知らせ', date: '09/12', sent: '1,798', open: '38.4%' },
+  { subject: '【v_Q】CBG POWER 再入荷', date: '08/29', sent: '1,764', open: '41.2%' },
+  { subject: '【v_Q】8月ロットのCOAを公開しました', date: '08/05', sent: '1,742', open: '33.7%' },
+  { subject: '【v_Q】夏の15%OFFクーポン', date: '07/20', sent: '1,711', open: '45.9%' }
+];
+
+const REPORT = [
+  { month: '2026/09', sales: 3184000, orders: 214, aov: 14879, newMembers: 38, referred: 38 },
+  { month: '2026/08', sales: 4127000, orders: 288, aov: 14330, newMembers: 52, referred: 52 },
+  { month: '2026/07', sales: 3870000, orders: 271, aov: 14280, newMembers: 44, referred: 44 },
+  { month: '2026/06', sales: 3412000, orders: 243, aov: 14041, newMembers: 31, referred: 31 },
+  { month: '2026/05', sales: 3690000, orders: 259, aov: 14247, newMembers: 36, referred: 36 },
+  { month: '2026/04', sales: 3055000, orders: 221, aov: 13824, newMembers: 29, referred: 29 }
+];
+
+const STAFF = [
+  { id: 1, name: '管理者（オーナー）', email: 'admin@v-q.jp', role: 'オーナー', perms: { orders: true, products: true, customers: true, sales: true } },
+  { id: 2, name: '田代 悠', email: 'tashiro@v-q.jp', role: 'スタッフ', perms: { orders: true, products: true, customers: false, sales: false } },
+  { id: 3, name: '小林 直', email: 'kobayashi@v-q.jp', role: 'スタッフ', perms: { orders: true, products: false, customers: false, sales: false } },
+  { id: 4, name: '外部会計', email: 'kaikei@example.com', role: '閲覧のみ', perms: { orders: false, products: false, customers: false, sales: true } }
+];
+
+const CHART = [62, 71, 48, 83, 96, 74, 58, 88, 102, 91, 67, 79, 114, 97];
+const PERM_LABELS = [['orders', '注文'], ['products', '商品'], ['customers', '顧客'], ['sales', '売上']];
+
+const SHIP_DEFAULT = {
+  senderName: 'V_Q Store', senderZip: '', senderAddr: '', senderTel: '',
+  billingCode: '', billingClass: '', freightNo: '01', slipType: '0', itemName: 'リキッド', handling: '',
+  issuerName: 'V_Q Store', issuerPerson: '高木 三暉', issuerEmail: '', invoiceNo: ''
+};
+const STORE_ITEMS = {
+  'vq-day': ['v_Q DAY — CITRUS 1.0 mL', 'VQ-DAY-CT10', 4980], 'vq-night': ['v_Q NIGHT — CBX 1.0 mL', 'VQ-NGT-GL10', 4980],
+  'vq-chill': ['v_Q CHILL — OG KUSH 1.0 mL', 'VQ-CHL-OG10', 4980], 'vq-focus': ['v_Q FOCUS — LEMON HAZE 1.0 mL', 'VQ-FCS-LH10', 4980],
+  'vq-tron': ['v_Q CBX — TRON Pro 1.0 mL', 'VQ-CBX-TRN10', 6980], 'vq-glo': ['v_Q CBX — GLO Pro 1.0 mL', 'VQ-CBX-GLO10', 7480],
+  'vq-set': ['v_Q VIBE SET — 4本セット', 'VQ-SET-4', 17800]
+};
+const SLIP_TYPES = [['0', '発払い（宅急便）'], ['8', '宅急便コンパクト'], ['A', 'ネコポス'], ['7', 'クロネコゆうパケット']];
+const esc = v => String(v == null ? '' : v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const zen = (v, n) => { const t = String(v || ''); return [t.slice(0, n), t.slice(n)]; };
+const ymdSlash = d => d.getFullYear() + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0');
+const B2_HEAD = ['お客様管理番号', '送り状種類', 'クール区分', '伝票番号', '出荷予定日', 'お届け予定日', '配達時間帯', 'お届け先コード', 'お届け先電話番号', 'お届け先電話番号枝番', 'お届け先郵便番号', 'お届け先住所', 'お届け先アパートマンション名', 'お届け先会社・部門１', 'お届け先会社・部門２', 'お届け先名', 'お届け先名(ｶﾅ)', '敬称', 'ご依頼主コード', 'ご依頼主電話番号', 'ご依頼主電話番号枝番', 'ご依頼主郵便番号', 'ご依頼主住所', 'ご依頼主アパートマンション', 'ご依頼主名', 'ご依頼主名(ｶﾅ)', '品名コード１', '品名１', '品名コード２', '品名２', '荷扱い１', '荷扱い２', '記事', 'コレクト代金引換額（税込)', '内消費税額等', '止置き', '営業所コード', '発行枚数', '個数口表示フラグ', '請求先顧客コード', '請求先分類コード', '運賃管理番号'];
+const csvCell = v => { const t = String(v == null ? '' : v); return /[",\r\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+const parseCsv = text => { const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++) { const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true; else if (c === ',') { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; }
+    else cur += c; }
+  if (cur || row.length) { row.push(cur); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim())); };
+const loadEncoding = () => window.Encoding ? Promise.resolve(window.Encoding) : new Promise((res, rej) => {
+  const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/encoding-japanese@2.2.0/encoding.min.js';
+  sc.onload = () => res(window.Encoding); sc.onerror = rej; document.head.appendChild(sc); });
+
+const isProd = () => !!window.VQ_PROD || /github\.io$/.test(location.hostname);
+
+class Component extends DCLogic {
+  state = { auth: false, email: '', pw: '', err: '', page: 'dash', orderFilter: 'ALL',
+    orders: [], shipFor: null, shipCarrier: 'ヤマト運輸', shipTrack: '',
+    shipCfg: Object.assign({}, SHIP_DEFAULT), shipSaved: false, b2Msg: '', b2Ok: true,
+    refundFor: null, rf: { amount: '', reason: '', restock: true },
+    np: { name: '', sku: '', price: '', stock: '', cat: 'cbd', img: '', msg: '', ok: false }, delFor: null,
+    coaList: (isProd() ? [] : COA).map((c, i) => ({ id: 'demo-' + i, productId: c.id, lot: c.lot, lab: c.lab, thc: c.thc, date: c.date, fileName: c.file === '未添付' ? '' : 'sample.pdf', url: null })),
+    cf: { productId: '', lot: '', lab: '', thc: '0.00%（不検出）', date: '', fileName: '', msg: '', ok: false, busy: false }, coaDelFor: null, products: isProd() ? [] : PRODUCTS, customers: isProd() ? [] : CUSTOMERS, codes: isProd() ? [] : CODES, coupons: COUPONS, staff: STAFF,
+    savedId: null, issueTo: '', segment: 'all',
+    cp: { code: '', value: '', until: '' },
+    ml: { subject: '', body: '' }, sent: false,
+    st: { name: '', email: '' } };
+
+  login() {
+    const { email, pw } = this.state;
+    if (email.trim().toLowerCase() !== ADMIN.email || pw !== ADMIN.pw)
+      return this.setState({ err: 'メールアドレスまたはパスワードが正しくありません。' });
+    this.setState({ auth: true, err: '', pw: '' });
+  }
+  componentDidMount() {
+    const start = () => { if (!VQO()) return setTimeout(start, 100);
+      this.setState({ orders: VQO().load() });
+      this.unsub = VQO().subscribe(list => this.setState({ orders: list })); };
+    start();
+    try { const v = JSON.parse(localStorage.getItem('vq_shipcfg')); if (v) this.setState({ shipCfg: Object.assign({}, SHIP_DEFAULT, v) }); } catch (e) {}
+    this.onFire = () => this.fireAttach();
+    window.addEventListener('vqfire-auth', this.onFire);
+    if (window.VQFire) this.fireAttach(); else window.addEventListener('vqfire-ready', this.onFire, { once: true });
+  }
+  componentWillUnmount() { if (this.unsub) this.unsub(); if (this.unP) this.unP(); if (this.unC) this.unC(); if (this.unM) this.unM(); if (this.unCoa) this.unCoa(); if (this.unSet) this.unSet(); window.removeEventListener('vqfire-auth', this.onFire); }
+  fireAttach() {
+    const F = window.VQFire;
+    if (this.unP) { this.unP(); this.unP = null; } if (this.unC) { this.unC(); this.unC = null; }
+    const on = !!(F && F.user && F.user.role === 'admin');
+    this.setState({ fireOn: on, fireUser: F && F.user ? F.user.email + '（' + (F.user.role === 'admin' ? '管理者' : '会員') + '）' : '' });
+    if (!on) return;
+    this.setState({ products: [], customers: [], codes: [], coaList: [], fireErr: null, fireLoaded: false });
+    const ymd = d => d.getFullYear() + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0');
+    this.unP = F.subscribeProducts(list => {
+      this.setState({ fireEmpty: list.length === 0, fireLoaded: true });
+      this.setState({ products: list.sort((x, y) => (x.sort || 0) - (y.sort || 0)).map(p => ({ id: p.id, name: p.name, sku: p.sku, price: p.price, stock: p.stock, pub: p.published !== false, img: p.img || '' })) });
+    }, e => this.setState({ fireErr: e.code || String(e) }));
+    if (this.unSet) this.unSet();
+    this.unSet = F.subscribeSettings(st => { if (st) this.setState({ storeSettings: st }); if (st && st.shipping) this.setState({ shipCfg: Object.assign({}, SHIP_DEFAULT, st.shipping) }); }, e => this.setState({ fireErr: e.code || String(e) }));
+    if (this.unCoa) this.unCoa();
+    this.unCoa = F.subscribeCoa(list => this.setState({ coaList: list.map(c => ({ id: c.id, productId: c.productId, lot: c.lot, lab: c.lab, thc: c.thc, date: c.date,
+      fileName: c.fileName || '', chunks: c.chunks || 0, url: null })) }), e => this.setState({ fireErr: e.code || String(e) }));
+    if (this.unM) this.unM();
+    this.unM = F.subscribeMembers(list => this.setState({ customers: list.map(m => ({ id: m.id, name: m.name || '—', email: m.email || '',
+      code: m.codeAccess ? '限定製品 可' : '—', invitedBy: m.referralCode || '—', orders: 0, ltv: 0, active: m.status === 'active', status: m.status,
+      joined: m.createdAt && m.createdAt.toDate ? m.createdAt.toDate() : null })) }),
+      e => this.setState({ fireErr: e.code || String(e) }));
+    this.unC = F.subscribeCodes(list => { this.setState({ codes: list.map(c => ({ code: c.id, owner: c.label || '—',
+      issued: c.createdAt && c.createdAt.toDate ? ymd(c.createdAt.toDate()) : '', uses: c.usedCount || 0, active: !!c.active })) }); },
+      e => this.setState({ fireErr: e.code || String(e) }));
+  }
+  orderLines(o) {
+    return (o.lines || []).map(l => { const p = this.state.products.find(x => x.id === l.id), f = STORE_ITEMS[l.id];
+      const saved = l.price != null;
+      const price = saved ? Number(l.price) : p && Number(p.price) ? Number(p.price) : f ? f[2] : 0;
+      return { name: l.name || (p ? p.name : f ? f[0] : '商品（' + l.id + '）'), sku: l.sku || (p ? p.sku : f ? f[1] : ''), qty: l.qty,
+        price: price, amount: price * l.qty, saved: saved }; });
+  }
+  orderMoney(o) {
+    const lines = this.orderLines(o), total = Number(o.total) || 0;
+    const allSaved = lines.length > 0 && lines.every(l => l.saved);
+    const st = this.state.storeSettings || {}, th = st.freeShippingThreshold != null ? st.freeShippingThreshold : 8000, fr = st.shippingFee != null ? st.shippingFee : 550;
+    const listed = lines.reduce((n, l) => n + l.amount, 0);
+    let fee;
+    if (o.shippingFee != null) fee = Number(o.shippingFee);
+    else if (allSaved) fee = Math.max(0, total - listed);
+    else fee = total >= th ? 0 : Math.min(fr, total);
+    const target = Math.max(0, total - fee);
+    if (!allSaved && lines.length && listed !== target) {
+      let acc = 0;
+      lines.forEach((l, i) => {
+        l.amount = i === lines.length - 1 ? target - acc : (listed ? Math.round(l.amount * target / listed) : Math.floor(target / lines.length));
+        acc += l.amount; l.price = Math.round(l.amount / (l.qty || 1));
+      });
+    }
+    const sub = lines.reduce((n, l) => n + l.amount, 0);
+    return { lines: lines, sub: sub, fee: fee, total: total || sub + fee };
+  }
+  shipParts(o) {
+    if (o.ship) return o.ship;
+    const t = String(o.shipTo || ''), m = /(〒?\d{3}-?\d{4})/.exec(t);
+    if (!m) return { name: o.customer || '', zip: '', addr: t, tel: '' };
+    return { name: t.slice(0, m.index).trim() || o.customer || '', zip: m[1], addr: t.slice(m.index + m[1].length).trim(), tel: '' };
+  }
+  receiptHtml(o) {
+    const c = this.state.shipCfg, sp = this.shipParts(o), mny = this.orderMoney(o);
+    const lines = mny.lines, sub = mny.sub, fee = mny.fee, total = mny.total;
+    const refund = o.payStatus === 'refunded' ? (o.refundAmount || 0) : 0;
+    const rows = lines.map(l => '<tr><td>' + esc(l.name) + '<div class="sku">' + esc(l.sku) + '</div></td><td class="r">' + l.qty + '</td><td class="r">¥' + YEN(l.price) + '</td><td class="r">¥' + YEN(l.amount) + '</td></tr>').join('');
+    return '<section class="page">' +
+      '<div class="top"><div><div class="ttl">領収書 兼 納品書</div><div class="meta">注文番号 ' + esc(o.no) + '<br>注文日 ' + esc(o.date) + '<br>発行日 ' + ymdSlash(new Date()) + '</div></div>' +
+      '<div class="from"><b>' + esc(c.issuerName) + '</b><br>' + esc(c.issuerPerson) + (c.issuerEmail ? '<br>' + esc(c.issuerEmail) : '') + (c.invoiceNo ? '<br>登録番号 ' + esc(c.invoiceNo) : '') + '</div></div>' +
+      '<div class="to"><div class="nm">' + esc(o.customer || sp.name) + ' 様</div><div class="ad">お届け先：' + esc(sp.zip) + ' ' + esc(sp.addr) + '<br>' + esc(sp.name) + (sp.tel ? '　TEL ' + esc(sp.tel) : '') + '</div></div>' +
+      '<div class="amt"><span>領収金額（税込）</span><b>¥' + YEN(total - refund) + '</b></div>' +
+      '<p class="note">上記の金額を正に領収いたしました。<br>お支払い方法：' + (o.pay === 'paypay' ? 'PayPay' : '銀行振込') + (o.paidAt ? '（' + esc(o.paidAt) + ' 入金確認）' : '') + '</p>' +
+      '<table><thead><tr><th>商品</th><th class="r">数量</th><th class="r">単価（税込）</th><th class="r">金額（税込）</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+      '<table class="sum"><tr><td>小計</td><td class="r">¥' + YEN(sub) + '</td></tr><tr><td>送料</td><td class="r">' + (fee ? '¥' + YEN(fee) : '無料') + '</td></tr>' +
+      (refund ? '<tr><td>返金</td><td class="r">−¥' + YEN(refund) + '</td></tr>' : '') +
+      '<tr class="tot"><td>合計（税込）</td><td class="r">¥' + YEN(total - refund) + '</td></tr><tr><td>（内消費税 10%対象）</td><td class="r">¥' + YEN(Math.floor((total - refund) * 10 / 110)) + '</td></tr></table>' +
+      '<p class="foot">このたびはご注文いただき誠にありがとうございます。<br>20歳未満の方のご使用はお控えください。</p></section>';
+  }
+  printReceipts(list) {
+    if (!list.length) return this.setState({ b2Msg: '印刷できる注文がありません。', b2Ok: false });
+    const css = '@page{size:A4;margin:16mm}*{box-sizing:border-box}body{margin:0;font-family:"Noto Sans JP","Hiragino Sans",sans-serif;color:#16181c;font-size:11pt}' +
+      '.page{page-break-after:always;padding:4mm 0}.page:last-child{page-break-after:auto}.top{display:flex;justify-content:space-between;gap:20px;margin-bottom:18px}' +
+      '.ttl{font-size:20pt;font-weight:700;letter-spacing:.1em;margin-bottom:8px}.meta{font-size:9.5pt;color:#4b5563;line-height:1.8}.from{text-align:right;font-size:9.5pt;line-height:1.8}' +
+      '.to{border-bottom:1px solid #16181c;padding-bottom:10px;margin-bottom:14px}.nm{font-size:15pt;font-weight:700;margin-bottom:6px}.ad{font-size:9.5pt;color:#4b5563;line-height:1.7}' +
+      '.amt{display:flex;justify-content:space-between;align-items:baseline;background:#f3f4f6;padding:12px 16px;margin-bottom:8px}.amt b{font-size:18pt}.note{font-size:9.5pt;line-height:1.8;margin:0 0 16px}' +
+      'table{width:100%;border-collapse:collapse;font-size:10pt}th{text-align:left;border-bottom:1.5px solid #16181c;padding:7px 6px;font-weight:700}td{border-bottom:1px solid #e0e2e6;padding:8px 6px;vertical-align:top}' +
+      '.r{text-align:right;white-space:nowrap}.sku{font-size:8pt;color:#9ca3af;margin-top:2px}.sum{width:52%;margin:12px 0 0 auto}.sum td{border:none;padding:4px 6px}.sum .tot td{border-top:1.5px solid #16181c;font-weight:700;font-size:12pt;padding-top:8px}' +
+      '.foot{margin-top:28px;font-size:8.5pt;color:#6b7280;line-height:1.8}';
+    const html = '<!doctype html><html><head><meta charset="utf-8"><title>領収書兼納品書</title><style>' + css + '</style></head><body>' + list.map(o => this.receiptHtml(o)).join('') + '<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>';
+    const w = window.open('', '_blank');
+    if (!w) return this.setState({ b2Msg: 'ポップアップがブロックされました。ブラウザでこのサイトのポップアップを許可してください。', b2Ok: false });
+    w.document.open(); w.document.write(html); w.document.close();
+  }
+  async exportB2() {
+    const c = this.state.shipCfg;
+    const targets = this.state.orders.filter(o => o.payStatus === 'paid' && (o.shipStatus === 'preparing' || o.shipStatus === 'pending'));
+    if (!targets.length) return this.setState({ b2Msg: '発送準備中の注文がありません。', b2Ok: false });
+    if (!c.senderTel || !c.senderZip || !c.senderAddr || !c.billingCode) return this.setState({ b2Msg: '「出荷・帳票設定」でご依頼主情報と請求先顧客コードを入力してください。', b2Ok: false, page: 'ship' });
+    const day = ymdSlash(new Date());
+    const rows = targets.map(o => { const sp = this.shipParts(o); const [ad1, ad2] = zen(sp.addr, 32); const [sa1, sa2] = zen(c.senderAddr, 32);
+      const r = {}; B2_HEAD.forEach(h => r[h] = '');
+      Object.assign(r, { 'お客様管理番号': o.no, '送り状種類': c.slipType || '0', 'クール区分': '0', '出荷予定日': day,
+        'お届け先電話番号': sp.tel || '', 'お届け先郵便番号': String(sp.zip || '').replace(/[〒\s]/g, ''), 'お届け先住所': ad1, 'お届け先アパートマンション名': ad2.slice(0, 16),
+        'お届け先名': String(sp.name || o.customer || '').replace(/（.*?）|\(.*?\)/g, '').slice(0, 16), '敬称': '様',
+        'ご依頼主電話番号': c.senderTel, 'ご依頼主郵便番号': c.senderZip.replace(/[〒\s]/g, ''), 'ご依頼主住所': sa1, 'ご依頼主アパートマンション': sa2.slice(0, 16), 'ご依頼主名': c.senderName.slice(0, 16),
+        '品名１': (c.itemName || '').slice(0, 25), '荷扱い１': c.handling || '', '記事': o.no,
+        '発行枚数': '1', '請求先顧客コード': c.billingCode, '請求先分類コード': c.billingClass || '', '運賃管理番号': c.freightNo || '01' });
+      return B2_HEAD.map(h => csvCell(r[h])).join(','); });
+    const text = [B2_HEAD.map(csvCell).join(',')].concat(rows).join('\r\n') + '\r\n';
+    let blob;
+    try { const E = await loadEncoding(); const arr = E.convert(E.stringToCode(text), { to: 'SJIS', from: 'UNICODE' }); blob = new Blob([new Uint8Array(arr)], { type: 'text/csv' }); }
+    catch (e) { blob = new Blob(['\ufeff' + text], { type: 'text/csv;charset=utf-8' }); }
+    const u = URL.createObjectURL(blob), el = document.createElement('a');
+    el.href = u; el.download = 'b2_' + day.replace(/\//g, '') + '.csv'; document.body.appendChild(el); el.click(); el.remove();
+    setTimeout(() => URL.revokeObjectURL(u), 2000);
+    this.setState({ b2Msg: targets.length + '件のB2クラウド取込用CSVを出力しました。', b2Ok: true });
+  }
+  importTracking(file) {
+    if (!file) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      let text = '';
+      try { text = new TextDecoder('shift_jis').decode(new Uint8Array(rd.result)); } catch (e) {}
+      if (!/お客様管理番号|伝票番号|VQ-/.test(text)) text = new TextDecoder('utf-8').decode(new Uint8Array(rd.result));
+      const rows = parseCsv(text); if (!rows.length) return this.setState({ b2Msg: 'CSVを読み込めませんでした。', b2Ok: false });
+      const head = rows[0].map(h => h.trim());
+      const ci = head.findIndex(h => /お客様管理番号/.test(h)), ti = head.findIndex(h => /^伝票番号|送り状番号|問い?合せ?番号/.test(h));
+      const body = ci >= 0 ? rows.slice(1) : rows;
+      let ok = 0, skip = 0; const today = VQO().today();
+      body.forEach(r => {
+        const no = ci >= 0 ? (r[ci] || '').trim() : (r.find(x => /^VQ-\d{6}-\d+$/.test(x.trim())) || '').trim();
+        const tr = ti >= 0 ? (r[ti] || '').replace(/[^0-9]/g, '') : ((r.find(x => /^\d{4}-?\d{4}-?\d{4}$/.test(x.trim())) || '').replace(/[^0-9]/g, ''));
+        const o = this.state.orders.find(x => x.no === no);
+        if (!o || !tr || o.payStatus !== 'paid' || (o.shipStatus !== 'preparing' && o.shipStatus !== 'pending')) { skip++; return; }
+        if (o.shipStatus === 'pending') this.patch(o.no, { shipStatus: 'preparing' });
+        const res = this.patch(o.no, { shipStatus: 'shipped', shippedAt: today, carrier: 'ヤマト運輸', trackNo: tr.replace(/(\d{4})(\d{4})(\d{4})/, '$1-$2-$3') });
+        if (res && !res.error) ok++; else skip++;
+      });
+      this.setState({ b2Msg: '追跡番号を ' + ok + '件 登録し、発送済みにしました。' + (skip ? '（対象外 ' + skip + '件）' : ''), b2Ok: ok > 0 });
+    };
+    rd.readAsArrayBuffer(file);
+  }
+  saveShipCfg() {
+    const F = window.VQFire;
+    if (this.state.fireOn) F.saveSettings({ shipping: this.state.shipCfg }).then(() => this.setState({ shipSaved: true })).catch(e => this.setState({ fireErr: e.code || String(e) }));
+    else { try { localStorage.setItem('vq_shipcfg', JSON.stringify(this.state.shipCfg)); } catch (e) {} this.setState({ shipSaved: true }); }
+  }
+  restock(lines) {
+    (lines || []).forEach(l => {
+      const p = this.state.products.find(x => x.id === l.id); if (!p) return;
+      const next = (Number(p.stock) || 0) + l.qty;
+      if (this.state.fireOn) window.VQFire.saveProduct(p.id, { stock: next }).catch(e => this.setState({ fireErr: e.code || String(e) }));
+      else this.editProduct(p.id, 'stock', String(next));
+    });
+  }
+  confirmRefund() {
+    const s = this.state, o = s.orders.find(x => x.no === s.refundFor); if (!o) return;
+    const amt = Math.min(o.total || 0, Math.max(0, parseInt(String(s.rf.amount).replace(/[^0-9]/g, ''), 10) || 0));
+    const p = { payStatus: 'refunded', refundAmount: amt, refundReason: s.rf.reason.trim(), refundedAt: VQO().today() };
+    if (o.shipStatus === 'shipped' || o.shipStatus === 'delivered' || o.shipStatus === 'preparing') p.shipStatus = 'returned';
+    const r = this.patch(o.no, p);
+    if (r && r.error) return this.setState({ fireErr: '返金できない状態です（' + r.error + '）' });
+    if (s.rf.restock) this.restock(o.lines);
+    this.setState({ refundFor: null });
+  }
+  npSet(k, v) { this.setState(s => ({ np: Object.assign({}, s.np, { [k]: v, msg: '' }) })); }
+  addProduct() {
+    const n = this.state.np, F = window.VQFire;
+    if (!n.name.trim() || !n.sku.trim() || !n.price) return this.npSet('msg', '商品名・SKU・価格を入力してください。');
+    const id = n.sku.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || ('p-' + Date.now());
+    if (this.state.products.some(p => p.id === id)) return this.npSet('msg', '同じSKUの商品がすでにあります。');
+    const data = { name: n.name.trim(), sku: n.sku.trim().toUpperCase(), price: Number(n.price) || 0, stock: Number(n.stock) || 0, category: n.cat,
+      requiresCode: n.cat === 'referral', img: n.img.trim(), published: true, sort: this.state.products.length };
+    const done = () => this.setState({ np: { name: '', sku: '', price: '', stock: '', cat: n.cat, img: '', msg: '「' + data.name + '」を追加しました。', ok: true } });
+    if (this.state.fireOn) return F.createProduct(id, data).then(done).catch(e => this.npSet('msg', F.msg(e)));
+    this.setState(s => ({ products: s.products.concat([{ id: id, name: data.name, sku: data.sku, price: data.price, stock: data.stock, pub: true, img: data.img }]) })); done();
+  }
+  removeProduct(p) {
+    if (this.state.delFor !== p.id) return this.setState({ delFor: p.id });
+    if (this.state.fireOn) window.VQFire.deleteProduct(p.id).catch(e => this.setState({ fireErr: e.code || String(e) }));
+    else this.setState(s => ({ products: s.products.filter(x => x.id !== p.id) }));
+    this.setState({ delFor: null });
+  }
+  cfSet(k, v) { this.setState(s => ({ cf: Object.assign({}, s.cf, { [k]: v, msg: '' }) })); }
+  addCoa() {
+    const c = this.state.cf, F = window.VQFire, file = this.coaFile;
+    const pid = c.productId || (this.state.products[0] && this.state.products[0].id);
+    if (!pid || !c.lot.trim()) return this.cfSet('msg', '商品とロット番号を入力してください。');
+    if (!file) return this.cfSet('msg', 'PDFファイルを選択してください。');
+    if (file.type && file.type !== 'application/pdf') return this.cfSet('msg', 'PDFファイルのみ登録できます。');
+    if (file.size > 5 * 1024 * 1024) return this.cfSet('msg', 'ファイルサイズは5MBまでです。');
+    const meta = { productId: pid, lot: c.lot.trim(), lab: c.lab.trim() || '—', thc: c.thc.trim() || '—', date: c.date ? c.date.replace(/-/g, '/') : '—' };
+    const reset = msg => { this.coaFile = null; this.setState({ cf: { productId: pid, lot: '', lab: c.lab, thc: c.thc, date: '', fileName: '', msg: msg, ok: true, busy: false } }); };
+    if (this.state.fireOn) {
+      this.setState(s => ({ cf: Object.assign({}, s.cf, { busy: true }) }));
+      return F.uploadCoa(meta, file).then(() => reset('登録しました。'))
+        .catch(e => this.setState(s => ({ cf: Object.assign({}, s.cf, { busy: false, msg: F.msg(e), ok: false }) })));
+    }
+    this.setState(s => ({ coaList: [Object.assign({ id: 'local-' + Date.now(), fileName: file.name, url: URL.createObjectURL(file) }, meta)].concat(s.coaList) }));
+    reset('登録しました（デモモード：この画面を閉じると消えます）。');
+  }
+  viewCoa(c) {
+    if (c.url) return window.open(c.url, '_blank');
+    if (!this.state.fireOn || !c.chunks) return;
+    const w = window.open('', '_blank');
+    window.VQFire.getCoaBlob(c.id).then(b => { const u = URL.createObjectURL(b); if (w) w.location.href = u; else window.open(u, '_blank'); })
+      .catch(e => { if (w) w.close(); this.setState({ fireErr: e.code || String(e) }); });
+  }
+  removeCoa(c) {
+    if (this.state.coaDelFor !== c.id) return this.setState({ coaDelFor: c.id });
+    if (this.state.fireOn && !String(c.id).startsWith('demo-')) window.VQFire.deleteCoa(c.id).catch(e => this.setState({ fireErr: e.code || String(e) }));
+    else this.setState(s => ({ coaList: s.coaList.filter(x => x.id !== c.id) }));
+    this.setState({ coaDelFor: null });
+  }
+  saveProduct(p) {
+    const F = window.VQFire;
+    if (!this.state.fireOn) return this.setState({ savedId: p.id });
+    F.saveProduct(p.id, { name: String(p.name || '').trim(), sku: String(p.sku || '').trim(), price: Number(p.price) || 0, stock: Number(p.stock) || 0, published: !!p.pub })
+      .then(() => this.setState({ savedId: p.id })).catch(e => this.setState({ fireErr: e.code || String(e) }));
+  }
+  go(page) { this.setState({ page: page }); window.scrollTo(0, 0); }
+  patch(no, p) { if (!VQO()) return; const r = VQO().update(no, p); this.setState({ orders: r.list }); return r; }
+  advance(o) {
+    const st = stOf(o), today = VQO().today();
+    if (st === '入金待ち') this.patch(o.no, { payStatus: 'paid', paidAt: today, paidAmount: o.total, shipStatus: 'preparing' });
+    else if (st === '発送準備中') this.setState({ shipFor: this.state.shipFor === o.no ? null : o.no, shipTrack: '' });
+    else if (st === '発送済み') this.patch(o.no, { shipStatus: 'delivered', deliveredAt: today });
+  }
+  confirmShip() {
+    const s = this.state; if (!s.shipTrack.trim()) return;
+    const o = s.orders.find(x => x.no === s.shipFor);
+    if (o && o.shipStatus === 'pending') this.patch(o.no, { shipStatus: 'preparing' });
+    this.patch(s.shipFor, { shipStatus: 'shipped', shippedAt: VQO().today(), carrier: s.shipCarrier.trim() || 'ヤマト運輸', trackNo: s.shipTrack.trim() });
+    this.setState({ shipFor: null, shipTrack: '' });
+  }
+  editProduct(id, k, v) {
+    this.setState(s => ({ products: s.products.map(p => p.id === id ? Object.assign({}, p, { [k]: v }) : p), savedId: null }));
+  }
+  issue() {
+    const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const seg = n => Array.from({ length: n }, () => abc[Math.floor(Math.random() * abc.length)]).join('');
+    const code = 'VQ-' + seg(4) + '-' + seg(4);
+    const t = new Date();
+    const owner = this.state.issueTo.trim() || '管理者発行（未割当）';
+    if (this.state.fireOn) { window.VQFire.issueCode(code, owner).then(() => this.setState({ issueTo: '' })).catch(e => this.setState({ fireErr: e.code || String(e) })); return; }
+    this.setState(s => ({ codes: [{ code: code, owner: owner,
+      issued: t.getFullYear() + '/' + String(t.getMonth() + 1).padStart(2, '0') + '/' + String(t.getDate()).padStart(2, '0'),
+      uses: 0, active: true }].concat(s.codes), issueTo: '' }));
+  }
+
+  renderVals() {
+    const s = this.state;
+    const nav = NAV.find(n => n.key === s.page) || NAV[0];
+    const pByid = id => s.products.find(p => p.id === id);
+    const pd = o => { if (o.createdAt && o.createdAt.toDate) return o.createdAt.toDate(); const m = /(\d+)年(\d+)月(\d+)日/.exec(o.date || ''); return m ? new Date(+m[1], m[2] - 1, +m[3]) : null; };
+    const net = o => o.payStatus === 'refunded' ? Math.max(0, (o.total || 0) - (o.refundAmount != null ? o.refundAmount : (o.total || 0))) : (o.total || 0);
+    const paid = s.orders.filter(o => o.payStatus === 'paid' || o.payStatus === 'refunded').map(o => ({ o: o, d: pd(o), v: net(o) })).filter(x => x.d && (x.v > 0 || x.o.payStatus === 'paid'));
+    const now = new Date(), ym = d => d.getFullYear() + '/' + String(d.getMonth() + 1).padStart(2, '0');
+    const sum = l => l.reduce((n, x) => n + x.v, 0);
+    const md = d => { if (!d) return null; if (d.toDate) return d.toDate(); return null; };
+    const months = Array.from({ length: 6 }, (_, i) => new Date(now.getFullYear(), now.getMonth() - i, 1));
+    const report = months.map(m => { const key = ym(m), l = paid.filter(x => ym(x.d) === key);
+      const mem = s.customers.filter(c => c.joined && ym(c.joined) === key);
+      return { month: key, sales: sum(l), orders: l.length, aov: l.length ? Math.round(sum(l) / l.length) : 0,
+        newMembers: mem.length, referred: mem.filter(c => c.invitedBy && c.invitedBy !== '—').length }; });
+    const cur = report[0], prev = report[1];
+    const dayKey = d => d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+    const daily = Array.from({ length: 14 }, (_, i) => { const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 13 + i);
+      return { d: d, v: sum(paid.filter(x => dayKey(x.d) === dayKey(d))) }; });
+    const max = Math.max(1, ...daily.map(x => x.v));
+    const priceOf = id => { const p = s.products.find(x => x.id === id); return p ? Number(p.price) || 0 : 0; };
+    const nameOf = id => { const p = s.products.find(x => x.id === id); return p ? p.name : id; };
+    const mixMap = {};
+    paid.filter(x => ym(x.d) === cur.month).forEach(x => (x.o.lines || []).forEach(l => { mixMap[l.id] = (mixMap[l.id] || 0) + priceOf(l.id) * l.qty; }));
+    const mixList = Object.keys(mixMap).map(id => ({ id: id, amt: mixMap[id] })).sort((p, q) => q.amt - p.amt);
+    const mixTot = mixList.reduce((n, x) => n + x.amt, 0) || 1;
+    const diff = (c, p) => p ? (c >= p ? '+' : '') + Math.round((c - p) / p * 100) + '%' : '—';
+    const filters = ['ALL', '入金待ち', '発送準備中', '発送済み', '配達完了', '返金済み'];
+    const orders = s.orders.map(o => Object.assign({}, o, { status: stOf(o) }));
+    const visible = s.orderFilter === 'ALL' ? orders : orders.filter(o => o.status === s.orderFilter);
+    const low = s.products.filter(p => Number(p.stock) < 10);
+    const mixTotal = s.products.reduce((a, p) => a + Number(p.price) * (60 - Number(p.stock) % 40), 0);
+    const t = new Date();
+
+    return {
+      locked: !s.auth && !this.props.embedded, unlocked: s.auth || !!this.props.embedded, noop: () => {},
+      embedded: !!this.props.embedded, viewStore: () => { if (this.props.onViewStore) this.props.onViewStore(); },
+      email: s.email, pw: s.pw, err: s.err, hasErr: !!s.err,
+      setEmail: e => this.setState({ email: e.target.value, err: '' }),
+      setPw: e => this.setState({ pw: e.target.value, err: '' }),
+      doLogin: () => this.login(),
+      doLogout: () => { if (this.props.embedded && this.props.onLogout) return this.props.onLogout(); this.setState({ auth: false, page: 'dash', email: '', pw: '' }); },
+      staffName: ADMIN.name, staffRole: ADMIN.role,
+      today: t.getFullYear() + '/' + String(t.getMonth() + 1).padStart(2, '0') + '/' + String(t.getDate()).padStart(2, '0'),
+      pageTitle: nav.title, pageSub: nav.sub,
+      connLabel: s.fireErr ? 'Firebase エラー' : s.fireOn ? 'Firebase 接続中' : 'デモデータ表示中',
+      connFg: s.fireErr ? '#a32222' : s.fireOn ? '#1a6b3c' : '#8a6116',
+      connBg: s.fireErr ? '#fdeeee' : s.fireOn ? '#e8f3ec' : '#fff5e3',
+      connBd: s.fireErr ? '#f0c2c2' : s.fireOn ? '#bcd9c6' : '#ecd9a0',
+      connWarn: !!s.fireErr || !s.fireOn,
+      connWarnText: s.fireErr ? 'Firebase からデータを読み込めません（' + s.fireErr + '）。Firestore の「ルール」が最新か、Firestore の admins コレクションにこのアカウントの UID が登録されているか確認してください。'
+        : (window.VQFire && window.VQFire.user) ? 'ログイン中のアカウント ' + (s.fireUser || '') + ' は管理者として登録されていないため、ストアのデータを表示できません。Firestore の admins コレクションに、このアカウントの UID のドキュメントを作成してください。'
+        : 'デモ用アカウントでログインしているため、表示されているのはデモデータです。ストアのデータを扱うには、Firebase に登録した管理者アカウントでログインしてください。',
+      nav: NAV.map(n => ({ label: n.label,
+        bg: s.page === n.key ? '#20242a' : 'transparent',
+        fg: s.page === n.key ? '#ffffff' : '#a8aeb6',
+        mark: s.page === n.key ? '#8fd694' : 'transparent',
+        select: () => this.go(n.key) })),
+      isDash: s.page === 'dash', isOrders: s.page === 'orders', isProducts: s.page === 'products',
+      isCustomers: s.page === 'customers', isCoa: s.page === 'coa', isCoupon: s.page === 'coupon',
+      isMail: s.page === 'mail', isReport: s.page === 'report', isShip: s.page === 'ship', isStock: s.page === 'stock', isStaff: s.page === 'staff',
+
+      kpis: [
+        { label: '当月売上（税込・入金済み）', value: '¥' + YEN(cur.sales), delta: '前月比 ' + diff(cur.sales, prev.sales), dFg: cur.sales >= prev.sales ? '#1a6b3c' : '#a32222' },
+        { label: '当月注文数（入金済み）', value: String(cur.orders), delta: '前月 ' + prev.orders + '件', dFg: '#6b7280' },
+        { label: '客単価', value: '¥' + YEN(cur.aov), delta: '前月 ¥' + YEN(prev.aov), dFg: '#6b7280' },
+        { label: '会員数', value: YEN(s.customers.length), delta: '当月 新規 ' + cur.newMembers + '名', dFg: '#6b7280' }
+      ],
+      chart: daily.map((x, i) => ({ h: Math.max(2, Math.round(x.v / max * 100)) + '%', day: String(x.d.getDate()).padStart(2, '0'),
+        fill: i === daily.length - 1 ? '#1a6b3c' : '#bcd9c6' })),
+      tasks: [
+        { label: '発送待ちの注文', n: orders.filter(o => o.status === '発送準備中').length, dot: '#a32222', go: () => this.setState({ page: 'orders', orderFilter: '発送準備中' }) },
+        { label: '入金待ちの注文', n: orders.filter(o => o.status === '入金待ち').length, dot: '#8a6116', go: () => this.setState({ page: 'orders', orderFilter: '入金待ち' }) },
+        { label: '在庫10個未満の商品', n: low.length, dot: '#8a6116', go: () => this.go('stock') },
+        { label: 'COA未登録の商品', n: s.products.filter(p => !s.coaList.some(c => c.productId === p.id && c.fileName)).length, dot: '#a32222', go: () => this.go('coa') },
+        { label: '停止中の紹介コード', n: s.codes.filter(c => !c.active).length, dot: '#4b5563', go: () => this.go('customers') }
+      ],
+      mix: mixList.map(x => ({ name: nameOf(x.id), amount: YEN(x.amt), pct: Math.round(x.amt / mixTot * 100) + '%', w: Math.round(x.amt / mixTot * 100) + '%' })),
+
+      orderFilters: filters.map(f => ({ label: f === 'ALL' ? 'すべて' : f,
+        bd: s.orderFilter === f ? '#16181c' : '#d3d6db',
+        bg: s.orderFilter === f ? '#16181c' : '#ffffff',
+        fg: s.orderFilter === f ? '#ffffff' : '#4b5563',
+        select: () => this.setState({ orderFilter: f }) })),
+      orderRows: visible.map(o => ({ no: o.no, date: o.date, customer: o.customer, memberId: o.memberId,
+        qty: (o.lines || []).reduce((n, l) => n + l.qty, 0), total: YEN(o.total), status: o.status,
+        payLabel: o.pay === 'paypay' ? 'PayPay' : '銀行振込',
+        sub: o.status === '発送済み' || o.status === '配達完了' ? (o.trackNo || '') : o.status === '発送準備中' ? (o.paidAt || '') + ' 入金' : '',
+        stBg: (ST_COLOR[o.status] || ['#f0f1f3', '#4b5563'])[0], stFg: (ST_COLOR[o.status] || ['#f0f1f3', '#4b5563'])[1],
+        canAct: !!FLOW[o.status], action: s.shipFor === o.no ? '閉じる' : (FLOW[o.status] || '—'), advance: () => this.advance(o),
+        canCancel: o.status === '入金待ち', cancel: () => this.patch(o.no, { payStatus: 'cancelled' }),
+        canRefund: o.status === '発送準備中' || o.status === '発送済み' || o.status === '配達完了',
+        openRefund: () => this.setState({ refundFor: s.refundFor === o.no ? null : o.no, shipFor: null, rf: { amount: String(o.total || 0), reason: '', restock: true } }),
+        refundOpen: s.refundFor === o.no,
+        canPrint: o.payStatus === 'paid' || o.payStatus === 'refunded', print: () => this.printReceipts([o]),
+        shipOpen: s.shipFor === o.no, shipTo: o.shipTo ? '配送先：' + o.shipTo : '' })),
+      prepCount: s.orders.filter(o => o.payStatus === 'paid' && (o.shipStatus === 'preparing' || o.shipStatus === 'pending')).length,
+      printPrep: () => this.printReceipts(s.orders.filter(o => o.payStatus === 'paid' && (o.shipStatus === 'preparing' || o.shipStatus === 'pending'))),
+      exportB2: () => this.exportB2(),
+      importTracking: e => { const fl = e.target.files && e.target.files[0]; this.importTracking(fl); e.target.value = ''; },
+      b2Msg: s.b2Msg, hasB2Msg: !!s.b2Msg, b2Fg: s.b2Ok ? '#1a6b3c' : '#a32222',
+      b2Fields: [['senderName', 'ご依頼主名', 'V_Q Store'], ['senderZip', 'ご依頼主 郵便番号', '1500042'], ['senderAddr', 'ご依頼主 住所', '東京都渋谷区…'], ['senderTel', 'ご依頼主 電話番号', '03-0000-0000'],
+        ['billingCode', '請求先顧客コード（必須）', '10〜12桁'], ['billingClass', '請求先分類コード（任意）', ''], ['freightNo', '運賃管理番号', '01'], ['itemName', '品名（送り状に印字）', 'リキッド'], ['handling', '荷扱い（任意）', 'ワレ物注意']]
+        .map(([k, label, ph]) => ({ label: label, ph: ph, value: s.shipCfg[k] || '', set: e => this.setState({ shipCfg: Object.assign({}, this.state.shipCfg, { [k]: e.target.value }), shipSaved: false }) })),
+      issuerFields: [['issuerName', '発行者名', 'V_Q Store'], ['issuerPerson', '担当者名', '高木 三暉'], ['issuerEmail', '連絡先メール（任意）', ''], ['invoiceNo', '適格請求書 登録番号（任意）', 'T1234567890123']]
+        .map(([k, label, ph]) => ({ label: label, ph: ph, value: s.shipCfg[k] || '', set: e => this.setState({ shipCfg: Object.assign({}, this.state.shipCfg, { [k]: e.target.value }), shipSaved: false }) })),
+      slipType: s.shipCfg.slipType || '0', slipOpts: SLIP_TYPES.map(([v, label]) => ({ v: v, label: label })),
+      setSlipType: e => this.setState({ shipCfg: Object.assign({}, s.shipCfg, { slipType: e.target.value }), shipSaved: false }),
+      saveShipCfg: () => this.saveShipCfg(), shipSaveLabel: s.shipSaved ? '保存しました' : '設定を保存',
+      rfAmount: s.rf.amount, rfReason: s.rf.reason, rfRestock: !!s.rf.restock,
+      setRfAmount: e => this.setState({ rf: Object.assign({}, s.rf, { amount: e.target.value.replace(/[^0-9]/g, '') }) }),
+      setRfReason: e => this.setState({ rf: Object.assign({}, s.rf, { reason: e.target.value }) }),
+      setRfRestock: e => this.setState({ rf: Object.assign({}, s.rf, { restock: e.target.checked }) }),
+      confirmRefund: () => this.confirmRefund(), closeRefund: () => this.setState({ refundFor: null }),
+      npName: s.np.name, npSku: s.np.sku, npPrice: s.np.price, npStock: s.np.stock, npCat: s.np.cat, npImg: s.np.img,
+      npMsg: s.np.msg, npHasMsg: !!s.np.msg, npMsgFg: s.np.ok ? '#1a6b3c' : '#a32222',
+      setNpName: e => this.npSet('name', e.target.value), setNpSku: e => this.npSet('sku', e.target.value.toUpperCase()),
+      setNpPrice: e => this.npSet('price', e.target.value.replace(/[^0-9]/g, '')), setNpStock: e => this.npSet('stock', e.target.value.replace(/[^0-9]/g, '')),
+      setNpCat: e => this.npSet('cat', e.target.value), setNpImg: e => this.npSet('img', e.target.value),
+      addProduct: () => this.addProduct(),
+      coaProductOpts: s.products.map(p => ({ id: p.id, name: p.name })),
+      cfProduct: s.cf.productId || (s.products[0] ? s.products[0].id : ''), cfLot: s.cf.lot, cfLab: s.cf.lab, cfThc: s.cf.thc, cfDate: s.cf.date,
+      setCfProduct: e => this.cfSet('productId', e.target.value), setCfLot: e => this.cfSet('lot', e.target.value), setCfLab: e => this.cfSet('lab', e.target.value),
+      setCfThc: e => this.cfSet('thc', e.target.value), setCfDate: e => this.cfSet('date', e.target.value),
+      setCfFile: e => { this.coaFile = e.target.files && e.target.files[0] || null; this.cfSet('fileName', this.coaFile ? this.coaFile.name : ''); },
+      addCoa: () => this.addCoa(), cfBtn: s.cf.busy ? 'アップロード中…' : '登録',
+      cfMsg: s.cf.msg, cfHasMsg: !!s.cf.msg, cfMsgFg: s.cf.ok ? '#1a6b3c' : '#a32222',
+      shipCarrier: s.shipCarrier, shipTrack: s.shipTrack,
+      setShipCarrier: e => this.setState({ shipCarrier: e.target.value }),
+      setShipTrack: e => this.setState({ shipTrack: e.target.value }),
+      confirmShip: () => this.confirmShip(), closeShip: () => this.setState({ shipFor: null }),
+      resetOrders: () => { if (VQO()) this.setState({ orders: VQO().reset(), shipFor: null }); },
+      isDemoData: !s.fireOn,
+      syncText: s.fireErr ? 'Firebase エラー：' + s.fireErr + '（セキュリティルールと admins 登録を確認してください）'
+        : s.fireOn ? 'Firebase（vqcbd-8ecd5）に接続中 — 入金確認・発送の操作は会員の注文履歴に即時反映されます'
+        : 'デモモード（この端末のみ）— Firebase の管理者アカウントでログインすると本番データに切り替わります',
+      canSeed: !!s.fireOn && !!s.fireEmpty, seedLabel: s.seeding ? '投入中…' : '初期データを投入',
+      seedFire: () => { if (s.seeding) return; this.setState({ seeding: true });
+        window.VQFire.seed().then(() => this.setState({ seeding: false })).catch(e => this.setState({ seeding: false, fireErr: e.code || String(e) })); },
+
+      productRows: s.products.map(p => ({ name: p.name, sku: p.sku, imgUrl: "'" + p.img + "'",
+        price: String(p.price), stock: String(p.stock),
+        stockBd: Number(p.stock) < 10 ? '#f0c2c2' : '#d3d6db',
+        stockFg: Number(p.stock) < 10 ? '#a32222' : '#16181c',
+        pubLabel: p.pub ? '公開中' : '非公開',
+        pubBd: p.pub ? '#1a6b3c' : '#d3d6db', pubBg: p.pub ? '#e8f3ec' : '#ffffff', pubFg: p.pub ? '#1a6b3c' : '#6b7280',
+        setName: e => this.editProduct(p.id, 'name', e.target.value), setSku: e => this.editProduct(p.id, 'sku', e.target.value.toUpperCase()),
+        removeLabel: s.delFor === p.id ? '本当に削除' : '削除', remove: () => this.removeProduct(p),
+        setPrice: e => this.editProduct(p.id, 'price', e.target.value.replace(/[^0-9]/g, '')),
+        setStock: e => this.editProduct(p.id, 'stock', e.target.value.replace(/[^0-9]/g, '')),
+        toggle: () => this.editProduct(p.id, 'pub', !p.pub),
+        saveLabel: s.savedId === p.id ? '保存済' : '保存',
+        save: () => this.saveProduct(p) })),
+
+      customerRows: s.customers.map(c => { const mine = s.fireOn ? s.orders.filter(o => o.memberId === c.id && o.payStatus !== 'cancelled' && o.payStatus !== 'expired') : null;
+        return { id: c.id, fullId: c.id, shortId: c.id.length > 12 ? c.id.slice(0, 8) + '…' : c.id, name: c.name, email: c.email, code: c.code, invitedBy: c.invitedBy,
+        orders: mine ? mine.length : c.orders, ltv: YEN(mine ? mine.reduce((n, o) => n + (o.total || 0), 0) : c.ltv),
+        state: c.status === 'withdrawn' ? '退会' : c.active ? '有効' : '停止中',
+        bd: c.active ? '#1a6b3c' : '#f0c2c2', bg: c.active ? '#e8f3ec' : '#fdeeee', fg: c.active ? '#1a6b3c' : '#a32222',
+        toggle: () => s.fireOn ? window.VQFire.setMemberStatus(c.id, c.active ? 'suspended' : 'active').catch(e => this.setState({ fireErr: e.code || String(e) }))
+          : this.setState(st => ({ customers: st.customers.map(x => x.id === c.id ? Object.assign({}, x, { active: !x.active }) : x) })) }; }),
+      issueTo: s.issueTo, setIssueTo: e => this.setState({ issueTo: e.target.value }),
+      issueCode: () => this.issue(),
+      codeRows: s.codes.map(r => ({ code: r.code, owner: r.owner, issued: r.issued, uses: r.uses,
+        state: r.active ? '有効' : '停止中', stFg: r.active ? '#1a6b3c' : '#a32222',
+        action: r.active ? '停止' : '再開',
+        toggle: () => s.fireOn ? window.VQFire.setCodeActive(r.code, !r.active).catch(e => this.setState({ fireErr: e.code || String(e) }))
+          : this.setState(st => ({ codes: st.codes.map(x => x.code === r.code ? Object.assign({}, x, { active: !x.active }) : x) })) })),
+
+      coaRows: s.coaList.map(c => { const p = s.products.find(x => x.id === c.productId); return { name: p ? p.name : c.productId, lot: c.lot, lab: c.lab,
+        thc: c.thc, date: c.date, file: c.fileName || '未添付', hasFile: !!(c.url || c.chunks),
+        fFg: c.fileName ? '#1a6b3c' : '#a32222', view: () => this.viewCoa(c),
+        removeLabel: s.coaDelFor === c.id ? '本当に削除' : '削除', remove: () => this.removeCoa(c) }; }),
+
+      cpCode: s.cp.code, cpValue: s.cp.value, cpUntil: s.cp.until,
+      setCpCode: e => this.setState(st => ({ cp: Object.assign({}, st.cp, { code: e.target.value.toUpperCase() }) })),
+      setCpValue: e => this.setState(st => ({ cp: Object.assign({}, st.cp, { value: e.target.value }) })),
+      setCpUntil: e => this.setState(st => ({ cp: Object.assign({}, st.cp, { until: e.target.value }) })),
+      addCoupon: () => { const c = this.state.cp; if (!c.code.trim()) return;
+        this.setState(st => ({ coupons: [{ code: c.code.trim(), value: c.value || '—', until: c.until || '期限なし', uses: 0, active: true }].concat(st.coupons), cp: { code: '', value: '', until: '' } })); },
+      couponRows: s.coupons.map(c => ({ code: c.code, value: c.value, until: c.until, uses: c.uses,
+        fg: c.active ? '#16181c' : '#9ca3af', action: c.active ? '停止' : '再開',
+        toggle: () => this.setState(st => ({ coupons: st.coupons.map(x => x.code === c.code ? Object.assign({}, x, { active: !x.active }) : x) })) })),
+
+      segments: SEGMENTS.map(sg => ({ label: sg.label, n: YEN(sg.n),
+        bd: s.segment === sg.key ? '#16181c' : '#d3d6db',
+        bg: s.segment === sg.key ? '#16181c' : '#ffffff',
+        fg: s.segment === sg.key ? '#ffffff' : '#4b5563',
+        select: () => this.setState({ segment: sg.key, sent: false }) })),
+      mlSubject: s.ml.subject, mlBody: s.ml.body,
+      setMlSubject: e => this.setState(st => ({ ml: Object.assign({}, st.ml, { subject: e.target.value }), sent: false })),
+      setMlBody: e => this.setState(st => ({ ml: Object.assign({}, st.ml, { body: e.target.value }), sent: false })),
+      sendMail: () => this.setState({ sent: true }),
+      sendLabel: s.sent ? '配信予約しました' : '配信する',
+      mailLog: MAIL_LOG,
+
+      reportKpis: [
+        { label: '直近6ヶ月 売上', value: '¥' + YEN(report.reduce((n, r) => n + r.sales, 0)) },
+        { label: '直近6ヶ月 注文数', value: YEN(report.reduce((n, r) => n + r.orders, 0)) },
+        { label: '平均客単価', value: '¥' + YEN(report.reduce((n, r) => n + r.orders, 0) ? Math.round(report.reduce((n, r) => n + r.sales, 0) / report.reduce((n, r) => n + r.orders, 0)) : 0) },
+        { label: '直近6ヶ月 新規会員', value: YEN(report.reduce((n, r) => n + r.newMembers, 0)) }
+      ],
+      reportRows: report.map(r => ({ month: r.month, sales: YEN(r.sales), orders: r.orders,
+        aov: YEN(r.aov), newMembers: r.newMembers, referred: r.referred })),
+
+      alertRows: low.map(p => ({ name: p.name, stock: p.stock, threshold: 10,
+        state: Number(p.stock) < 5 ? '要発注' : '残少',
+        bg: Number(p.stock) < 5 ? '#fdeeee' : '#fff5e3', fg: Number(p.stock) < 5 ? '#a32222' : '#8a6116',
+        go: () => this.go('products') })),
+      noAlerts: low.length === 0,
+
+      staffRows: s.staff.map(st => ({ name: st.name, email: st.email, role: st.role,
+        perms: PERM_LABELS.map(pl => ({ label: pl[1],
+          bd: st.perms[pl[0]] ? '#1a6b3c' : '#d3d6db',
+          bg: st.perms[pl[0]] ? '#e8f3ec' : '#ffffff',
+          fg: st.perms[pl[0]] ? '#1a6b3c' : '#9ca3af',
+          toggle: () => this.setState(x => ({ staff: x.staff.map(y => y.id === st.id
+            ? Object.assign({}, y, { perms: Object.assign({}, y.perms, { [pl[0]]: !y.perms[pl[0]] }) }) : y) })) })) })),
+      stName: s.st.name, stEmail: s.st.email,
+      setStName: e => this.setState(x => ({ st: Object.assign({}, x.st, { name: e.target.value }) })),
+      setStEmail: e => this.setState(x => ({ st: Object.assign({}, x.st, { email: e.target.value }) })),
+      addStaff: () => { const n = this.state.st; if (!n.name.trim() || !n.email.trim()) return;
+        this.setState(x => ({ staff: x.staff.concat([{ id: Date.now(), name: n.name.trim(), email: n.email.trim(),
+          role: 'スタッフ', perms: { orders: true, products: false, customers: false, sales: false } }]), st: { name: '', email: '' } })); }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

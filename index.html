@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache">
+<title>v_Q</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script>window.VQ_PROD = true;</script>
+<script src="./vq-orders.js"></script>
+<script type="module" src="./vq-firebase.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #efebe4; color: #1c1b19; font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif; color: #1c1b19; -webkit-font-smoothing: antialiased; }
+  a { color: #1c1b19; text-decoration: none; }
+  a:hover { color: #1c1b19; }
+  ::selection { background: #1c1b19; color: #ffffff; }
+</style>
+</helmet>
+
+<sc-if value="{{ showAdmin }}" hint-placeholder-val="{{ false }}">
+  <dc-import name="v_Q Admin" embedded="{{ true }}" on-logout="{{ adminLogout }}" on-view-store="{{ adminViewStore }}" hint-size="100%,100vh"></dc-import>
+</sc-if>
+
+<sc-if value="{{ showStore }}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{ adminPreview }}" hint-placeholder-val="{{ false }}">
+  <div style="position: sticky; top: 0; z-index: 200; background: #16181c; color: #ffffff; display: flex; align-items: center; gap: 14px; padding: 10px 24px; font-size: 13px; flex-wrap: wrap">
+    <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #8fd1a8">ADMIN</span>
+    <span style="color: rgba(255,255,255,0.75)">管理者としてストアを表示しています</span>
+    <button type="button" onClick="{{ backToAdmin }}" style="margin-left: auto; border: 1px solid rgba(255,255,255,0.4); background: transparent; color: #ffffff; padding: 7px 16px; border-radius: 999px; font-family: inherit; font-size: 12px; cursor: pointer" style-hover="background:#ffffff;color:#16181c">管理画面に戻る</button>
+  </div>
+</sc-if>
+<div style="min-height: 100vh; background: #efebe4; overflow-x: hidden">
+
+  <sc-if value="{{ gateOpen }}" hint-placeholder-val="{{ true }}">
+    <div style="position: fixed; inset: 0; z-index: 90; background-color: #efebe4; background-image: linear-gradient(90deg, rgba(239,235,228,1) 0%, rgba(239,235,228,0.92) 42%, rgba(239,235,228,0.2) 100%), url('assets/vq-s/hero-lineup.jpg'); background-size: cover; background-position: center right; display: flex; align-items: center; overflow-y: auto">
+      <div style="padding: 48px clamp(28px, 8vw, 120px); display: flex; flex-direction: column; align-items: flex-start; gap: 28px; max-width: 560px">
+        <img src="assets/vq-s/logo-dark2.png" alt="v_Q" style="height: 110px; width: auto; display: block" />
+        <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 18px; font-weight: 300; letter-spacing: 0.34em; color: #1c1b19; line-height: 1.8">CHOOSE<br />YOUR VIBE.</div>
+        <div style="font-size: 24px; font-weight: 500; line-height: 1.6; color: #1c1b19; margin-top: 12px">あなたは20歳以上ですか？</div>
+        <p style="font-size: 15px; line-height: 2; color: #46443f; margin: 0">当サイトは20歳以上の方を対象とした製品を取り扱っています。</p>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap"><button type="button" onClick="{{ acceptAge }}" style="border: none; background: #1c1b19; color: #ffffff; padding: 18px 40px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 12px; transition: background 200ms; min-width: 240px" style-hover="background:#6e7257">はい、20歳以上です</button><button type="button" onClick="{{ declineAge }}" style="border: none; background: transparent; color: #1c1b19; box-shadow: inset 0 0 0 1px #1c1b19; padding: 18px 40px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 12px; transition: background 200ms; min-width: 140px" style-hover="background:#1c1b19;color:#ffffff">いいえ</button></div>
+        <div style="font-size: 12px; color: #77736b">20歳未満の方への販売は行っておりません。</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ declined }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 95; background: #efebe4; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center">
+      <div style="max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 22px">
+        <img src="assets/vq-s/logo-dark2.png" alt="v_Q" style="height: 72px; width: auto; display: block" />
+        <div style="font-size: 22px; font-weight: 500">ご利用いただけません</div>
+        <p style="font-size: 15px; line-height: 2; color: #46443f; margin: 0">20歳未満の方への販売は行っておりません。ご理解のほどよろしくお願いいたします。</p>
+        <button type="button" onClick="{{ retryAge }}" style="border: 1px solid #1c1b19; background: transparent; color: #1c1b19; padding: 12px 28px; border-radius: 999px; font-family: inherit; font-size: 14px; cursor: pointer">年齢確認に戻る</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ lockOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 80; background: rgba(20,20,19,0.6); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 24px">
+      <div style="width: 100%; max-width: 760px; background: #f8f6f2; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); max-height: 92vh; overflow-y: auto">
+        <div style="min-height: 320px; background-color: #1f1e1d; background-image: url('{{ lockImg }}'); background-size: cover; background-position: center 40%"></div>
+        <div style="padding: 40px 36px; display: flex; flex-direction: column; gap: 18px">
+          <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; letter-spacing: 0.3em; color: #77736b">REFERRAL ONLY</span>
+          <div style="font-size: 22px; font-weight: 500; line-height: 1.5">紹介コードをお持ちの方<br />限定の製品です</div>
+          <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 15px; letter-spacing: 0.1em; color: #46443f">{{ lockName }}</div>
+          <p style="font-size: 14px; line-height: 1.9; color: #46443f; margin: 0">詳細の閲覧とご購入には、会員の方から受け取った紹介コードが必要です。</p>
+          <input type="text" value="{{ lockCode }}" onChange="{{ setLockCode }}" placeholder="VQ-XXXX-XXXX" style="width: 100%; box-sizing: border-box; border: 1px solid #e2ddd4; background: #ffffff; color: #1c1b19; padding: 16px 20px; border-radius: 999px; font-size: 16px; font-family: inherit; letter-spacing: 0.08em" style-focus="border-color:#1c1b19;outline:none" />
+          <sc-if value="{{ hasLockErr }}" hint-placeholder-val="{{ false }}"><div style="background: #f6e6e2; color: #9a3a26; padding: 12px 16px; font-size: 13px; line-height: 1.8">{{ lockErr }}</div></sc-if>
+          <button type="button" onClick="{{ doUnlock }}" style="border: none; background: #1c1b19; color: #ffffff; height: 56px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer" style-hover="background:#6e7257">コードを確認して見る</button>
+          <button type="button" onClick="{{ closeLock }}" style="border: none; background: transparent; color: #77736b; font-family: inherit; font-size: 14px; cursor: pointer; text-decoration: underline; text-underline-offset: 4px">閉じる</button>
+          <sc-if value="{{ showDemo }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12px; color: #77736b; background: #efebe4; padding: 10px 14px">DEMO CODE：{{ lockDemo }}</div></sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="position: sticky; top: 0; z-index: 40; background: rgba(248,246,242,0.96); backdrop-filter: blur(16px); border-bottom: 1px solid #e2ddd4">
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 32px; min-height: 84px; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 24px">
+      <nav style="display: flex; gap: 28px; align-items: center; flex-wrap: wrap"><a href="#" onClick="{{ goList }}" style="font-size: 15px; font-weight: 400; color: #1c1b19; display: flex; align-items: center; gap: 6px; white-space: nowrap" style-hover="color:#6e7257">v_Q POD<span style="font-size: 9px; opacity: 0.5">▼</span></a><a href="#" onClick="{{ goList }}" style="font-size: 15px; font-weight: 400; color: #1c1b19; display: flex; align-items: center; gap: 6px; white-space: nowrap" style-hover="color:#6e7257">VIBE SET</a><a href="#" onClick="{{ goHome }}" style="font-size: 15px; font-weight: 400; color: #1c1b19; display: flex; align-items: center; gap: 6px; white-space: nowrap" style-hover="color:#6e7257">v_Qを知る<span style="font-size: 9px; opacity: 0.5">▼</span></a></nav>
+      <a href="#" onClick="{{ goHome }}" style="display: flex; align-items: center; justify-content: center" aria-label="v_Q"><img src="assets/vq-s/logo-dark2.png" alt="v_Q" style="height: 44px; width: auto; display: block" /></a>
+      <div style="display: flex; gap: 24px; align-items: center; justify-content: flex-end; flex-wrap: wrap"><a href="#" onClick="{{ goAccount }}" style="font-size: 15px; font-weight: 400; color: #1c1b19; display: flex; align-items: center; gap: 6px; white-space: nowrap" style-hover="color:#6e7257">会員サービス<span style="font-size: 9px; opacity: 0.5">▼</span></a><a href="#" onClick="{{ noop }}" style="font-size: 15px; font-weight: 400; color: #1c1b19; display: flex; align-items: center; gap: 6px; white-space: nowrap" style-hover="color:#6e7257">お知らせ</a><div style="display: flex; gap: 4px"><a href="#" onClick="{{ goAccount }}" style="position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #1c1b19; border-radius: 50%" style-hover="background:#efebe4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></a><a href="#" onClick="{{ goCart }}" style="position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #1c1b19; border-radius: 50%" style-hover="background:#efebe4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 8h14l-1 13H6L5 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg><span style="position: absolute; bottom: 2px; right: 0; min-width: 18px; height: 18px; border-radius: 999px; background: #6e7257; color: #ffffff; font-size: 11px; display: flex; align-items: center; justify-content: center">{{ cartCount }}</span></a></div></div>
+    </div>
+  </div>
+
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+    <div style="background: #efebe4">
+      <div style="position: relative; min-height: 660px; overflow: hidden; background: #efebe4">
+        <sc-for list="{{ slides }}" as="s" hint-placeholder-count="1">
+          <div style="position: absolute; inset: 0; transition: opacity 1000ms ease; opacity: {{ s.op }}; background-color: {{ s.base }}; background-image: {{ s.bg }}; background-size: cover; background-position: {{ s.pos }}">
+            <div style="max-width: 1400px; margin: 0 auto; height: 100%; padding: 60px 32px 170px; box-sizing: border-box; display: flex; align-items: center; justify-content: {{ s.justify }}">
+              <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 18px; max-width: 520px; color: {{ s.fg }}">
+                <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.24em; padding: 6px 12px; border: 1px solid currentColor">{{ s.badge }}</span>
+                <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: clamp(18px, 1.6vw, 22px); font-weight: 300; letter-spacing: 0.34em; line-height: 1.8">{{ s.name }}</div>
+                <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: clamp(40px, 5vw, 70px); font-weight: 300; letter-spacing: 0.04em; line-height: 1.05"><div>{{ s.h1 }}</div><div style="font-weight: 500">{{ s.h2 }}</div></div>
+                <div style="font-size: clamp(18px, 1.8vw, 24px); font-weight: 500; line-height: 1.6">{{ s.jp }}</div>
+                <button type="button" onClick="{{ s.open }}" style="margin-top: 18px; border: none; background: {{ s.btnBg }}; color: {{ s.btnFg }}; padding: 18px 44px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer">詳しく見る</button>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+        <div style="position: absolute; bottom: 128px; left: 0; right: 0; z-index: 5; display: flex; gap: 8px; justify-content: center">
+          <sc-for list="{{ slides }}" as="s" hint-placeholder-count="3">
+            <button type="button" onClick="{{ s.select }}" style="width: {{ s.w }}; height: 3px; border: none; cursor: pointer; padding: 0; background: {{ s.dot }}; transition: width 300ms"></button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="position: relative; z-index: 6; max-width: 1640px; margin: -96px auto 0; padding: 0 32px">
+        <div style="background: rgba(28,27,25,0.82); backdrop-filter: blur(8px); padding: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+          <sc-for list="{{ quick }}" as="k" hint-placeholder-count="4">
+            <button type="button" onClick="{{ k.open }}" style="border: none; background: #f8f6f2; color: #1c1b19; padding: 0 0 0 28px; cursor: pointer; font-family: inherit; text-align: left; display: flex; align-items: center; gap: 16px; min-height: 128px; overflow: hidden" style-hover="background:#ffffff">
+              <span style="flex: 1; display: flex; flex-direction: column; gap: 10px"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 22px; font-weight: 400; letter-spacing: 0.2em">{{ k.vibe }}</span><span style="font-size: 13px; color: #77736b">{{ k.flavor }}</span><span style="font-size: 15px; text-decoration: underline; text-underline-offset: 4px">購入する →</span></span>
+              <span style="width: 72px; align-self: stretch; background-image: url('{{ k.img }}'); background-size: cover; background-position: center 40%; flex-shrink: 0"></span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="text-align: center; font-size: 12px; color: #77736b; margin-top: 18px">※画像はイメージです。</div>
+      </div>
+
+      <div style="max-width: 1400px; margin: 0 auto; padding: 120px 32px 0">
+        <div style="display: flex; flex-direction: column; gap: 24px; margin-bottom: 48px">
+          <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 400; letter-spacing: 0.32em; color: #77736b">CHOOSE YOUR VIBE.</span>
+          <h2 style="font-size: clamp(36px, 5.4vw, 76px); font-weight: 500; line-height: 1.2; margin: 0">その日の気分で、選ぶ。</h2>
+          <p style="font-size: 17px; line-height: 1.9; color: #46443f; margin: 0">DAY、NIGHT、CHILL、FOCUS。4つのバイブから、あなたの1本を。</p>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px">
+          <sc-for list="{{ vibes }}" as="c" hint-placeholder-count="4">
+            <button type="button" onClick="{{ c.open }}" style="border: none; background: {{ c.bg }}; color: {{ c.fg }}; padding: 0; cursor: pointer; font-family: inherit; text-align: left; display: flex; flex-direction: column; overflow: hidden; transition: transform 250ms" style-hover="transform:translateY(-6px)">
+              <span style="display: block; aspect-ratio: 4 / 5; background-image: url('{{ c.img }}'); background-size: cover; background-position: center 40%"></span>
+              <span style="padding: 26px 26px 28px; display: flex; flex-direction: column; gap: 8px">
+                <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 26px; font-weight: 300; letter-spacing: 0.3em">{{ c.en }}</span>
+                <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; letter-spacing: 0.2em; opacity: 0.8">{{ c.flavor }} / 1.0 mL</span>
+                <span style="font-size: 14px; margin-top: 10px; text-decoration: underline; text-underline-offset: 4px">詳しく見る →</span>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background: #1a1a1a; color: #ffffff; margin-top: 120px">
+        <div style="max-width: 1400px; margin: 0 auto; padding: 100px 32px 120px">
+          <h2 style="font-size: clamp(34px, 4.4vw, 60px); font-weight: 700; line-height: 1.2; margin: 0 0 56px">ジャンルから選ぶ</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 28px">
+            <sc-for list="{{ genreTiles }}" as="g" hint-placeholder-count="4">
+              <button type="button" onClick="{{ g.open }}" style="position: relative; border: none; padding: 0; cursor: pointer; font-family: inherit; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; background-color: #c9c6c1; background-image: url('{{ g.img }}'); background-size: cover; background-position: center; color: #ffffff; transition: transform 300ms" style-hover="transform:scale(1.015)">
+                <span style="position: absolute; inset: 0; background: rgba(0,0,0,0.38)"></span>
+                <span style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center">
+                  <sc-if value="{{ g.isRef }}" hint-placeholder-val="{{ false }}"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="10" rx="1"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></sc-if>
+                  <span style="font-size: clamp(30px, 3.4vw, 48px); font-weight: 700; line-height: 1.2; text-shadow: 0 2px 16px rgba(0,0,0,0.35)">{{ g.label }}</span>
+                  <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; letter-spacing: 0.3em; opacity: 0.9">{{ g.count }}</span>
+                </span>
+                <span style="position: absolute; left: 20px; bottom: 16px; font-size: 13px; color: rgba(255,255,255,0.85)">※画像はイメージです。</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="max-width: 1400px; margin: 0 auto; padding: 120px 32px 0">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px">
+          <div style="position: relative; min-height: 520px; background-color: #2a2927; background-image: linear-gradient(180deg, rgba(20,20,19,0) 40%, rgba(20,20,19,0.85) 100%), url('assets/vq-s/night-row.jpg'); background-size: cover; background-position: center; color: #ffffff; display: flex; flex-direction: column; justify-content: flex-end; padding: 40px; gap: 14px">
+            <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 400; letter-spacing: 0.32em; color: rgba(255,255,255,0.75)">NIGHT / CBX — <span style="color: #e0474d">紹介コード限定</span></span>
+            <div style="font-size: clamp(24px, 2.6vw, 32px); font-weight: 500; line-height: 1.5">FOR A DEEPER STATE.</div>
+            <div><button type="button" onClick="{{ goNight }}" style="border: none; background: transparent; color: #ffffff; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7); padding: 18px 40px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 12px; transition: background 200ms" style-hover="background:#ffffff;color:#1c1b19">詳しく見る</button></div>
+          </div>
+          <div style="position: relative; min-height: 520px; background-color: #dcd6cc; background-image: linear-gradient(180deg, rgba(239,235,228,0) 40%, rgba(239,235,228,0.92) 100%), url('assets/vq-s/scene-day.jpg'); background-size: cover; background-position: center; color: #1c1b19; display: flex; flex-direction: column; justify-content: flex-end; padding: 40px; gap: 14px">
+            <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 400; letter-spacing: 0.32em; color: #46443f">DAY / CITRUS</span>
+            <div style="font-size: clamp(24px, 2.6vw, 32px); font-weight: 500; line-height: 1.5">日差しのような、明るい香り。</div>
+            <div><button type="button" onClick="{{ goDay }}" style="border: none; background: transparent; color: #1c1b19; box-shadow: inset 0 0 0 1px #1c1b19; padding: 18px 40px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 12px; transition: background 200ms" style-hover="background:#1c1b19;color:#ffffff">詳しく見る</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 120px; background: #1c1b19; color: #ffffff">
+        <div style="max-width: 1400px; margin: 0 auto; padding: 110px 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 56px; align-items: center">
+          <div style="display: flex; flex-direction: column; gap: 26px">
+            <div style="display: flex; flex-direction: column; gap: 14px"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 400; letter-spacing: 0.32em; color: rgba(255,255,255,0.7)">QUALITY</span><h2 style="font-size: clamp(28px, 3.4vw, 42px); font-weight: 500; line-height: 1.4; margin: 0; color: #ffffff">品質を、数字で見せる。</h2></div>
+            <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 200; font-size: clamp(64px, 9vw, 128px); line-height: 0.9; letter-spacing: 0.02em">THC 0.00%</div>
+            <p style="font-size: 16px; line-height: 1.95; color: rgba(255,255,255,0.75); margin: 0; max-width: 480px">全ロットで第三者機関の分析を実施。成分分析書（COA）はロット番号から製品ページで確認できます。</p>
+          </div>
+          <div style="display: flex; flex-direction: column; border-top: 1px solid rgba(255,255,255,0.16)">
+            <div style="padding: 28px 0; border-bottom: 1px solid rgba(255,255,255,0.16); display: flex; gap: 28px; align-items: baseline"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 300; letter-spacing: 0.2em; color: rgba(255,255,255,0.55)">01</span><div><div style="font-size: 18px; font-weight: 500">第三者機関で全ロット検査</div><div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 6px">COAを製品ページで公開</div></div></div>
+            <div style="padding: 28px 0; border-bottom: 1px solid rgba(255,255,255,0.16); display: flex; gap: 28px; align-items: baseline"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 300; letter-spacing: 0.2em; color: rgba(255,255,255,0.55)">02</span><div><div style="font-size: 18px; font-weight: 500">510規格・国内製造</div><div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 6px">すべて1.0 mL</div></div></div>
+            <div style="padding: 28px 0; border-bottom: 1px solid rgba(255,255,255,0.16); display: flex; gap: 28px; align-items: baseline"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 300; letter-spacing: 0.2em; color: rgba(255,255,255,0.55)">03</span><div><div style="font-size: 18px; font-weight: 500">14時までのご注文で当日発送</div><div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 6px">¥{{ freeShipLabel }}以上で送料無料</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="max-width: 1400px; margin: 0 auto; padding: 120px 32px 0">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 64px; align-items: center">
+          <div style="aspect-ratio: 5 / 4; background-color: #dcd6cc; background-image: url('assets/vq-s/scene-set.jpg'); background-size: cover; background-position: center"></div>
+          <div style="display: flex; flex-direction: column; gap: 24px; align-items: flex-start">
+            <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 400; letter-spacing: 0.32em; color: #77736b">MEMBERSHIP</span>
+            <h2 style="font-size: clamp(28px, 3.2vw, 40px); font-weight: 500; line-height: 1.5; margin: 0">v_Q は会員制の<br />メンバーズストアです。</h2>
+            <p style="font-size: 16px; line-height: 2; color: #46443f; margin: 0">ご購入には会員登録が必要です（20歳以上の方に限ります）。NIGHT・CBX・VIBE SETは、紹介コードをお持ちの方だけがご覧いただける限定製品です。</p>
+            <button type="button" onClick="{{ goAccount }}" style="border: none; background: #1c1b19; color: #ffffff; padding: 18px 40px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 12px; transition: background 200ms" style-hover="background:#6e7257">会員登録・ログイン</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="max-width: 920px; margin: 0 auto; padding: 120px 32px 0">
+        <div style="margin-bottom: 40px"><div style="display: flex; flex-direction: column; gap: 14px; align-items: center; text-align: center"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 400; letter-spacing: 0.32em; color: #77736b">FAQ</span><h2 style="font-size: clamp(28px, 3.4vw, 42px); font-weight: 500; line-height: 1.4; margin: 0; color: #1c1b19">よくある質問</h2></div></div>
+        <div style="border-top: 1px solid #1c1b19">
+          <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="4">
+            <div style="border-bottom: 1px solid #e2ddd4">
+              <button type="button" onClick="{{ q.toggle }}" style="width: 100%; border: none; background: transparent; padding: 26px 4px; display: flex; gap: 16px; align-items: center; cursor: pointer; font-family: inherit; font-size: 17px; font-weight: 500; color: #1c1b19; text-align: left"><span style="flex: 1">{{ q.q }}</span><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 24px; font-weight: 300; width: 28px; text-align: center">{{ q.icon }}</span></button>
+              <sc-if value="{{ q.open }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; padding: 0 60px 28px 4px; font-size: 15px; line-height: 1.95; color: #46443f">{{ q.a }}</p></sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isList }}" hint-placeholder-val="{{ false }}">
+    <div style="background: #efebe4; padding-bottom: 20px">
+      <div style="background-color: #dcd6cc; background-image: linear-gradient(90deg, rgba(239,235,228,1) 0%, rgba(239,235,228,0.9) 40%, rgba(239,235,228,0.1) 100%), url('assets/vq-s/hero-lineup.jpg'); background-size: cover; background-position: center right">
+        <div style="max-width: 1400px; margin: 0 auto; padding: 80px 32px 56px">
+          <div style="font-size: 13px; color: #77736b; margin-bottom: 22px"><a href="#" onClick="{{ goHome }}" style="color: #77736b">ホーム</a> / 製品 / {{ activeCat }}</div>
+          <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: clamp(40px, 5.4vw, 72px); font-weight: 300; letter-spacing: 0.2em; line-height: 1">PRODUCTS</div>
+          <div style="font-size: 15px; color: #46443f; margin-top: 16px">製品一覧・{{ resultCount }}件</div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 36px">
+            <sc-for list="{{ filters }}" as="f" hint-placeholder-count="6">
+              <button type="button" onClick="{{ f.select }}" style="border: none; border-radius: 999px; padding: 12px 24px; font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.16em; cursor: pointer; color: {{ f.color }}; background: {{ f.bg }}">{{ f.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="max-width: 1400px; margin: 0 auto; padding: 48px 32px 0">
+        <div style="display: flex; flex-direction: column; gap: 80px">
+          <sc-for list="{{ listSections }}" as="g" hint-placeholder-count="3">
+            <section style="display: flex; flex-direction: column; gap: 28px">
+              <div style="display: flex; align-items: flex-end; gap: 16px 32px; flex-wrap: wrap; border-bottom: 1px solid {{ g.lineColor }}; padding-bottom: 20px">
+                <div style="display: flex; flex-direction: column; gap: 10px">
+                  <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; letter-spacing: 0.32em; color: {{ g.accent }}">{{ g.en }}</span>
+                  <h2 style="font-size: clamp(24px, 2.6vw, 34px); font-weight: 500; margin: 0; display: flex; align-items: center; gap: 12px">{{ g.label }}<span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 15px; font-weight: 400; color: #77736b">{{ g.count }}</span></h2>
+                </div>
+                <p style="font-size: 14px; line-height: 1.8; color: #46443f; margin: 0 0 4px; flex: 1 1 280px">{{ g.note }}</p>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px">
+                <sc-for list="{{ g.items }}" as="p" hint-placeholder-count="3">
+            <button type="button" onClick="{{ p.open }}" style="border: none; background: #f8f6f2; color: #1c1b19; padding: 0; cursor: pointer; text-align: left; display: flex; flex-direction: column; border-radius: 4px; overflow: hidden; font-family: inherit; transition: box-shadow 250ms" style-hover="box-shadow:0 16px 40px rgba(28,27,25,0.10)">
+              <div style="position: relative; width: 100%; aspect-ratio: 3 / 4; background-color: #dcd6cc; background-image: url('{{ p.img }}'); background-size: cover; background-position: center 45%">
+                
+                <sc-if value="{{ p.locked }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; background: rgba(28,27,25,0.45); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #ffffff"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5" y="11" width="14" height="10" rx="1"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; letter-spacing: 0.2em">紹介コード限定</span></span></sc-if>
+                <sc-if value="{{ p.hasOff }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: 16px; right: 16px; background: #b5452f; color: #ffffff; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0.1em; padding: 6px 12px">{{ p.off }}</span></sc-if>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px; padding: 22px 22px 24px; flex: 1">
+                <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.24em; color: #77736b">{{ p.cat }}</div>
+                <div style="font-size: 16px; font-weight: 500; line-height: 1.55; text-wrap: pretty">{{ p.name }}</div>
+                <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: auto; padding-top: 6px"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 22px; font-weight: 400; color: {{ p.priceColor }}">¥{{ p.price }}</span><span style="font-size: 13px; color: #77736b; text-decoration: line-through">{{ p.was }}</span><span style="font-size: 12px; color: #77736b">税込</span></div>
+                <div style="margin-top: 10px; font-size: 14px; text-decoration: underline; text-underline-offset: 4px">詳しく見る →</div>
+              </div>
+            </button>
+          </sc-for>
+              </div>
+            </section>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+    <div style="background: {{ th.bg }}; color: {{ th.fg }}; transition: background 400ms">
+    <div style="max-width: 1400px; margin: 0 auto; padding: 28px 32px 0">
+      <div style="font-size: 13px; color: {{ th.sub }}; margin-bottom: 24px"><a href="#" onClick="{{ goHome }}" style="color: {{ th.sub }}">ホーム</a> / <a href="#" onClick="{{ goList }}" style="color: {{ th.sub }}">製品</a> / {{ detailCat }}</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 48px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="aspect-ratio: 4 / 5; background-color: {{ th.panel }}; background-image: url('{{ detailImg }}'); background-size: cover; background-position: center"></div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px">
+            <sc-for list="{{ detailThumbs }}" as="t" hint-placeholder-count="4">
+              <div style="aspect-ratio: 1 / 1; background-color: {{ th.panel }}; background-image: url('{{ t.url }}'); background-size: cover; background-position: center"></div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="position: sticky; top: 100px; display: flex; flex-direction: column; gap: 24px; padding: clamp(8px, 2vw, 24px) 0">
+          <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding-bottom: 8px">
+            <div role="img" aria-label="v_Q" style="height: 72px; width: 113px; background-image: url('{{ th.logo }}'); background-size: contain; background-repeat: no-repeat; background-position: left center"></div>
+            <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 20px; font-weight: 400; letter-spacing: 0.5em; color: {{ th.accent }}">{{ th.word }}</div>
+            <div style="width: 56px; height: 1px; background: {{ th.accent }}"></div>
+            <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 400; letter-spacing: 0.4em; color: {{ th.sub }}">{{ th.tag }}</div>
+          </div>
+          <sc-if value="{{ detailLocked }}" hint-placeholder-val="{{ false }}">
+            <div style="display: inline-flex; align-self: flex-start; align-items: center; gap: 8px; border: 1px solid {{ th.accent }}; color: {{ th.accent }}; font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; letter-spacing: 0.2em; padding: 7px 14px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="10" rx="1"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>REFERRAL ONLY — 紹介コード限定</div>
+          </sc-if>
+          <div>
+            <h1 style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: clamp(26px, 2.8vw, 36px); font-weight: 300; line-height: 1.2; letter-spacing: 0.12em; margin: 0 0 10px">{{ detailName }}</h1>
+            <div style="font-size: 15px; color: {{ th.sub }}">{{ detailNameJa }}</div>
+          </div>
+          <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap">
+            <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 40px; font-weight: 300">¥{{ detailPrice }}</span>
+            <span style="font-size: 16px; color: {{ th.sub }}; text-decoration: line-through">{{ detailWas }}</span>
+            <span style="font-size: 13px; color: {{ th.sub }}">税込</span>
+            <span style="font-size: 13px; color: {{ th.sub }}; margin-left: auto">{{ detailStock }}</span>
+          </div>
+          <p style="font-size: 15px; line-height: 2; color: {{ th.fg }}; opacity: 0.88; margin: 0">{{ detailBody }}</p>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap">
+            <div style="display: flex; align-items: center; border: 1px solid {{ th.line }}; border-radius: 999px; padding: 4px">
+              <button type="button" onClick="{{ decQty }}" style="border: none; background: transparent; color: {{ th.fg }}; width: 48px; height: 48px; border-radius: 50%; font-size: 20px; cursor: pointer">−</button>
+              <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 18px; width: 40px; text-align: center">{{ qty }}</span>
+              <button type="button" onClick="{{ incQty }}" style="border: none; background: transparent; color: {{ th.fg }}; width: 48px; height: 48px; border-radius: 50%; font-size: 20px; cursor: pointer">＋</button>
+            </div>
+            <button type="button" onClick="{{ addToCart }}" style="flex: 1; min-width: 220px; border: none; background: {{ th.btnBg }}; color: {{ th.btnFg }}; height: 58px; border-radius: 999px; font-family: inherit; font-size: 16px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer" style-hover="opacity:0.88">カートに入れる</button>
+          </div>
+          <div style="font-size: 13px; color: {{ th.sub }}">{{ shipNote }}</div>
+          <div style="border-top: 1px solid {{ th.accent }}">
+            <sc-for list="{{ detailSpecs }}" as="s" hint-placeholder-count="5">
+              <div style="display: flex; gap: 20px; padding: 15px 0; border-bottom: 1px solid {{ th.line }}; font-size: 14px">
+                <span style="color: {{ th.sub }}; width: 110px; flex-shrink: 0">{{ s.k }}</span>
+                <span style="line-height: 1.7">{{ s.v }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background: {{ th.panel }}; padding: 26px; border: 1px solid {{ th.line }}">
+            <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; letter-spacing: 0.2em; color: {{ th.accent }}; margin-bottom: 10px">COA — {{ detailLot }}</div>
+            <p style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}; margin: 0 0 14px">第三者機関による分析結果を公開しています。THCは検出されていません（検出限界以下）。</p>
+            <a href="#" onClick="{{ noop }}" style="font-size: 14px; color: {{ th.fg }}; text-decoration: underline; text-underline-offset: 4px">成分分析書を見る →</a>
+          </div>
+          <div>
+            <div style="font-size: 15px; font-weight: 500; margin-bottom: 12px">取扱いと使用上の注意</div>
+            <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px">
+              <sc-for list="{{ detailNotes }}" as="n" hint-placeholder-count="4">
+                <li style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}">{{ n.t }}</li>
+              </sc-for>
+            </ul>
+            <p style="font-size: 12px; line-height: 1.9; color: {{ th.sub }}; margin: 16px 0 0">※本製品は疾病の診断・治療・予防を目的とするものではなく、効果効能を保証するものではありません。妊娠中・授乳中の方、治療中の方は医師にご相談ください。20歳未満の方はご購入いただけません。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top: 96px; min-height: 420px; background-color: {{ th.panel }}; background-image: url('{{ detailWide }}'); background-size: cover; background-position: center; display: flex; align-items: flex-end">
+      <div style="max-width: 1400px; width: 100%; margin: 0 auto; padding: 48px 32px; box-sizing: border-box; background: linear-gradient(0deg, {{ th.fade }} 0%, rgba(0,0,0,0) 100%)">
+        <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: clamp(28px, 4vw, 52px); font-weight: 300; letter-spacing: 0.3em; color: {{ th.wideFg }}">{{ th.tag }}</div>
+      </div>
+    </div>
+    <div style="max-width: 1400px; margin: 0 auto; padding: 96px 32px 0">
+      <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 40px"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; letter-spacing: 0.32em; color: {{ th.sub }}">RELATED</span><h2 style="font-size: clamp(28px, 3.4vw, 42px); font-weight: 500; line-height: 1.4; margin: 0">こちらもおすすめ</h2></div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px">
+        <sc-for list="{{ related }}" as="p" hint-placeholder-count="4">
+            <button type="button" onClick="{{ p.open }}" style="border: none; background: #f8f6f2; color: #1c1b19; padding: 0; cursor: pointer; text-align: left; display: flex; flex-direction: column; border-radius: 4px; overflow: hidden; font-family: inherit; transition: box-shadow 250ms" style-hover="box-shadow:0 16px 40px rgba(28,27,25,0.10)">
+              <div style="position: relative; width: 100%; aspect-ratio: 3 / 4; background-color: #dcd6cc; background-image: url('{{ p.img }}'); background-size: cover; background-position: center 45%">
+                
+                <sc-if value="{{ p.locked }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; background: rgba(28,27,25,0.45); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #ffffff"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5" y="11" width="14" height="10" rx="1"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; letter-spacing: 0.2em">紹介コード限定</span></span></sc-if>
+                <sc-if value="{{ p.hasOff }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: 16px; right: 16px; background: #b5452f; color: #ffffff; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0.1em; padding: 6px 12px">{{ p.off }}</span></sc-if>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px; padding: 22px 22px 24px; flex: 1">
+                <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.24em; color: #77736b">{{ p.cat }}</div>
+                <div style="font-size: 16px; font-weight: 500; line-height: 1.55; text-wrap: pretty">{{ p.name }}</div>
+                <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: auto; padding-top: 6px"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 22px; font-weight: 400; color: {{ p.priceColor }}">¥{{ p.price }}</span><span style="font-size: 13px; color: #77736b; text-decoration: line-through">{{ p.was }}</span><span style="font-size: 12px; color: #77736b">税込</span></div>
+                <div style="margin-top: 10px; font-size: 14px; text-decoration: underline; text-underline-offset: 4px">詳しく見る →</div>
+              </div>
+            </button>
+          </sc-for>
+      </div>
+    </div>
+    <div style="height: 20px"></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isCart }}" hint-placeholder-val="{{ false }}">
+    <div style="background: #efebe4">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 64px 32px 0">
+      <div style="display: flex; align-items: baseline; gap: 18px; margin-bottom: 36px; flex-wrap: wrap">
+        <h1 style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 300; font-size: clamp(40px, 5vw, 64px); letter-spacing: 0.2em; line-height: 1; margin: 0">CART</h1>
+        <span style="font-size: 15px; color: #46443f">カート・{{ cartCount }}点</span>
+      </div>
+      <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="background: #f8f6f2; padding: 72px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 24px">
+          <p style="font-size: 16px; color: #46443f; margin: 0">カートに商品がありません。</p>
+          <button type="button" onClick="{{ goList }}" style="border: none; background: #1c1b19; color: #ffffff; padding: 18px 40px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 12px; transition: background 200ms" style-hover="background:#6e7257">製品を見る</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ cartFilled }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+          <div style="background: #f8f6f2; padding: 8px 28px; flex: 2 1 560px; min-width: 0">
+            <sc-for list="{{ cartLines }}" as="l" hint-placeholder-count="2">
+              <div style="display: flex; gap: 20px; align-items: center; padding: 22px 0; border-bottom: 1px solid #e2ddd4; flex-wrap: wrap">
+                <div style="width: 80px; height: 104px; flex-shrink: 0; background-color: #dcd6cc; background-image: url('{{ l.img }}'); background-size: cover; background-position: center 40%"></div>
+                <div style="flex: 1; min-width: 160px">
+                  <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.2em; color: #77736b; margin-bottom: 6px">{{ l.cat }}</div>
+                  <div style="font-size: 15px; font-weight: 500; line-height: 1.6">{{ l.name }}</div>
+                  <div style="font-size: 13px; color: #77736b; margin-top: 4px">{{ l.spec }}</div>
+                </div>
+                <div style="display: flex; align-items: center; border: 1px solid #e2ddd4; border-radius: 999px; padding: 3px; background: #ffffff">
+                  <button type="button" onClick="{{ l.dec }}" style="border: none; background: transparent; color: #1c1b19; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 16px">−</button>
+                  <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 16px; width: 32px; text-align: center">{{ l.qty }}</span>
+                  <button type="button" onClick="{{ l.inc }}" style="border: none; background: transparent; color: #1c1b19; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 16px">＋</button>
+                </div>
+                <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 20px; width: 110px; text-align: right">¥{{ l.total }}</div>
+                <button type="button" onClick="{{ l.remove }}" style="border: none; background: transparent; color: #77736b; font-family: inherit; font-size: 13px; cursor: pointer; text-decoration: underline" style-hover="color:#1c1b19">削除</button>
+              </div>
+            </sc-for>
+            <p style="font-size: 13px; line-height: 2; color: #77736b; margin: 0; padding: 20px 0">20歳未満の方はご購入いただけません。ご注文時に年齢確認を行います。本製品は効果効能を保証するものではありません。</p>
+          </div>
+          <div style="background: #f8f6f2; padding: 32px; position: sticky; top: 100px; flex: 1 1 320px">
+            <div style="font-size: 18px; font-weight: 500; margin-bottom: 20px">ご注文内容</div>
+            <div style="display: flex; justify-content: space-between; font-size: 15px; color: #46443f; padding-bottom: 12px"><span>小計</span><span>¥{{ subtotal }}</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 15px; color: #46443f; padding-bottom: 16px; border-bottom: 1px solid #e2ddd4"><span>送料</span><span>{{ shipping }}</span></div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 18px 0 24px"><span style="font-size: 15px; font-weight: 500">合計（税込）</span><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 30px">¥{{ grandTotal }}</span></div>
+            <button type="button" onClick="{{ goCheckout }}" style="border: none; background: #1c1b19; color: #ffffff; padding: 18px 40px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 12px; transition: background 200ms; width: 100%" style-hover="background:#6e7257">レジに進む</button>
+            <div style="font-size: 13px; color: #77736b; text-align: center; margin-top: 14px">{{ freeShipNote }}</div>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isCheckout }}" hint-placeholder-val="{{ false }}">
+    <div style="background: #efebe4">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 64px 32px 0">
+      <div style="display: flex; align-items: baseline; gap: 18px; margin-bottom: 36px; flex-wrap: wrap">
+        <h1 style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 300; font-size: clamp(40px, 5vw, 64px); letter-spacing: 0.2em; line-height: 1; margin: 0">CHECKOUT</h1>
+        <span style="font-size: 15px; color: #46443f">お支払い・配送</span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+        <div style="flex: 2 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+          <div style="background: #f8f6f2; padding: 32px">
+            <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px">
+              <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; letter-spacing: 0.2em; color: #77736b">01</span>
+              <span style="font-size: 18px; font-weight: 500">配送先</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <sc-if value="{{ coNoAddr }}" hint-placeholder-val="{{ false }}">
+                <div style="border: 1px dashed #d3cdc2; background: #ffffff; padding: 20px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center">
+                  <span style="font-size: 14px; color: #46443f">配送先が登録されていません。</span>
+                  <button type="button" onClick="{{ coAddAddr }}" style="border-radius: 999px; border: 1px solid #1c1b19; background: transparent; color: #1c1b19; padding: 10px 20px; font-family: inherit; font-size: 13px; cursor: pointer">住所を登録する</button>
+                </div>
+              </sc-if>
+              <sc-for list="{{ coAddrs }}" as="a" hint-placeholder-count="2">
+                <button type="button" onClick="{{ a.pick }}" style="border: 1px solid {{ a.bd }}; background: #ffffff; padding: 18px 20px; text-align: left; font-family: inherit; color: #1c1b19; cursor: pointer; display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 14px; align-items: start">
+                  <span style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #1c1b19; display: flex; align-items: center; justify-content: center; margin-top: 2px"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{ a.dot }}"></span></span>
+                  <span>
+                    <span style="display: block; font-size: 15px; font-weight: 500; margin-bottom: 4px">{{ a.name }}</span>
+                    <span style="display: block; font-size: 13px; line-height: 1.9; color: #46443f">{{ a.zip }} {{ a.addr }}<br />TEL {{ a.tel }}</span>
+                  </span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background: #f8f6f2; padding: 32px">
+            <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px">
+              <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; letter-spacing: 0.2em; color: #77736b">02</span>
+              <span style="font-size: 18px; font-weight: 500">お支払い方法</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <button type="button" onClick="{{ payBank }}" style="border: 1px solid {{ bankBd }}; background: #ffffff; padding: 20px; text-align: left; font-family: inherit; color: #1c1b19; cursor: pointer; display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 14px; align-items: start">
+                <span style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #1c1b19; display: flex; align-items: center; justify-content: center; margin-top: 2px"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{ bankDot }}"></span></span>
+                <span>
+                  <span style="display: block; font-size: 15px; font-weight: 500; margin-bottom: 4px">銀行振込</span>
+                  <span style="display: block; font-size: 13px; line-height: 1.9; color: #46443f">ご注文確定後に振込先をご案内します。ご入金確認後の発送となります。振込手数料はお客様のご負担となります。</span>
+                </span>
+              </button>
+              <button type="button" onClick="{{ payPaypay }}" style="border: 1px solid {{ ppBd }}; background: #ffffff; padding: 20px; text-align: left; font-family: inherit; color: #1c1b19; cursor: pointer; display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 14px; align-items: start">
+                <span style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #1c1b19; display: flex; align-items: center; justify-content: center; margin-top: 2px"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{ ppDot }}"></span></span>
+                <span>
+                  <span style="display: block; font-size: 15px; font-weight: 500; margin-bottom: 4px">PayPay</span>
+                  <span style="display: block; font-size: 13px; line-height: 1.9; color: #46443f">{{ ppDesc }}</span>
+                </span>
+              </button>
+            </div>
+            <sc-if value="{{ isBank }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top: 16px; border: 1px solid #e2ddd4; background: #ffffff; padding: 20px 22px">
+                <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #77736b; margin-bottom: 12px">TRANSFER ACCOUNT</div>
+                <div style="display: grid; grid-template-columns: 110px minmax(0, 1fr); row-gap: 8px; font-size: 14px; line-height: 1.7">
+                  <span style="color: #77736b">銀行名</span><span>{{ bankName }}</span>
+                  <span style="color: #77736b">支店名</span><span>{{ bankBranch }}</span>
+                  <span style="color: #77736b">口座種別</span><span>{{ bankType }}</span>
+                  <span style="color: #77736b">店番号</span><span style="font-family: Jost, 'Noto Sans JP', sans-serif">{{ bankBranchNo }}</span>
+                  <span style="color: #77736b">口座番号</span><span style="font-family: Jost, 'Noto Sans JP', sans-serif">{{ bankNo }}</span>
+                  <span style="color: #77736b">口座名義</span><span>{{ bankHolder }}</span>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <div style="background: #f8f6f2; padding: 32px; position: sticky; top: 100px; flex: 1 1 320px">
+          <div style="font-size: 18px; font-weight: 500; margin-bottom: 20px">ご注文内容</div>
+          <sc-for list="{{ cartLines }}" as="l" hint-placeholder-count="2">
+            <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: #46443f; padding-bottom: 10px"><span>{{ l.name }} × {{ l.qty }}</span><span style="font-family: Jost, 'Noto Sans JP', sans-serif">¥{{ l.total }}</span></div>
+          </sc-for>
+          <div style="display: flex; justify-content: space-between; font-size: 15px; color: #46443f; padding: 12px 0; border-top: 1px solid #e2ddd4"><span>小計</span><span>¥{{ subtotal }}</span></div>
+          <div style="display: flex; justify-content: space-between; font-size: 15px; color: #46443f; padding-bottom: 16px; border-bottom: 1px solid #e2ddd4"><span>送料</span><span>{{ shipping }}</span></div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 18px 0 24px"><span style="font-size: 15px; font-weight: 500">合計（税込）</span><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 30px">¥{{ grandTotal }}</span></div>
+          <button type="button" onClick="{{ placeOrder }}" style="border: none; background: #1c1b19; color: #ffffff; padding: 18px 40px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer; width: 100%; transition: background 200ms" style-hover="background:#6e7257">注文を確定する</button>
+          <button type="button" onClick="{{ goCart }}" style="border: none; background: transparent; color: #77736b; font-family: inherit; font-size: 13px; cursor: pointer; text-decoration: underline; width: 100%; margin-top: 14px" style-hover="color:#1c1b19">カートに戻る</button>
+        </div>
+      </div>
+    </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isThanks }}" hint-placeholder-val="{{ false }}">
+    <div style="background: #efebe4">
+    <div style="max-width: 720px; margin: 0 auto; padding: 72px 32px 0">
+      <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; letter-spacing: 0.2em; color: #77736b; margin-bottom: 14px">ORDER {{ doneNo }}</div>
+      <h1 style="font-size: clamp(26px, 3.4vw, 34px); font-weight: 500; line-height: 1.5; margin: 0 0 14px">ご注文を受け付けました</h1>
+      <p style="font-size: 14px; line-height: 2; color: #46443f; margin: 0 0 32px; text-wrap: pretty">{{ doneLead }}</p>
+      <div style="background: #f8f6f2; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 18px; border-bottom: 1px solid #e2ddd4"><span style="font-size: 15px; font-weight: 500">お支払い金額（税込）</span><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 30px">¥{{ doneTotal }}</span></div>
+        <sc-if value="{{ doneBank }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #77736b; margin-bottom: 14px">TRANSFER ACCOUNT</div>
+            <div style="background: #ffffff; border: 1px solid #e2ddd4; padding: 22px; display: grid; grid-template-columns: 110px minmax(0, 1fr); row-gap: 10px; font-size: 15px; line-height: 1.7">
+              <span style="color: #77736b">銀行名</span><span>{{ bankName }}</span>
+              <span style="color: #77736b">支店名</span><span>{{ bankBranch }}</span>
+                  <span style="color: #77736b">口座種別</span><span>{{ bankType }}</span>
+              <span style="color: #77736b">店番号</span><span style="font-family: Jost, 'Noto Sans JP', sans-serif">{{ bankBranchNo }}</span>
+              <span style="color: #77736b">口座番号</span><span style="font-family: Jost, 'Noto Sans JP', sans-serif">{{ bankNo }}</span>
+                  <span style="color: #77736b">口座名義</span><span>{{ bankHolder }}</span>
+            </div>
+            <ul style="font-size: 13px; line-height: 2; color: #5a5751; margin: 16px 0 0; padding-left: 20px">
+              <li>振込名義の先頭に注文番号（{{ doneNo }}）をご入力ください。</li>
+              <li>ご注文から7日以内にお振込みください。期限を過ぎた場合はキャンセルとなります。</li>
+              <li>振込手数料はお客様のご負担となります。</li>
+            </ul>
+          </div>
+        </sc-if>
+        <sc-if value="{{ donePaypay }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <a href="{{ paypayUrl }}" target="_blank" rel="noopener" style="background: #1c1b19; color: #ffffff; padding: 18px 40px; border-radius: 999px; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; text-align: center; text-decoration: none; transition: background 200ms" style-hover="background:#6e7257">PayPayで支払う</a>
+            <p style="font-size: 13px; line-height: 2; color: #5a5751; margin: 0">決済リンクの有効期限は発行から24時間です。お支払い完了後、確認メールをお送りします。</p>
+          </div>
+        </sc-if>
+      </div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px">
+        <button type="button" onClick="{{ goAccount }}" style="border: 1px solid #1c1b19; background: transparent; color: #1c1b19; padding: 14px 30px; border-radius: 999px; font-family: inherit; font-size: 14px; cursor: pointer">注文履歴を見る</button>
+        <button type="button" onClick="{{ goList }}" style="border: none; background: transparent; color: #77736b; padding: 14px 10px; font-family: inherit; font-size: 14px; cursor: pointer; text-decoration: underline">買い物を続ける</button>
+      </div>
+    </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isLegal }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width: 900px; margin: 0 auto; padding: 46px 24px 0">
+      <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #77736b; margin-bottom: 22px">HOME / LEGAL</div>
+      <div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 26px">
+        <h1 style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 40px; letter-spacing: 0.03em; margin: 0">LEGAL</h1>
+        <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0.04em; color: #77736b">各種表記・規約</span>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #e2ddd4; padding-bottom: 18px; margin-bottom: 34px">
+        <sc-for list="{{ legalTabs }}" as="t" hint-placeholder-count="4">
+          <button type="button" onClick="{{ t.select }}" style="border-radius: 999px; border: 1px solid {{ t.bd }}; background: {{ t.bg }}; color: {{ t.fg }}; padding: 10px 16px; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0.04em; cursor: pointer">{{ t.label }}</button>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ legalIsTokusho }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 0.03em; margin-bottom: 8px">特定商取引法に基づく表記</div>
+          <p style="font-size: 13px; line-height: 1.95; color: #77736b; margin: 0 0 30px">特定商取引法第11条に基づき、通信販売についての表示を掲載しています。</p>
+          <div style="border-top: 1px solid #e2ddd4">
+            <sc-for list="{{ tokushoRows }}" as="r" hint-placeholder-count="12">
+              <div style="display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 20px; border-bottom: 1px solid #e2ddd4; padding: 18px 0">
+                <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0.04em; color: #1c1b19; line-height: 1.9">{{ r.k }}</div>
+                <div style="font-size: 14px; line-height: 2; color: #23272e; white-space: pre-line">{{ r.v }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ legalIsPrivacy }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 0.03em; margin-bottom: 8px">個人情報の取り扱い</div>
+          <p style="font-size: 13px; line-height: 1.95; color: #77736b; margin: 0 0 30px">当店は、お客様の個人情報を以下の方針に基づき適切に管理いたします。</p>
+          <sc-for list="{{ privacySections }}" as="s" hint-placeholder-count="7">
+            <div style="border-top: 1px solid #e2ddd4; padding: 22px 0">
+              <div style="font-size: 15px; font-weight: 600; letter-spacing: 0.02em; margin-bottom: 12px; color: #1c1b19">{{ s.h }}</div>
+              <p style="font-size: 14px; line-height: 2.05; color: #46443f; margin: 0; white-space: pre-line">{{ s.b }}</p>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ legalIsTerms }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 0.03em; margin-bottom: 8px">利用規約</div>
+          <p style="font-size: 13px; line-height: 1.95; color: #77736b; margin: 0 0 30px">本規約は、当店が運営するオンラインストアのご利用条件を定めるものです。ご利用の前に必ずお読みください。</p>
+          <sc-for list="{{ termsSections }}" as="s" hint-placeholder-count="10">
+            <div style="border-top: 1px solid #e2ddd4; padding: 22px 0">
+              <div style="font-size: 15px; font-weight: 600; letter-spacing: 0.02em; margin-bottom: 12px; color: #1c1b19">{{ s.h }}</div>
+              <p style="font-size: 14px; line-height: 2.05; color: #46443f; margin: 0; white-space: pre-line">{{ s.b }}</p>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ legalIsCompany }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 0.03em; margin-bottom: 8px">会社概要</div>
+          <p style="font-size: 13px; line-height: 1.95; color: #77736b; margin: 0 0 30px">運営会社の基本情報です。</p>
+          <div style="border-top: 1px solid #e2ddd4">
+            <sc-for list="{{ companyRows }}" as="r" hint-placeholder-count="7">
+              <div style="display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 20px; border-bottom: 1px solid #e2ddd4; padding: 18px 0">
+                <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0.04em; color: #1c1b19; line-height: 1.9">{{ r.k }}</div>
+                <div style="font-size: 14px; line-height: 2; color: #23272e; white-space: pre-line">{{ r.v }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="margin-top: 40px; border: 1px solid #efebe4; background: #f8f6f2; padding: 22px 24px">
+        <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #1c1b19; margin-bottom: 10px">NOTICE</div>
+        <p style="font-size: 13px; line-height: 2; color: #5a5751; margin: 0">当店で取り扱う商品はすべて、大麻取締法・麻薬及び向精神薬取締法に抵触しない範囲で製造・輸入されたものです。THCは検出限界以下（0.00%）であることを第三者機関の分析により確認しています。商品は嗜好品であり、医薬品ではありません。疾病の治療・予防を目的とした効能効果は一切表示しておりません。</p>
+      </div>
+      <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #77736b; margin-top: 18px">最終改定日：{{ legalRevised }}</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isAuth }}" hint-placeholder-val="{{ false }}">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); min-height: calc(100vh - 120px); background: #efebe4">
+      <div style="background-color: #1c1b19; background-image: linear-gradient(180deg, rgba(20,20,19,0.2) 0%, rgba(20,20,19,0.88) 70%), url('assets/vq-s/scene-night.jpg'); background-size: cover; background-position: center; color: #ffffff; padding: clamp(40px, 6vw, 88px); display: flex; flex-direction: column; justify-content: flex-end; gap: 26px; min-height: 480px">
+        <img src="assets/vq-s/logo-light2.png" alt="v_Q" style="height: 84px; width: auto; display: block" />
+        <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 300; letter-spacing: 0.34em; color: rgba(255,255,255,0.8)">MEMBERS ONLY</span>
+        <p style="font-size: 16px; line-height: 1.95; color: rgba(255,255,255,0.85); margin: 0; max-width: 460px">ご購入は会員登録された方に限らせていただいております。紹介コードをお持ちの方は、限定製品もご覧いただけます。</p>
+        <div style="display: flex; flex-direction: column; gap: 12px"><div style="display: flex; gap: 18px; align-items: baseline; font-size: 16px"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 300; letter-spacing: 0.2em; color: rgba(255,255,255,0.6)">01</span>メールアドレスで登録</div><div style="display: flex; gap: 18px; align-items: baseline; font-size: 16px"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 300; letter-spacing: 0.2em; color: rgba(255,255,255,0.6)">02</span>生年月日で年齢確認（20歳以上）</div><div style="display: flex; gap: 18px; align-items: baseline; font-size: 16px"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 300; letter-spacing: 0.2em; color: rgba(255,255,255,0.6)">03</span>ログインしてお買い物</div></div>
+      </div>
+      <div style="padding: clamp(36px, 6vw, 80px) clamp(24px, 5vw, 72px); display: flex; justify-content: center; align-items: center">
+        <div style="width: 100%; max-width: 480px; background: #ffffff; border-radius: 32px; padding: clamp(28px, 4vw, 48px)">
+          <sc-if value="{{ authNotice }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #efebe4; color: #1c1b19; padding: 16px 20px; border-radius: 16px; font-size: 14px; line-height: 1.8; font-weight: 700; margin-bottom: 24px">ご購入にはログインが必要です。</div>
+          </sc-if>
+          <div style="display: flex; background: #efebe4; border-radius: 999px; padding: 5px; margin-bottom: 32px">
+            <button type="button" onClick="{{ tabLogin }}" style="flex: 1; border: none; background: {{ loginTabBg }}; color: {{ loginTabFg }}; padding: 14px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer">ログイン</button>
+            <button type="button" onClick="{{ tabSignup }}" style="flex: 1; border: none; background: {{ signupTabBg }}; color: {{ signupTabFg }}; padding: 14px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer">新規登録</button>
+          </div>
+          <sc-if value="{{ isLoginTab }}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; flex-direction: column; gap: 20px">
+              <h1 style="font-size: 28px; font-weight: 700; margin: 0">おかえりなさい</h1>
+              <label style="display: block"><span style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px">メールアドレス</span><input type="email" value="{{ liEmail }}" onChange="{{ setLiEmail }}" placeholder="you@example.com" style="width: 100%; box-sizing: border-box; border: 1.5px solid #e2ddd4; background: #ffffff; color: #1c1b19; padding: 17px 20px; border-radius: 16px; font-size: 16px; font-family: inherit" style-focus="border-color:#1c1b19;outline:none;box-shadow:0 0 0 4px #efebe4" /></label>
+              <label style="display: block"><span style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px">パスワード</span><input type="password" value="{{ liPw }}" onChange="{{ setLiPw }}" placeholder="••••••••" style="width: 100%; box-sizing: border-box; border: 1.5px solid #e2ddd4; background: #ffffff; color: #1c1b19; padding: 17px 20px; border-radius: 16px; font-size: 16px; font-family: inherit" style-focus="border-color:#1c1b19;outline:none;box-shadow:0 0 0 4px #efebe4" /></label>
+              <sc-if value="{{ hasAuthError }}" hint-placeholder-val="{{ false }}"><div style="background: #fdecec; color: #b42318; padding: 14px 18px; border-radius: 16px; font-size: 14px; font-weight: 700; line-height: 1.8">{{ authError }}</div></sc-if>
+              <button type="button" onClick="{{ doLogin }}" style="border: none; background: #1c1b19; color: #ffffff; height: 58px; border-radius: 999px; font-family: inherit; font-size: 16px; font-weight: 700; cursor: pointer" style-hover="background:#1c1b19">ログイン</button>
+              <a href="#" onClick="{{ tabSignup }}" style="font-size: 14px; font-weight: 700; color: #1c1b19">紹介コードをお持ちの方は新規登録へ →</a>
+              <span style="font-size: 13px; color: #77736b; line-height: 1.8">パスワードをお忘れの場合は、登録メールアドレスへ再設定リンクをお送りします。</span>
+              <sc-if value="{{ showDemo }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12px; color: #77736b; background: #efebe4; border-radius: 12px; padding: 10px 14px">DEMO 会員：{{ demoEmail }} / {{ demoPw }}<br />DEMO 管理者：{{ demoAdmin }}</div></sc-if>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isSignupTab }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 20px">
+              <h1 style="font-size: 28px; font-weight: 700; margin: 0">新規会員登録</h1>
+              <label style="display: block"><span style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px">紹介コード（任意）</span><input type="text" value="{{ suCode }}" onChange="{{ setSuCode }}" placeholder="VQ-XXXX-XXXX" style="width: 100%; box-sizing: border-box; border: 1.5px solid #e2ddd4; background: #ffffff; color: #1c1b19; padding: 17px 20px; border-radius: 16px; font-size: 16px; font-family: inherit; letter-spacing: 0.06em; font-weight: 700" style-focus="border-color:#1c1b19;outline:none;box-shadow:0 0 0 4px #efebe4" /><span style="display: block; font-size: 13px; color: #77736b; margin-top: 8px">お持ちの方は入力すると、紹介コード限定の製品（NIGHT・CBX・VIBE SET）を閲覧・購入できます。</span></label>
+              <label style="display: block"><span style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px">お名前</span><input type="text" value="{{ suName }}" onChange="{{ setSuName }}" placeholder="山田 太郎" style="width: 100%; box-sizing: border-box; border: 1.5px solid #e2ddd4; background: #ffffff; color: #1c1b19; padding: 17px 20px; border-radius: 16px; font-size: 16px; font-family: inherit" style-focus="border-color:#1c1b19;outline:none;box-shadow:0 0 0 4px #efebe4" /></label>
+              <div><span style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px">生年月日（必須）</span><div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 10px"><input type="text" value="{{ suY }}" onChange="{{ setSuY }}" placeholder="1998" style="width: 100%; box-sizing: border-box; border: 1.5px solid #e2ddd4; background: #ffffff; color: #1c1b19; padding: 17px 20px; border-radius: 16px; font-size: 16px; font-family: inherit" style-focus="border-color:#1c1b19;outline:none;box-shadow:0 0 0 4px #efebe4" /><input type="text" value="{{ suM }}" onChange="{{ setSuM }}" placeholder="04" style="width: 100%; box-sizing: border-box; border: 1.5px solid #e2ddd4; background: #ffffff; color: #1c1b19; padding: 17px 20px; border-radius: 16px; font-size: 16px; font-family: inherit" style-focus="border-color:#1c1b19;outline:none;box-shadow:0 0 0 4px #efebe4" /><input type="text" value="{{ suD }}" onChange="{{ setSuD }}" placeholder="12" style="width: 100%; box-sizing: border-box; border: 1.5px solid #e2ddd4; background: #ffffff; color: #1c1b19; padding: 17px 20px; border-radius: 16px; font-size: 16px; font-family: inherit" style-focus="border-color:#1c1b19;outline:none;box-shadow:0 0 0 4px #efebe4" /></div><span style="display: block; font-size: 13px; color: #77736b; margin-top: 8px">20歳未満の方はご登録いただけません。</span></div>
+              <label style="display: block"><span style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px">メールアドレス</span><input type="email" value="{{ suEmail }}" onChange="{{ setSuEmail }}" placeholder="you@example.com" style="width: 100%; box-sizing: border-box; border: 1.5px solid #e2ddd4; background: #ffffff; color: #1c1b19; padding: 17px 20px; border-radius: 16px; font-size: 16px; font-family: inherit" style-focus="border-color:#1c1b19;outline:none;box-shadow:0 0 0 4px #efebe4" /></label>
+              <label style="display: block"><span style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px">パスワード（8文字以上）</span><input type="password" value="{{ suPw }}" onChange="{{ setSuPw }}" placeholder="••••••••" style="width: 100%; box-sizing: border-box; border: 1.5px solid #e2ddd4; background: #ffffff; color: #1c1b19; padding: 17px 20px; border-radius: 16px; font-size: 16px; font-family: inherit" style-focus="border-color:#1c1b19;outline:none;box-shadow:0 0 0 4px #efebe4" /></label>
+              <label style="display: block"><span style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px">パスワード（確認）</span><input type="password" value="{{ suPw2 }}" onChange="{{ setSuPw2 }}" placeholder="••••••••" style="width: 100%; box-sizing: border-box; border: 1.5px solid #e2ddd4; background: #ffffff; color: #1c1b19; padding: 17px 20px; border-radius: 16px; font-size: 16px; font-family: inherit" style-focus="border-color:#1c1b19;outline:none;box-shadow:0 0 0 4px #efebe4" /></label>
+              <label style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer">
+                <input type="checkbox" checked="{{ suAgree }}" onChange="{{ setSuAgree }}" style="margin-top: 4px; width: 18px; height: 18px; accent-color: #1c1b19" />
+                <span style="font-size: 14px; line-height: 1.8; color: #46443f">利用規約および個人情報の取り扱いに同意します。また、私は20歳以上です。</span>
+              </label>
+              <sc-if value="{{ hasAuthError }}" hint-placeholder-val="{{ false }}"><div style="background: #fdecec; color: #b42318; padding: 14px 18px; border-radius: 16px; font-size: 14px; font-weight: 700; line-height: 1.8">{{ authError }}</div></sc-if>
+              <button type="button" onClick="{{ doSignup }}" style="border: none; background: #1c1b19; color: #ffffff; height: 58px; border-radius: 999px; font-family: inherit; font-size: 16px; font-weight: 700; cursor: pointer" style-hover="background:#6e7257">登録して続ける</button>
+              <sc-if value="{{ showDemo }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12px; color: #77736b; background: #efebe4; border-radius: 12px; padding: 10px 14px">DEMO CODE：{{ demoCode }}</div></sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isMypage }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 46px 24px 0">
+      <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #77736b; margin-bottom: 22px">HOME / MY PAGE</div>
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px; margin-bottom: 36px">
+        <h1 style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 40px; letter-spacing: 0.03em; margin: 0">MY PAGE</h1>
+        <div style="font-size: 14px; color: #46443f">{{ userName }} 様</div>
+        <div style="margin-left: auto; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #77736b">MEMBER ID {{ userId }}</div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 34px; align-items: start">
+        <div style="display: flex; flex-direction: column; border: 1px solid #e2ddd4; background: #ffffff">
+          <sc-for list="{{ myTabs }}" as="t" hint-placeholder-count="8">
+            <button type="button" onClick="{{ t.select }}" style="border-radius: 0; border: none; border-bottom: 1px solid #e2ddd4; background: {{ t.bg }}; color: {{ t.fg }}; padding: 15px 16px; text-align: left; font-size: 13px; letter-spacing: 0.06em; cursor: pointer">{{ t.label }}</button>
+          </sc-for>
+          <button type="button" onClick="{{ doLogout }}" style="border-radius: 999px; border: none; background: transparent; color: #77736b; padding: 15px 16px; text-align: left; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0.04em; cursor: pointer" style-hover="color:#1c1b19">LOG OUT</button>
+        </div>
+
+        <div>
+          <sc-if value="{{ myIsOrders }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: 0.03em; margin-bottom: 20px">注文履歴</div>
+              <sc-for list="{{ orders }}" as="o" hint-placeholder-count="3">
+                <div style="border: 1px solid #e2ddd4; background: #ffffff; margin-bottom: 14px">
+                  <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center; border-bottom: 1px solid #e2ddd4; padding: 14px 18px">
+                    <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0.04em; color: #1c1b19">{{ o.no }}</span>
+                    <span style="font-size: 13px; color: #77736b">{{ o.date }}</span>
+                    <span style="font-size: 12px; color: #77736b">{{ o.payLabel }}</span>
+                    <span style="margin-left: auto; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 18px">¥{{ o.total }}</span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid #e2ddd4">
+                    <div style="padding: 14px 18px; border-right: 1px solid #e2ddd4; display: flex; flex-direction: column; gap: 6px">
+                      <span style="font-size: 11px; color: #77736b; letter-spacing: 0.04em">支払い状況</span>
+                      <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: {{ o.payFg }}"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{ o.payFg }}"></span>{{ o.payStatus }}</span>
+                      <span style="font-size: 12px; color: #77736b">{{ o.payNote }}</span>
+                    </div>
+                    <div style="padding: 14px 18px; display: flex; flex-direction: column; gap: 6px">
+                      <span style="font-size: 11px; color: #77736b; letter-spacing: 0.04em">配送状況</span>
+                      <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: {{ o.shipFg }}"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{ o.shipFg }}"></span>{{ o.shipStatus }}</span>
+                      <span style="font-size: 12px; color: #77736b">{{ o.shipNote }}</span>
+                    </div>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; padding: 16px 18px 4px">
+                    <sc-for list="{{ o.steps }}" as="st" hint-placeholder-count="5">
+                      <div style="display: flex; flex-direction: column; gap: 8px">
+                        <span style="height: 3px; background: {{ st.bar }}"></span>
+                        <span style="font-size: 11px; color: {{ st.fg }}; line-height: 1.4">{{ st.label }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ o.sim }}" hint-placeholder-val="{{ false }}">
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 18px 0; padding: 10px 12px; border: 1px dashed #d3cdc2">
+                      <span style="font-size: 11px; color: #77736b">管理サイト操作（デモ）</span>
+                      <button type="button" onClick="{{ o.simPay }}" style="border: 1px solid #d3cdc2; background: #ffffff; padding: 6px 12px; font-family: inherit; font-size: 12px; cursor: pointer">入金確認</button>
+                      <button type="button" onClick="{{ o.simShip }}" style="border: 1px solid #d3cdc2; background: #ffffff; padding: 6px 12px; font-family: inherit; font-size: 12px; cursor: pointer">発送開始</button>
+                      <button type="button" onClick="{{ o.simDeliver }}" style="border: 1px solid #d3cdc2; background: #ffffff; padding: 6px 12px; font-family: inherit; font-size: 12px; cursor: pointer">配達完了</button>
+                    </div>
+                  </sc-if>
+                  <div style="padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+                    <sc-for list="{{ o.items }}" as="it" hint-placeholder-count="2">
+                      <div style="display: flex; gap: 14px; align-items: center">
+                        <div style="width: 56px; height: 56px; border-radius: 14px; background-color: #dcd6cc; background-image: url('{{ it.img }}'); background-size: cover; background-position: center; flex-shrink: 0"></div>
+                        <div style="min-width: 0">
+                          <div style="font-size: 14px; line-height: 1.6">{{ it.name }}</div>
+                          <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #77736b; margin-top: 4px">× {{ it.qty }}</div>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div style="display: flex; flex-wrap: wrap; gap: 10px; border-top: 1px solid #e2ddd4; padding: 14px 18px">
+                    <button type="button" onClick="{{ o.reorder }}" style="border-radius: 999px; border: 1px solid #1c1b19; background: transparent; color: #1c1b19; padding: 10px 16px; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0.04em; cursor: pointer" style-hover="background:#1c1b19;color:#ffffff">再注文</button>
+                    <span style="font-size: 12px; color: #77736b; align-self: center">{{ o.track }}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ myIsSubs }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: 0.03em; margin-bottom: 8px">定期購入の管理</div>
+              <p style="font-size: 13px; line-height: 1.9; color: #77736b; margin: 0 0 22px">次回お届け日の3日前まで、内容の変更・スキップ・解約が可能です。</p>
+              <sc-for list="{{ subs }}" as="sb" hint-placeholder-count="1">
+                <div style="border: 1px solid #e2ddd4; background: #ffffff; padding: 20px; margin-bottom: 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: center">
+                  <div style="display: flex; gap: 16px; align-items: center; min-width: 0">
+                    <div style="width: 64px; height: 64px; border-radius: 16px; background-color: #dcd6cc; background-image: url('{{ sb.img }}'); background-size: cover; background-position: center; flex-shrink: 0"></div>
+                    <div style="min-width: 0">
+                      <div style="font-size: 14px; line-height: 1.6">{{ sb.name }}</div>
+                      <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #1c1b19; margin-top: 6px">{{ sb.cycle }} / 次回 {{ sb.next }}</div>
+                      <div style="font-size: 12px; color: #77736b; margin-top: 5px">{{ sb.priceNote }}</div>
+                    </div>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 8px">
+                    <button type="button" onClick="{{ noop }}" style="border-radius: 999px; border: 1px solid #d3cdc2; background: transparent; color: #1c1b19; padding: 9px 14px; font-size: 12px; letter-spacing: 0.04em; cursor: pointer" style-hover="border-color:#1c1b19">周期を変更</button>
+                    <button type="button" onClick="{{ noop }}" style="border-radius: 999px; border: 1px solid #d3cdc2; background: transparent; color: #1c1b19; padding: 9px 14px; font-size: 12px; letter-spacing: 0.04em; cursor: pointer" style-hover="border-color:#1c1b19">次回をスキップ</button>
+                    <button type="button" onClick="{{ noop }}" style="border-radius: 999px; border: 1px solid #f0c6c3; background: transparent; color: #a5433e; padding: 9px 14px; font-size: 12px; letter-spacing: 0.04em; cursor: pointer" style-hover="color:#c62f2a">解約する</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ myIsFavs }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: 0.03em; margin-bottom: 20px">お気に入り</div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px">
+                <sc-for list="{{ favs }}" as="f" hint-placeholder-count="3">
+                  <div style="border: 1px solid #e2ddd4; background: #ffffff">
+                    <div onClick="{{ f.open }}" style="width: 100%; aspect-ratio: 1; border-radius: 18px; background-color: #dcd6cc; background-image: url('{{ f.img }}'); background-size: cover; background-position: center; cursor: pointer"></div>
+                    <div style="padding: 14px">
+                      <div style="font-size: 13px; line-height: 1.7; margin-bottom: 8px">{{ f.name }}</div>
+                      <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 17px; margin-bottom: 12px">¥{{ f.price }}</div>
+                      <div style="display: flex; gap: 8px">
+                        <button type="button" onClick="{{ f.add }}" style="border-radius: 999px; flex: 1; border: 1px solid #1c1b19; background: transparent; color: #1c1b19; padding: 9px; font-size: 12px; letter-spacing: 0.04em; cursor: pointer" style-hover="background:#1c1b19;color:#ffffff">カートへ</button>
+                        <button type="button" onClick="{{ f.remove }}" style="border-radius: 999px; border: 1px solid #d3cdc2; background: transparent; color: #77736b; padding: 9px 11px; font-size: 12px; cursor: pointer" style-hover="color:#c62f2a">削除</button>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ myIsAddr }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: 0.03em; margin-bottom: 20px">配送先住所の管理</div>
+              <sc-for list="{{ addresses }}" as="a" hint-placeholder-count="2">
+                <div style="border: 1px solid {{ a.bd }}; background: #ffffff; padding: 20px; margin-bottom: 12px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px">
+                  <div>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px">
+                      <span style="font-size: 14px">{{ a.name }}</span>
+                      <sc-if value="{{ a.isDefault }}" hint-placeholder-val="{{ false }}">
+                        <span style="background: #1c1b19; color: #ffffff; padding: 3px 9px; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em">DEFAULT</span>
+                      </sc-if>
+                    </div>
+                    <div style="font-size: 13px; line-height: 2; color: #46443f">{{ a.zip }}<br />{{ a.addr }}<br />TEL {{ a.tel }}</div>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 8px">
+                    <button type="button" onClick="{{ a.makeDefault }}" style="border-radius: 999px; border: 1px solid #d3cdc2; background: transparent; color: #1c1b19; padding: 9px 14px; font-size: 12px; cursor: pointer" style-hover="border-color:#1c1b19">既定にする</button>
+                    <button type="button" onClick="{{ noop }}" style="border-radius: 999px; border: 1px solid #d3cdc2; background: transparent; color: #1c1b19; padding: 9px 14px; font-size: 12px; cursor: pointer" style-hover="border-color:#1c1b19">編集</button>
+                    <button type="button" onClick="{{ a.remove }}" style="border-radius: 999px; border: 1px solid #f0c6c3; background: transparent; color: #a5433e; padding: 9px 14px; font-size: 12px; cursor: pointer" style-hover="color:#c62f2a">削除</button>
+                  </div>
+                </div>
+              </sc-for>
+              <sc-if value="{{ afClosed }}" hint-placeholder-val="{{ true }}">
+                <button type="button" onClick="{{ afOpen }}" style="border-radius: 999px; border: 1px dashed #d3cdc2; background: transparent; color: #1c1b19; padding: 16px; width: 100%; font-size: 13px; letter-spacing: 0.04em; cursor: pointer" style-hover="border-color:#1c1b19">＋ 新しい住所を追加</button>
+              </sc-if>
+              <sc-if value="{{ afIsOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="border: 1px solid #1c1b19; background: #ffffff; padding: 22px; display: flex; flex-direction: column; gap: 14px">
+                  <div style="font-size: 15px; font-weight: 500">新しい住所</div>
+                  <label style="display: block"><span style="display: block; font-size: 12px; color: #46443f; margin-bottom: 6px">お名前（宛名）</span><input type="text" value="{{ afName }}" onChange="{{ setAfName }}" placeholder="山田 太郎" style="width: 100%; box-sizing: border-box; border: 1px solid #d3cdc2; padding: 12px 14px; font-family: inherit; font-size: 14px; background: #ffffff" /></label>
+                  <label style="display: block"><span style="display: block; font-size: 12px; color: #46443f; margin-bottom: 6px">郵便番号</span><input type="text" value="{{ afZip }}" onChange="{{ setAfZip }}" placeholder="150-0042" style="width: 180px; box-sizing: border-box; border: 1px solid #d3cdc2; padding: 12px 14px; font-family: inherit; font-size: 14px; background: #ffffff" /></label>
+                  <label style="display: block"><span style="display: block; font-size: 12px; color: #46443f; margin-bottom: 6px">住所（都道府県から建物名・部屋番号まで）</span><input type="text" value="{{ afAddr }}" onChange="{{ setAfAddr }}" placeholder="東京都渋谷区宇田川町0-0 ○○マンション502" style="width: 100%; box-sizing: border-box; border: 1px solid #d3cdc2; padding: 12px 14px; font-family: inherit; font-size: 14px; background: #ffffff" /></label>
+                  <label style="display: block"><span style="display: block; font-size: 12px; color: #46443f; margin-bottom: 6px">電話番号</span><input type="tel" value="{{ afTel }}" onChange="{{ setAfTel }}" placeholder="090-0000-0000" style="width: 220px; box-sizing: border-box; border: 1px solid #d3cdc2; padding: 12px 14px; font-family: inherit; font-size: 14px; background: #ffffff" /></label>
+                  <sc-if value="{{ afHasErr }}" hint-placeholder-val="{{ false }}"><div style="color: #c62f2a; font-size: 13px">{{ afErr }}</div></sc-if>
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap">
+                    <button type="button" onClick="{{ afSave }}" style="border-radius: 999px; border: none; background: #1c1b19; color: #ffffff; padding: 13px 28px; font-family: inherit; font-size: 14px; cursor: pointer" style-hover="background:#6e7257">この住所を保存</button>
+                    <button type="button" onClick="{{ afCancel }}" style="border: none; background: transparent; color: #77736b; font-family: inherit; font-size: 13px; cursor: pointer; text-decoration: underline">キャンセル</button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ myIsProfile }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: 0.03em; margin-bottom: 20px">会員情報の編集</div>
+              <div style="border: 1px solid #e2ddd4; background: #ffffff; padding: 24px; display: flex; flex-direction: column; gap: 20px">
+                <label style="display: block">
+                  <span style="display: block; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #1c1b19; margin-bottom: 9px">NAME / お名前</span>
+                  <input type="text" value="{{ pfName }}" onChange="{{ setPfName }}" style="border-radius: 12px; width: 100%; box-sizing: border-box; border: 1px solid #d3cdc2; background: #ffffff; color: #1c1b19; padding: 14px; font-size: 14px; font-family: inherit" />
+                </label>
+                <label style="display: block">
+                  <span style="display: block; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #1c1b19; margin-bottom: 9px">EMAIL / メールアドレス</span>
+                  <input type="email" value="{{ pfEmail }}" onChange="{{ setPfEmail }}" style="border-radius: 12px; width: 100%; box-sizing: border-box; border: 1px solid #d3cdc2; background: #ffffff; color: #1c1b19; padding: 14px; font-size: 14px; font-family: inherit" />
+                </label>
+                <label style="display: block">
+                  <span style="display: block; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #1c1b19; margin-bottom: 9px">TEL / 電話番号</span>
+                  <input type="tel" value="{{ pfTel }}" onChange="{{ setPfTel }}" style="border-radius: 12px; width: 100%; box-sizing: border-box; border: 1px solid #d3cdc2; background: #ffffff; color: #1c1b19; padding: 14px; font-size: 14px; font-family: inherit" />
+                </label>
+                <div style="border-top: 1px solid #e2ddd4; padding-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px">
+                  <div>
+                    <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #77736b; margin-bottom: 7px">生年月日（変更不可）</div>
+                    <div style="font-size: 14px">{{ userDob }}</div>
+                  </div>
+                  <div>
+                    <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #77736b; margin-bottom: 7px">紹介元コード</div>
+                    <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 14px">{{ userInvitedBy }}</div>
+                  </div>
+                </div>
+                <label style="display: flex; gap: 12px; align-items: center; cursor: pointer">
+                  <input type="checkbox" checked="{{ pfMail }}" onChange="{{ setPfMail }}" style="border-radius: 12px; accent-color: #1c1b19" />
+                  <span style="font-size: 13px; color: #46443f">新商品・再入荷のお知らせを受け取る</span>
+                </label>
+                <button type="button" onClick="{{ saveProfile }}" style="border-radius: 999px; border: none; background: #1c1b19; color: #ffffff; padding: 15px; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.04em; cursor: pointer; align-self: flex-start; padding-left: 34px; padding-right: 34px" style-hover="background:#1c1b19">{{ saveLabel }}</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ myIsPw }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: 0.03em; margin-bottom: 20px">パスワード変更</div>
+              <div style="border: 1px solid #e2ddd4; background: #ffffff; padding: 24px; display: flex; flex-direction: column; gap: 20px; max-width: 460px">
+                <label style="display: block">
+                  <span style="display: block; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #1c1b19; margin-bottom: 9px">現在のパスワード</span>
+                  <input type="password" value="{{ pwCur }}" onChange="{{ setPwCur }}" style="border-radius: 12px; width: 100%; box-sizing: border-box; border: 1px solid #d3cdc2; background: #ffffff; color: #1c1b19; padding: 14px; font-size: 14px; font-family: inherit" />
+                </label>
+                <label style="display: block">
+                  <span style="display: block; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #1c1b19; margin-bottom: 9px">新しいパスワード（8文字以上）</span>
+                  <input type="password" value="{{ pwNew }}" onChange="{{ setPwNew }}" style="border-radius: 12px; width: 100%; box-sizing: border-box; border: 1px solid #d3cdc2; background: #ffffff; color: #1c1b19; padding: 14px; font-size: 14px; font-family: inherit" />
+                </label>
+                <label style="display: block">
+                  <span style="display: block; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #1c1b19; margin-bottom: 9px">新しいパスワード（確認）</span>
+                  <input type="password" value="{{ pwNew2 }}" onChange="{{ setPwNew2 }}" style="border-radius: 12px; width: 100%; box-sizing: border-box; border: 1px solid #d3cdc2; background: #ffffff; color: #1c1b19; padding: 14px; font-size: 14px; font-family: inherit" />
+                </label>
+                <sc-if value="{{ hasPwMsg }}" hint-placeholder-val="{{ false }}">
+                  <div style="border: 1px solid {{ pwMsgBd }}; background: #fdf0ef; color: {{ pwMsgFg }}; padding: 13px 15px; font-size: 13px; line-height: 1.8">{{ pwMsg }}</div>
+                </sc-if>
+                <button type="button" onClick="{{ savePw }}" style="border-radius: 999px; border: none; background: #1c1b19; color: #ffffff; padding: 15px; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.04em; cursor: pointer" style-hover="background:#1c1b19">変更する</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ myIsCode }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: 0.03em; margin-bottom: 8px">紹介コード</div>
+              <p style="font-size: 13px; line-height: 1.9; color: #77736b; margin: 0 0 22px">ご登録時に入力された紹介コードです。紹介コード限定製品の閲覧・購入に使用されます。</p>
+              <div style="border: 1px solid #efebe4; background: #f8f6f2; padding: 30px 24px; text-align: center; margin-bottom: 22px">
+                <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #1c1b19; margin-bottom: 14px">REGISTERED CODE</div>
+                <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 28px; letter-spacing: 0.04em; color: #1c1b19">{{ userInvitedBy }}</div>
+                <div style="font-size: 12px; color: #77736b; margin-top: 12px">{{ codeStatus }}</div>
+              </div>
+              <div style="font-size: 12px; line-height: 1.9; color: #77736b; margin-top: 16px">紹介コードは管理者のみが発行します。会員の方が新たにコードを発行することはできません。第三者への公開や不正利用が確認された場合、コードを無効化することがあります。</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ myIsQuit }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: 0.03em; margin-bottom: 20px">退会</div>
+              <div style="border: 1px solid #f0c6c3; background: #fdf0ef; padding: 26px">
+                <p style="font-size: 14px; line-height: 2.05; color: #46443f; margin: 0 0 18px">退会すると、注文履歴、お気に入り、登録住所、および紹介コード限定製品の閲覧権限はすべて無効となります。</p>
+                <ul style="font-size: 13px; line-height: 2.1; color: #5a5751; margin: 0 0 22px; padding-left: 20px">
+                  <li>進行中の定期購入は自動的に解約されます。</li>
+                  <li>発送前のご注文がある場合、退会手続きは完了できません。</li>
+                  <li>退会後の再登録には、あらためて紹介コードが必要です。</li>
+                </ul>
+                <label style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer; margin-bottom: 20px">
+                  <input type="checkbox" checked="{{ quitAgree }}" onChange="{{ setQuitAgree }}" style="border-radius: 12px; margin-top: 3px; accent-color: #c62f2a" />
+                  <span style="font-size: 13px; line-height: 1.9; color: #46443f">上記に同意のうえ退会します。</span>
+                </label>
+                <button type="button" onClick="{{ doQuit }}" style="border-radius: 999px; border: 1px solid {{ quitBd }}; background: transparent; color: {{ quitFg }}; padding: 14px 30px; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 13px; letter-spacing: 0.04em; cursor: pointer">退会する</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="background: #efebe4; padding: 120px 32px">
+    <div style="max-width: 1400px; margin: 0 auto; background: #f8f6f2; padding: clamp(32px, 5vw, 64px); display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; align-items: center">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 400; letter-spacing: 0.32em; color: #77736b">NEWSLETTER</span>
+        <div style="font-size: clamp(22px, 2.6vw, 30px); font-weight: 500; line-height: 1.5">メルマガ登録</div>
+        <p style="font-size: 15px; line-height: 1.95; color: #46443f; margin: 0">新作・再入荷・限定ドロップの情報をお届けします。</p>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap">
+        <input type="email" placeholder="mail@example.com" style="flex: 1 1 240px; min-width: 0; height: 58px; box-sizing: border-box; background: #ffffff; border: 1px solid #e2ddd4; color: #1c1b19; padding: 0 24px; border-radius: 999px; font-size: 16px; font-family: inherit" style-focus="border-color:#1c1b19;outline:none" />
+        <button type="button" onClick="{{ noop }}" style="border: none; background: #1c1b19; color: #ffffff; height: 58px; padding: 0 36px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer" style-hover="background:#6e7257">登録する</button>
+      </div>
+    </div>
+  </div>
+
+  <footer style="background: #1c1b19; color: #ffffff; padding: 88px 32px 40px">
+    <div style="max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 48px">
+      <div style="display: flex; flex-direction: column; gap: 22px"><img src="assets/vq-s/logo-light2.png" alt="v_Q" style="height: 64px; width: auto; display: block" /><div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 300; letter-spacing: 0.3em; color: rgba(255,255,255,0.7)">CHOOSE YOUR VIBE.</div></div>
+      <div style="display: flex; flex-direction: column; gap: 14px; font-size: 14px"><div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.24em; color: #ffffff; margin-bottom: 6px">PRODUCTS</div><a href="#" onClick="{{ goList }}" style="color: rgba(255,255,255,0.7)" style-hover="color:#ffffff">製品一覧</a><a href="#" onClick="{{ goDay }}" style="color: rgba(255,255,255,0.7)" style-hover="color:#ffffff">DAY</a><a href="#" onClick="{{ goNight }}" style="color: rgba(255,255,255,0.7)" style-hover="color:#ffffff">NIGHT</a><a href="#" onClick="{{ goList }}" style="color: rgba(255,255,255,0.7)" style-hover="color:#ffffff">VIBE SET</a></div>
+      <div style="display: flex; flex-direction: column; gap: 14px; font-size: 14px"><div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.24em; color: #ffffff; margin-bottom: 6px">SUPPORT</div><a href="#" onClick="{{ noop }}" style="color: rgba(255,255,255,0.7)" style-hover="color:#ffffff">送料・配送について</a><a href="#" onClick="{{ noop }}" style="color: rgba(255,255,255,0.7)" style-hover="color:#ffffff">よくある質問</a><a href="#" onClick="{{ noop }}" style="color: rgba(255,255,255,0.7)" style-hover="color:#ffffff">成分分析（COA）</a><a href="#" onClick="{{ noop }}" style="color: rgba(255,255,255,0.7)" style-hover="color:#ffffff">お問い合わせ</a></div>
+      <div style="display: flex; flex-direction: column; gap: 14px; font-size: 14px"><div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.24em; color: #ffffff; margin-bottom: 6px">COMPANY</div><a href="#" onClick="{{ goTokusho }}" style="color: rgba(255,255,255,0.7)" style-hover="color:#ffffff">特定商取引法に基づく表記</a><a href="#" onClick="{{ goPrivacy }}" style="color: rgba(255,255,255,0.7)" style-hover="color:#ffffff">個人情報の取り扱い</a><a href="#" onClick="{{ goTerms }}" style="color: rgba(255,255,255,0.7)" style-hover="color:#ffffff">利用規約</a><a href="#" onClick="{{ goCompany }}" style="color: rgba(255,255,255,0.7)" style-hover="color:#ffffff">会社概要</a></div>
+    </div>
+    <div style="max-width: 1400px; margin: 64px auto 0; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 28px; display: flex; gap: 18px; flex-wrap: wrap; justify-content: space-between; font-size: 13px; color: rgba(255,255,255,0.5)"><span>© 2026 v_Q</span><span>20歳未満の方はご購入いただけません</span></div>
+  </footer>
+</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;ageGate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behavior&quot;},&quot;showRanking&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;},&quot;freeShipThreshold&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:8000,&quot;min&quot;:3000,&quot;max&quot;:20000,&quot;step&quot;:500,&quot;unit&quot;:&quot;円&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Behavior&quot;},&quot;shopName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;v_Q&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Brand&quot;},&quot;adminSim&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;label&quot;:&quot;管理サイト操作デモを表示&quot;,&quot;section&quot;:&quot;デモ&quot;}}">
+const YEN = n => n.toLocaleString('ja-JP');
+
+const COMMON_NOTES = ['20歳未満の方はご使用・ご購入いただけません。', '510規格対応バッテリーでご使用ください。推奨電圧は2.2V〜2.8Vです。', '体調に異変を感じた場合はただちに使用を中止してください。', '直射日光・高温多湿を避け、子どもの手の届かない場所で保管してください。'];
+const IMG = n => 'assets/vq-s/' + n + (n.indexOf('logo') === 0 ? '.png' : '.jpg');
+const THEME = {
+  DAY: { bg: '#efebe4', panel: '#f8f6f2', fg: '#1c1b19', sub: '#5f5c55', line: '#dcd6cc', accent: '#c7772a', word: 'CBG', tag: 'FOR A BRIGHT MORNING.', light: false, btnBg: '#1c1b19', btnFg: '#ffffff' },
+  NIGHT: { bg: '#0d0d0c', panel: '#161615', fg: '#f3f1ec', sub: '#a19d95', line: '#2c2b29', accent: '#c8272d', word: 'CBX', tag: 'FOR A DEEPER STATE.', light: true, btnBg: '#c8272d', btnFg: '#ffffff' },
+  CHILL: { bg: '#2f3127', panel: '#383a2f', fg: '#f1efe7', sub: '#b9b7a8', line: '#4a4c3f', accent: '#b9c07f', word: 'CBN', tag: 'FOR A SLOW WEEKEND.', light: true, btnBg: '#f1efe7', btnFg: '#2f3127' },
+  FOCUS: { bg: '#d9dbda', panel: '#e8e9e8', fg: '#1c1b19', sub: '#55595a', line: '#c3c6c5', accent: '#b89a00', word: 'H4CBH', tag: 'FOR A CLEAR SKY.', light: false, btnBg: '#1c1b19', btnFg: '#ffffff' },
+  TRON: { bg: '#0d0d0c', panel: '#161615', fg: '#f3f1ec', sub: '#a19d95', line: '#2c2b29', accent: '#c8272d', word: 'CBX', tag: 'FOR A DEEPER STATE.', light: true, btnBg: '#c8272d', btnFg: '#ffffff' },
+  GLO: { bg: '#0c0e0a', panel: '#151812', fg: '#f1f3ec', sub: '#9fa596', line: '#2a2e25', accent: '#a8d12c', word: 'CBX', tag: 'FOR A DEEPER STATE.', light: true, btnBg: '#a8d12c', btnFg: '#0c0e0a' },
+  SET: { bg: '#1c1b19', panel: '#252422', fg: '#f3f1ec', sub: '#a19d95', line: '#35332f', accent: '#c8272d', word: '4 VIBES', tag: 'FOR EVERY MOOD.', light: true, btnBg: '#f3f1ec', btnFg: '#1c1b19' }
+};
+const VIBE = { DAY: { bg: '#e9e4da', fg: '#1c1b19' }, NIGHT: { bg: '#0d0d0c', fg: '#ffffff' }, CHILL: { bg: '#6e7257', fg: '#ffffff' }, FOCUS: { bg: '#b4b7b7', fg: '#1c1b19' } };
+
+const PRODUCTS = [
+  { id: 'vq-day', line: 'CBG', vibe: 'DAY', flavor: 'CITRUS', img: IMG('box-day'), thumbs: [IMG('box-day'), IMG('scene-day'), IMG('pens'), IMG('hero-lineup')], sku: 'VQ-DAY-CT10', cat: 'DAY', name: 'v_Q DAY — CITRUS 1.0 mL', nameJa: 'デイ／シトラスの香り', price: 4980, was: 0, stock: 60, spec: 'CBD 60% / CBG 20% / テルペン 10%', slot: 'pod', rank: 2, isNew: false, lot: 'DAY-2609',
+    body: '朝の光をイメージした、オレンジとレモンの明るいシトラスの香り。ホワイトのボディに、アイボリーのボックス。',
+    specs: [['配合', 'CBD 60% / CBG 20% / テルペン 10%'], ['香り', 'CITRUS（オレンジ、レモン）'], ['内容量', '1.0 mL'], ['カラー', 'ホワイト'], ['規格', '510規格対応'], ['製造', '国内製造'], ['THC', '不検出（検出限界以下）']], notes: COMMON_NOTES },
+  { id: 'vq-night', locked: true, vibe: 'NIGHT', flavor: 'CBX', img: IMG('night-card'), main: IMG('night-main'), thumbs: [IMG('night-main'), IMG('night-open'), IMG('night-macro'), IMG('night-row')], sku: 'VQ-NGT-GL10', cat: 'NIGHT', name: 'v_Q NIGHT — CBX 1.0 mL', nameJa: 'ナイト／紹介コード限定モデル', price: 4980, was: 0, stock: 42, spec: 'CBX 30% / CBD 50% / テルペン 10%', slot: 'pod', rank: 1, isNew: false, lot: 'NGT-2609',
+    body: '紹介コードをお持ちの方だけの限定モデル。CBXを軸にした配合に、深みのあるジェラートの香り。石のような質感のブラックボックスに、1本ずつ収めてお届けします。',
+    specs: [['配合', 'CBX 30% / CBD 50% / テルペン 10%'], ['香り', 'GELATO（ベリー、クリーム）'], ['内容量', '1.0 mL'], ['カラー', 'マットブラック'], ['規格', '510規格対応'], ['製造', '国内製造'], ['THC', '不検出（検出限界以下）']], notes: COMMON_NOTES },
+  { id: 'vq-chill', line: 'CBD', vibe: 'CHILL', flavor: 'OG KUSH', img: IMG('box-chill'), thumbs: [IMG('box-chill'), IMG('scene-set'), IMG('pens'), IMG('hero-lineup')], sku: 'VQ-CHL-OG10', cat: 'CHILL', name: 'v_Q CHILL — OG KUSH 1.0 mL', nameJa: 'チル／OGクッシュの香り', price: 4980, was: 5480, stock: 35, spec: 'CBD 55% / CBN 20% / テルペン 10%', slot: 'pod', rank: 3, isNew: false, lot: 'CHL-2609',
+    body: '週末のゆったりした時間をイメージした、アーシーで奥行きのあるOGクッシュの香り。オリーブのボックス。',
+    specs: [['配合', 'CBD 55% / CBN 20% / テルペン 10%'], ['香り', 'OG KUSH（パイン、アース）'], ['内容量', '1.0 mL'], ['カラー', 'ブラック'], ['規格', '510規格対応'], ['製造', '国内製造'], ['THC', '不検出（検出限界以下）']], notes: COMMON_NOTES },
+  { id: 'vq-focus', line: 'CBD', vibe: 'FOCUS', flavor: 'LEMON HAZE', img: IMG('box-focus'), thumbs: [IMG('box-focus'), IMG('scene-set'), IMG('pens'), IMG('hero-lineup')], sku: 'VQ-FCS-LH10', cat: 'FOCUS', name: 'v_Q FOCUS — LEMON HAZE 1.0 mL', nameJa: 'フォーカス／レモンヘイズの香り', price: 4980, was: 0, stock: 28, spec: 'H4CBH 25% / CBD 50% / テルペン 10%', slot: 'pod', rank: 4, isNew: true, lot: 'FCS-2609',
+    body: '澄んだ空気をイメージした、キレのあるレモンヘイズの香り。ライトグレーのボックス。',
+    specs: [['配合', 'H4CBH 25% / CBD 50% / テルペン 10%'], ['香り', 'LEMON HAZE（レモン、ハーブ）'], ['内容量', '1.0 mL'], ['カラー', 'ホワイト'], ['規格', '510規格対応'], ['製造', '国内製造'], ['THC', '不検出（検出限界以下）']], notes: COMMON_NOTES },
+  { id: 'vq-tron', locked: true, theme: 'TRON', vibe: 'CBX', flavor: 'TRON Pro', img: IMG('tron-card'), main: IMG('tron-main'), wide: IMG('tron-wide'), thumbs: [IMG('tron-main'), IMG('tron-d1'), IMG('tron-d2'), IMG('tron-d3')], sku: 'VQ-CBX-TRN10', cat: 'CBX', name: 'v_Q CBX — TRON Pro 1.0 mL', nameJa: 'デジタルディスプレイ搭載 使い捨てデバイス／紹介コード限定', price: 6980, was: 0, stock: 30, spec: 'CBX配合 / 使い捨てPOD / 流線型', slot: 'device', rank: 6, isNew: true, lot: 'TRN-2609',
+    body: 'CBXを配合したリキッドを、流線型の使い捨てデバイスに充填。電圧と残量が見えるデジタルディスプレイを搭載しています。紹介コードをお持ちの方だけの限定モデルです。',
+    specs: [['配合', 'CBX配合'], ['内容量', '1.0 mL'], ['タイプ', '使い捨てPOD（流線型）'], ['ディスプレイ', 'デジタルディスプレイ（電圧・残量表示）'], ['カラー', 'ホワイト × ブラック'], ['THC', '不検出（検出限界以下）']],
+    notes: ['20歳未満の方はご使用・ご購入いただけません。', '使い捨てデバイスのため、分解・充填はしないでください。', '体調に異変を感じた場合はただちに使用を中止してください。', '廃棄の際はお住まいの自治体のルールに従ってください。'] },
+  { id: 'vq-glo', locked: true, theme: 'GLO', vibe: 'CBX', flavor: 'GLO Pro', img: IMG('glo-card'), main: IMG('glo-main'), wide: IMG('glo-wide'), thumbs: [IMG('glo-main'), IMG('glo-d1'), IMG('glo-d2'), IMG('glo-d3')], sku: 'VQ-CBX-GLO10', cat: 'CBX', name: 'v_Q CBX — GLO Pro 1.0 mL', nameJa: 'デジタルディスプレイ搭載 充電式使い捨てデバイス／紹介コード限定', price: 7480, was: 0, stock: 24, spec: 'CBX配合 / 使い捨てPOD / 充電可', slot: 'device', rank: 7, isNew: true, lot: 'GLO-2609',
+    body: 'CBXを配合したリキッドを、充電できる使い捨てデバイスに充填。ライムグリーンのボディに、残量が見えるデジタルディスプレイを搭載しています。紹介コードをお持ちの方だけの限定モデルです。',
+    specs: [['配合', 'CBX配合'], ['内容量', '1.0 mL'], ['タイプ', '使い捨てPOD（充電可）'], ['ディスプレイ', 'デジタルディスプレイ（残量表示）'], ['カラー', 'ライムグリーン × ブラック'], ['THC', '不検出（検出限界以下）']],
+    notes: ['20歳未満の方はご使用・ご購入いただけません。', '使い捨てデバイスのため、分解・充填はしないでください。充電は付属の方法で行ってください。', '体調に異変を感じた場合はただちに使用を中止してください。', '廃棄の際はお住まいの自治体のルールに従ってください。'] },
+  { id: 'vq-set', locked: true, vibe: 'SET', flavor: '4 VIBES', img: IMG('scene-set'), thumbs: [IMG('scene-set'), IMG('hero-lineup'), IMG('box-day'), IMG('night-card')], sku: 'VQ-SET-4', cat: 'SET', name: 'v_Q VIBE SET — 4本セット', nameJa: 'DAY・NIGHT・CHILL・FOCUS 各1本', price: 17800, was: 19920, stock: 20, spec: '1.0 mL × 4本', slot: 'set', rank: 5, isNew: true, lot: '各製品ページ参照',
+    body: '4つのバイブを1本ずつ揃えたセット。専用スリーブに収めてお届けします。',
+    specs: [['セット内容', 'DAY / NIGHT / CHILL / FOCUS 各1.0 mL'], ['規格', '510規格対応'], ['製造', '国内製造'], ['THC', '不検出（検出限界以下）']], notes: COMMON_NOTES }
+];
+
+const CATS = [
+  { key: 'DAY', en: 'DAY', ja: 'デイ' },
+  { key: 'NIGHT', en: 'NIGHT', ja: 'ナイト' },
+  { key: 'CHILL', en: 'CHILL', ja: 'チル' },
+  { key: 'FOCUS', en: 'FOCUS', ja: 'フォーカス' },
+  { key: 'CBX', en: 'CBX', ja: 'CBX限定' },
+  { key: 'SET', en: 'SET', ja: 'セット' },
+  { key: 'ALL', en: 'ALL', ja: 'すべて' }
+];
+
+const GROUPS = [
+  { key: 'ALL', label: 'すべて' },
+  { key: 'CBG', label: 'CBG', en: 'CBG LINE', note: 'CBGを組み合わせた配合。', img: 'box-day' },
+  { key: 'CBD', label: 'CBD', en: 'CBD LINE', note: 'CBDをベースにした配合。', img: 'box-chill' },
+  { key: 'CBX', label: 'CBX', en: 'CBX LINE', note: 'CBXを配合した製品。', img: 'tron-card' },
+  { key: 'REF', label: '招待コード限定', en: 'INVITATION ONLY', note: '招待コードをお持ちの方だけが閲覧・購入できる製品です。', img: 'night-card' }
+];
+const inGroup = (p, k) => k === 'ALL' ? true : k === 'REF' ? !!p.locked : k === 'CBX' ? /CBX/.test(p.spec) : k === 'CBG' ? p.line === 'CBG' : k === 'CBD' ? (p.line === 'CBD' || (!p.line && !/CBX/.test(p.spec))) : false;
+const groupOf = p => p.locked ? 'REF' : (p.line || 'CBD');
+
+const SLIDES = [
+  { pid: 'vq-set', badge: 'NEW', name: 'CHOOSE YOUR VIBE.', h1: 'DAY / NIGHT', h2: 'CHILL / FOCUS', jp: 'その日の気分で、選ぶ。', bg: "linear-gradient(90deg, rgba(239,235,228,1) 0%, rgba(239,235,228,0.94) 34%, rgba(239,235,228,0) 60%), url('assets/vq-s/hero-lineup.jpg')", base: '#efebe4', pos: 'center right', justify: 'flex-start', fg: '#1c1b19', btnBg: '#1c1b19', btnFg: '#ffffff' },
+  { pid: 'vq-night', badge: 'REFERRAL ONLY', name: 'NIGHT — CBX / 1.0 mL', h1: 'FOR A', h2: 'DEEPER STATE.', jp: '紹介コードをお持ちの方だけの限定モデル。', bg: "linear-gradient(270deg, rgba(20,20,19,0.92) 0%, rgba(20,20,19,0.6) 40%, rgba(20,20,19,0) 70%), url('assets/vq-s/night-row.jpg')", base: '#1f1e1d', pos: 'center', justify: 'flex-end', fg: '#ffffff', btnBg: '#ffffff', btnFg: '#1c1b19' },
+  { pid: 'vq-day', badge: 'DAY', name: 'CITRUS / 1.0 mL', h1: 'MORNING', h2: 'LIGHT', jp: '日差しのような、明るい香り。', bg: "linear-gradient(270deg, rgba(239,235,228,0.95) 0%, rgba(239,235,228,0.7) 38%, rgba(239,235,228,0) 68%), url('assets/vq-s/scene-day.jpg')", base: '#dcd6cc', pos: 'center', justify: 'flex-end', fg: '#1c1b19', btnBg: '#1c1b19', btnFg: '#ffffff' }
+];
+
+const LEGAL_REVISED = '2026年9月1日';
+
+const LEGAL_TABS = [
+  { key: 'tokusho', label: '特定商取引法' },
+  { key: 'privacy', label: '個人情報の取り扱い' },
+  { key: 'terms', label: '利用規約' },
+  { key: 'company', label: '会社概要' }
+];
+
+const TOKUSHO = [
+  { k: '販売業者', v: 'V_Q Store' },
+  { k: '運営責任者', v: '高木 三暉' },
+  { k: '所在地', v: 'ご請求があれば遅滞なく開示いたします。' },
+  { k: '電話番号', v: 'ご請求があれば遅滞なく開示いたします。' },
+  { k: 'メールアドレス', v: '［メールアドレスを記入］' },
+  { k: 'ホームページ', v: '［ストアURLを記入］' },
+  { k: '販売価格', v: '各商品ページに表示された価格（消費税込）を販売価格とします。' },
+  { k: '商品代金以外の必要料金', v: '__SHIPPING__' },
+  { k: 'お支払い方法', v: '銀行振込（振込手数料はお客様負担）\nPayPay' },
+  { k: 'お支払い期限', v: 'PayPay：決済リンクの発行から24時間以内にお支払いください。\n銀行振込：ご注文日から7日以内にお振込みください。期限内にご入金が確認できない場合、ご注文はキャンセルとなります。' },
+  { k: '引渡し時期', v: 'ご注文（銀行振込の場合はご入金確認）から3営業日以内に発送いたします。\n通常、発送から2〜4日でお届けします。\n在庫切れ・天候等により遅延する場合は、メールにてご連絡いたします。' },
+  { k: '返品・交換について', v: '商品の性質上、返品・交換はお受けしておりません。\nご注文前に商品内容・数量を十分にご確認ください。' },
+  { k: '販売数量の制限', v: '同一商品につき、1回のご注文で10個までとさせていただく場合があります。' },
+  { k: '年齢制限', v: '20歳未満の方への販売は行っておりません。ご注文時に年齢確認を実施しています。' }
+];
+
+const PRIVACY = [
+  { h: '1. 取得する個人情報', b: '当店は、商品のご注文・お問い合わせ・メールマガジンのご登録に際して、氏名、住所、電話番号、メールアドレス、生年月日、決済に関する情報を取得します。PayPayでのお支払いに関する情報はPayPay株式会社が取得・管理し、当店が決済アカウントの情報を保持することはありません。' },
+  { h: '2. 利用目的', b: '取得した個人情報は、次の目的のために利用します。\n・商品の発送、代金決済、およびこれらに関するご連絡\n・お問い合わせへの回答\n・年齢確認\n・新商品、再入荷、キャンペーン等のご案内（ご同意いただいた方に限ります）\n・サービス改善のための統計分析（個人を識別できない形式に加工します）' },
+  { h: '3. 第三者への提供', b: '法令に基づく場合を除き、お客様の同意なく個人情報を第三者に提供することはありません。ただし、商品の配送および決済処理のために必要な範囲で、配送業者および決済代行会社に情報を提供します。' },
+  { h: '4. 委託先の管理', b: '業務の一部を外部に委託する場合、委託先に対して個人情報保護に関する契約を締結し、適切な管理を求めます。' },
+  { h: '5. 安全管理措置', b: '個人情報への不正アクセス、紛失、改ざん、漏えいを防止するため、通信の暗号化（SSL/TLS）、アクセス権限の制限、従業者への教育等の措置を講じます。' },
+  { h: '6. Cookieおよびアクセス解析', b: '当サイトは、利便性の向上およびアクセス状況の把握のためにCookieを使用します。Cookieはブラウザの設定により無効化できますが、一部の機能がご利用いただけなくなる場合があります。' },
+  { h: '7. 開示・訂正・削除の請求', b: 'お客様ご本人からの求めに応じ、保有する個人情報の開示、訂正、利用停止、削除に対応いたします。下記の窓口までご連絡ください。本人確認のうえ、法令の定めに従い対応します。' },
+  { h: '8. お問い合わせ窓口', b: '個人情報の取り扱いに関するお問い合わせは、［メールアドレスを記入］までご連絡ください。' }
+];
+
+const TERMS = [
+  { h: '第1条（適用）', b: '本規約は、当店が運営するオンラインストア（以下「本サイト」）の利用に関する条件を、お客様と当店との間で定めるものです。本サイトをご利用いただいた時点で、本規約に同意いただいたものとみなします。' },
+  { h: '第2条（年齢制限）', b: '本サイトのご利用および商品のご購入は、20歳以上の方に限ります。20歳未満の方によるご注文は、判明した時点でキャンセルいたします。年齢を偽ってご注文された場合、当店は一切の責任を負いません。' },
+  { h: '第3条（商品について）', b: '当店が取り扱う商品は嗜好品であり、医薬品、医薬部外品、健康食品ではありません。疾病の診断、治療、予防を目的としたものではなく、当店はいかなる効能効果も表示・保証しません。\n商品はすべて、大麻取締法および麻薬及び向精神薬取締法に抵触しない範囲で製造・輸入されたものであり、THCが検出限界以下であることを第三者機関の分析により確認しています。' },
+  { h: '第4条（注文の成立）', b: 'ご注文は、当店がご注文内容を確認し、注文確認メールを送信した時点で成立します。ただし、在庫切れ、表示価格の誤り、その他当店が不適切と判断した場合は、注文成立後であってもキャンセルすることがあります。' },
+  { h: '第4条の2（返品・交換）', b: '商品の性質上、ご注文成立後の返品・交換はお受けしておりません。' },
+  { h: '第5条（禁止事項）', b: 'お客様は、本サイトの利用にあたり次の行為を行ってはなりません。\n・購入した商品の転売、譲渡、および20歳未満の者への提供\n・法令または公序良俗に反する行為\n・当店または第三者の権利を侵害する行為\n・虚偽の情報を登録する行為\n・本サイトの運営を妨害する行為' },
+  { h: '第6条（使用上の注意）', b: '商品のご使用は、お客様ご自身の責任と判断でお願いいたします。妊娠中・授乳中の方、治療中・服薬中の方は、ご使用前に医師にご相談ください。運転前および運転中のご使用はお控えください。体調に異変を感じた場合は、直ちにご使用を中止してください。' },
+  { h: '第7条（免責）', b: '当店は、商品の使用によって生じた損害について、当店に故意または重大な過失がある場合を除き、責任を負いません。また、本サイトの停止、中断、データの消失等によって生じた損害についても同様とします。' },
+  { h: '第8条（知的財産権）', b: '本サイトに掲載された文章、画像、ロゴ、デザイン等の著作権その他の知的財産権は、当店または正当な権利者に帰属します。無断での複製、転載、改変を禁じます。' },
+  { h: '第9条（規約の変更）', b: '当店は、必要と判断した場合、お客様への事前の通知なく本規約を変更することができます。変更後の規約は、本サイトに掲載した時点から効力を生じます。' },
+  { h: '第10条（準拠法および管轄）', b: '本規約の解釈および適用は日本法に準拠します。本サイトに関して紛争が生じた場合は、当店所在地を管轄する裁判所を第一審の専属的合意管轄裁判所とします。' }
+];
+
+const COMPANY = [
+  { k: '販売業者', v: 'V_Q Store' },
+  { k: '代表者', v: '高木 三暉' },
+  { k: '所在地', v: 'ご請求があれば遅滞なく開示いたします。' },
+  { k: '事業内容', v: 'CBD・カンナビノイド関連製品の販売\nオンラインストアの運営' }
+];
+
+const ADMIN_USER = { id: 'ADMIN-001', name: '管理者', email: 'admin@v-q.jp', pw: 'vqadmin', role: 'admin' };
+const DEMO_USER = {
+  id: 'VQ-0001842', name: '佐藤 慶', email: 'demo@v-q.jp', pw: 'vqdemo2026',
+  tel: '090-1234-5678', dob: '1994年7月3日', code: 'VQ-8F2K-QN41', invitedBy: 'VQ-1A9C-TT02', mail: true
+};
+
+const MASTER = PRODUCTS.slice();
+const byId = id => MASTER.find(p => p.id === id);
+const CAT_MAP = { cbg: { line: 'CBG', vibe: 'DAY', cat: 'DAY', spec: 'CBG' }, cbd: { line: 'CBD', vibe: 'CHILL', cat: 'CHILL', spec: 'CBD' },
+  cbx: { vibe: 'NIGHT', cat: 'NIGHT', spec: 'CBX' }, referral: { vibe: 'NIGHT', cat: 'NIGHT', spec: 'CBX', locked: true } };
+const makeProduct = d => { const base = byId(d.category === 'cbg' ? 'vq-day' : d.category === 'cbd' ? 'vq-chill' : 'vq-night'); const m = CAT_MAP[d.category] || CAT_MAP.cbd;
+  const img = d.img || base.img;
+  return Object.assign({}, base, { id: d.id, line: m.line, vibe: m.vibe, cat: m.cat, spec: m.spec, locked: !!(m.locked || d.requiresCode), flavor: '', img: img, main: img, thumbs: [img],
+    sku: d.sku || '', name: d.name || d.id, nameJa: '', price: d.price || 0, was: 0, stock: d.stock || 0, rank: 99, isNew: true, lot: '',
+    body: d.body || '', specs: [['内容量', '1.0 mL'], ['THC', '不検出（検出限界以下）']] }); };
+const syncProducts = list => {
+  if (!list.length) return;
+  const ids = {};
+  list.forEach(d => { ids[d.id] = 1; let p = byId(d.id); if (!p) { p = makeProduct(d); MASTER.push(p); }
+    if (typeof d.price === 'number') p.price = d.price; if (typeof d.stock === 'number') p.stock = d.stock;
+    if (d.name && p.isNew && p.rank === 99) p.name = d.name; p.hidden = d.published === false; });
+  MASTER.forEach(p => { if (!ids[p.id]) p.hidden = true; });
+  PRODUCTS.length = 0; MASTER.filter(p => !p.hidden).forEach(p => PRODUCTS.push(p));
+};
+
+const VALID_CODES = ['VQ-8F2K-QN41', 'VQ-1A9C-TT02', 'VQ-6D3M-LZ88'];
+
+const MY_TABS = [
+  { key: 'orders', label: '注文履歴' },
+  { key: 'subs', label: '定期購入の管理' },
+  { key: 'favs', label: 'お気に入り' },
+  { key: 'addr', label: '配送先住所の管理' },
+  { key: 'profile', label: '会員情報の編集' },
+  { key: 'pw', label: 'パスワード変更' },
+  { key: 'code', label: '紹介コード' },
+  { key: 'quit', label: '退会' }
+];
+
+const VQO = () => window.VQOrders;
+const loadOrders = () => (VQO() ? VQO().load() : []);
+const jpDate = () => { const d = new Date(); return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
+
+const SUBS = [
+  { id: 'vq-night', cycle: '30日ごと', next: '2026年10月8日', priceNote: '定期価格 ¥4,480（10%OFF）・送料無料' }
+];
+
+const ADDRESSES = [
+  { id: 1, name: '佐藤 慶（自宅）', zip: '〒150-0042', addr: '東京都渋谷区宇田川町00-0 ○○マンション502', tel: '090-1234-5678' },
+  { id: 2, name: '佐藤 慶（勤務先）', zip: '〒107-0062', addr: '東京都港区南青山0-0-0 ○○ビル7F', tel: '03-0000-0000' }
+];
+
+const INVITEES = [
+  { name: 'T. Nakamura', date: '2026/08/30', status: 'ACTIVE' },
+  { name: 'M. Ishida', date: '2026/07/14', status: 'ACTIVE' },
+  { name: 'K. Aoyama', date: '2026/06/02', status: 'PENDING' }
+];
+
+const SESSION_KEY = 'vq_session_v1', CART_KEY = 'vq_cart_v1', AGE_KEY = 'vq_age_v1', DAY_MS = 24 * 60 * 60 * 1000;
+const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const sessionValid = () => { const v = lsGet(SESSION_KEY); return v && Date.now() - v.ts < DAY_MS ? v : null; };
+const isProd = () => !!window.VQ_PROD || /github\.io$/.test(location.hostname);
+
+class Component extends DCLogic {
+  state = { verified: false, declined: false, screen: 'auth', legal: 'tokusho', filter: 'ALL', pid: null, qty: 1, slide: 0, cart: [], unlocked: false, lockPid: null, lockCode: '', lockErr: '', homeTab: 'ALL', faq: 0,
+    user: null, admin: null, adminView: 'admin', authTab: 'login', authNotice: false, authError: '',
+    li: { email: '', pw: '' },
+    su: { code: '', name: '', y: '', m: '', d: '', email: '', pw: '', pw2: '', agree: false },
+    my: 'orders', pf: null, pwf: { cur: '', a: '', b: '' }, pwMsg: '', pwOk: false, saved: false,
+    addresses: isProd() ? [] : ADDRESSES, defaultAddr: isProd() ? null : 1, favs: isProd() ? [] : ['vq-day', 'vq-focus', 'vq-set'], quitAgree: false,
+    af: { open: false, name: '', zip: '', addr: '', tel: '', err: '' } };
+
+  persist() {
+    const st = this.state, p = this._saved || (this._saved = {});
+    if (p.cart !== st.cart) { if (p.init) lsSet(CART_KEY, st.cart); p.cart = st.cart; }
+    if (st.verified && !p.verified) { lsSet(AGE_KEY, { ts: Date.now() }); }
+    p.verified = st.verified;
+    const u = st.user, F = window.VQFire;
+    if (p.favs !== st.favs) {
+      if (p.init && u && u.fire && F && p.user === u) F.updateProfile({ favorites: st.favs }).catch(e => console.warn('[VQFire favs]', e.code || e.message || e));
+      p.favs = st.favs;
+    }
+    p.user = u; p.init = this._mounted;
+  }
+  afSet(k, v) { this.setState(s => ({ af: Object.assign({}, s.af, { [k]: v, err: '' }) })); }
+  saveAddress() {
+    const a = this.state.af, F = window.VQFire, u = this.state.user;
+    if (!a.name.trim() || !a.zip.trim() || !a.addr.trim() || !a.tel.trim()) return this.afSet('err', 'すべての項目を入力してください。');
+    const rec = { name: a.name.trim(), zip: (a.zip.trim().indexOf('〒') === 0 ? '' : '〒') + a.zip.trim(), addr: a.addr.trim(), tel: a.tel.trim() };
+    const close = { open: false, name: '', zip: '', addr: '', tel: '', err: '' };
+    if (u && u.fire && F) {
+      F.addAddress(rec).then(ref => { this.setState({ af: close }); if (!this.state.defaultAddr) this.setDefaultAddr(ref.id); })
+        .catch(e => this.afSet('err', F.msg(e)));
+      return;
+    }
+    const id = Date.now();
+    this.setState(s => ({ addresses: s.addresses.concat([Object.assign({ id: id }, rec)]), defaultAddr: s.defaultAddr || id, af: close }));
+  }
+  setDefaultAddr(id) {
+    this.setState({ defaultAddr: id, shipAddr: id });
+    const u = this.state.user, F = window.VQFire;
+    if (u && u.fire && F) F.updateProfile({ defaultAddressId: id }).catch(e => console.warn('[VQFire addr]', e.code || e));
+  }
+  removeAddress(id) {
+    const u = this.state.user, F = window.VQFire;
+    if (u && u.fire && F) { F.removeAddress(id).catch(e => console.warn('[VQFire addr]', e.code || e)); return; }
+    this.setState(st => ({ addresses: st.addresses.filter(x => x.id !== id) }));
+  }
+
+  componentDidMount() {
+    this._mounted = true;
+    const cart = lsGet(CART_KEY); if (Array.isArray(cart) && cart.length) this.setState({ cart: cart.filter(l => byId(l.id)) });
+    const age = lsGet(AGE_KEY); if (age && Date.now() - age.ts < DAY_MS) this.setState({ verified: true });
+    const ss = sessionValid();
+    if (!ss) lsSet(SESSION_KEY, null);
+    else if (ss.kind === 'demo' && !isProd()) this.setState({ user: DEMO_USER, pf: { name: DEMO_USER.name, email: DEMO_USER.email, tel: DEMO_USER.tel, mail: DEMO_USER.mail }, screen: 'home', verified: true });
+    else if (ss.kind === 'demoAdmin' && !isProd()) this.setState({ admin: ADMIN_USER, adminView: 'admin', verified: true });
+    else if (ss.kind === 'fire') this.setState({ verified: true, screen: 'home' });
+    this.sessTimer = setInterval(() => { const v = lsGet(SESSION_KEY); if (v && Date.now() - v.ts >= DAY_MS) this.logout(); }, 60000);
+    this.timer = setInterval(() => this.setState(s => ({ slide: (s.slide + 1) % SLIDES.length })), 6000);
+    const start = () => { if (!VQO()) return setTimeout(start, 100);
+      this.setState({ orders: loadOrders() });
+      this.unsub = VQO().subscribe(list => this.setState({ orders: list })); };
+    start();
+    this.onFire = e => this.fireAuth(e.detail);
+    window.addEventListener('vqfire-auth', this.onFire);
+    const fireStart = () => { const F = window.VQFire; if (!F) return;
+      this.unP = F.subscribeProducts(list => { syncProducts(list); this.forceUpdate(); }, e => console.warn('[VQFire products]', e.code || e.message || e));
+      this.unS = F.subscribeSettings(st => this.setState({ settings: st }), e => console.warn('[VQFire settings]', e.code || e));
+      if (F.user) this.fireAuth(F.user); };
+    if (window.VQFire) fireStart(); else window.addEventListener('vqfire-ready', fireStart, { once: true });
+  }
+  componentWillUnmount() { clearInterval(this.timer); clearInterval(this.sessTimer); if (this.unsub) this.unsub(); if (this.unP) this.unP(); if (this.unS) this.unS(); window.removeEventListener('vqfire-auth', this.onFire); }
+  shipRule() { const st = this.state.settings || {}; return { th: st.freeShippingThreshold ?? this.props.freeShipThreshold ?? 8000, fee: st.shippingFee ?? 550 }; }
+  fireAuth(u) {
+    if (!u) return;
+    if (this.loggingIn) return;
+    const ss = sessionValid();
+    if (!ss || ss.kind !== 'fire') { if (window.VQFire) window.VQFire.signOut().catch(() => {}); return; }
+    if ((this.state.user && this.state.user.fire) || (this.state.admin && this.state.admin.fire)) return;
+    this.applyFireUser(u, false);
+  }
+  applyFireUser(u, nav) {
+    if (u.role === 'admin') {
+      this.setState({ verified: true, declined: false, admin: { id: u.uid, name: '管理者', email: u.email, fire: true }, adminView: 'admin', authError: '', li: { email: '', pw: '' } });
+      if (nav) window.scrollTo(0, 0); return;
+    }
+    const pr = u.profile || {};
+    if (pr.status && pr.status !== 'active') {
+      if (window.VQFire) window.VQFire.signOut().catch(() => {});
+      return this.setState({ screen: 'auth', authTab: 'login', authError: pr.status === 'withdrawn' ? 'このアカウントは退会済みです。' : 'このアカウントは現在ご利用いただけません。お問い合わせください。' });
+    }
+    const user = { id: u.uid, name: pr.name || u.email, email: u.email, tel: pr.tel || '', dob: pr.birthDate || '', invitedBy: pr.referralCode || '—', mail: pr.mailOptIn !== false, fire: true };
+    const patch = { verified: true, declined: false, user: user, unlocked: this.state.unlocked || !!pr.codeAccess, pf: { name: user.name, email: user.email, tel: user.tel, mail: user.mail },
+      authError: '', authNotice: false, li: { email: '', pw: '' } };
+    if (nav) Object.assign(patch, { screen: 'home', my: 'orders' });
+    Object.assign(patch, { favs: pr.favorites || [], defaultAddr: pr.defaultAddressId || null, addresses: [] });
+    this.setState(patch); if (nav) window.scrollTo(0, 0);
+    const F = window.VQFire;
+    if (this.unA) this.unA();
+    if (F) this.unA = F.subscribeAddresses(list => this.setState(st => ({ addresses: list,
+      defaultAddr: st.defaultAddr && list.some(a => a.id === st.defaultAddr) ? st.defaultAddr : (list[0] ? list[0].id : null) })), e => console.warn('[VQFire addr]', e.code || e));
+  }
+  finishUnlock() { const id = this.state.lockPid; this.setState({ unlocked: true, lockPid: null, screen: 'detail', pid: id, qty: 1 }); window.scrollTo(0, 0); }
+  updateOrder(no, patch) { if (!VQO()) return; this.setState({ orders: VQO().update(no, patch).list }); }
+
+  go(screen) { this.setState({ screen: screen }); window.scrollTo(0, 0); }
+  openLegal(key) { this.setState({ screen: 'legal', legal: key }); window.scrollTo(0, 0); }
+
+  openAuth(notice) { this.setState({ screen: 'auth', authTab: 'login', authNotice: !!notice, authError: '' }); window.scrollTo(0, 0); }
+  goAccount() {
+    if (this.state.user) { this.setState({ screen: 'mypage', my: 'orders' }); window.scrollTo(0, 0); }
+    else this.openAuth(false);
+  }
+  login() {
+    const { email, pw } = this.state.li;
+    if (!email.trim() || !pw) return this.setState({ authError: 'メールアドレスとパスワードを入力してください。' });
+    const em = email.trim().toLowerCase(), F = window.VQFire;
+    const isDemo = !isProd() && ((em === ADMIN_USER.email && pw === ADMIN_USER.pw) || (em === DEMO_USER.email && pw === DEMO_USER.pw));
+    if (F && !isDemo) {
+      this.setState({ authBusy: true, authError: '' });
+      this.loggingIn = true;
+      F.signIn(em, pw).then(u => { this.loggingIn = false; lsSet(SESSION_KEY, { ts: Date.now(), kind: 'fire' }); lsSet(AGE_KEY, { ts: Date.now() }); this.setState({ authBusy: false }); this.applyFireUser(u, true); })
+        .catch(e => { this.loggingIn = false; this.setState({ authBusy: false, authError: F.msg(e) }); });
+      return;
+    }
+    if (isProd()) return this.setState({ authError: 'ログイン機能に接続できません。時間をおいて再度お試しください。' });
+    if (em === ADMIN_USER.email && pw === ADMIN_USER.pw) {
+      lsSet(SESSION_KEY, { ts: Date.now(), kind: 'demoAdmin' }); lsSet(AGE_KEY, { ts: Date.now() });
+      this.setState({ admin: ADMIN_USER, adminView: 'admin', authError: '', li: { email: '', pw: '' } }); window.scrollTo(0, 0); return;
+    }
+    if (email.trim().toLowerCase() !== DEMO_USER.email || pw !== DEMO_USER.pw)
+      return this.setState({ authError: 'メールアドレスまたはパスワードが正しくありません。' });
+    lsSet(SESSION_KEY, { ts: Date.now(), kind: 'demo' }); lsSet(AGE_KEY, { ts: Date.now() });
+    this.setState({ user: DEMO_USER, pf: { name: DEMO_USER.name, email: DEMO_USER.email, tel: DEMO_USER.tel, mail: DEMO_USER.mail },
+      screen: 'home', my: 'orders', authError: '', authNotice: false, li: { email: '', pw: '' } });
+    window.scrollTo(0, 0);
+  }
+  signup() {
+    const f = this.state.su;
+    const code = f.code.trim().toUpperCase();
+    const err = m => this.setState({ authError: m });
+    if (code && !window.VQFire && VALID_CODES.indexOf(code) < 0) return err('紹介コードが確認できません。空欄のままでもご登録いただけます。');
+    if (!f.name.trim()) return err('お名前を入力してください。');
+    const y = parseInt(f.y, 10), m = parseInt(f.m, 10), d = parseInt(f.d, 10);
+    if (!y || !m || !d || m < 1 || m > 12 || d < 1 || d > 31) return err('生年月日を正しく入力してください。');
+    const age = this.ageFrom(y, m, d);
+    if (age < 20) return err('20歳未満の方はご登録いただけません。');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim())) return err('メールアドレスの形式が正しくありません。');
+    if (f.pw.length < 8) return err('パスワードは8文字以上で設定してください。');
+    if (f.pw !== f.pw2) return err('パスワード（確認）が一致しません。');
+    if (!f.agree) return err('利用規約および個人情報の取り扱いへの同意が必要です。');
+    const F = window.VQFire;
+    if (F) {
+      this.setState({ authBusy: true, authError: '' });
+      (async () => {
+        try {
+          if (code && !(await F.checkCode(code))) throw { code: 'vq/code' };
+          this.loggingIn = true;
+          const u = await F.signUp({ email: f.email.trim(), pw: f.pw, name: f.name.trim(), code: code,
+            birthDate: y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0') });
+          this.loggingIn = false; lsSet(SESSION_KEY, { ts: Date.now(), kind: 'fire' }); lsSet(AGE_KEY, { ts: Date.now() });
+          this.applyFireUser(u, false);
+          this.setState({ authBusy: false, screen: 'mypage', my: 'code', su: { code: '', name: '', y: '', m: '', d: '', email: '', pw: '', pw2: '', agree: false } });
+          window.scrollTo(0, 0);
+        } catch (e) {
+          this.loggingIn = false;
+          this.setState({ authBusy: false, authError: e && e.code === 'vq/code' ? '紹介コードが確認できません。空欄のままでもご登録いただけます。' : F.msg(e) });
+        }
+      })();
+      return;
+    }
+    const user = { id: 'VQ-' + String(1000000 + Math.floor(Math.random() * 8999999)), name: f.name.trim(),
+      email: f.email.trim(), pw: f.pw, tel: '', dob: y + '年' + m + '月' + d + '日',
+      code: this.newCode(), invitedBy: code || '—', mail: true };
+    lsSet(SESSION_KEY, { ts: Date.now(), kind: 'demoSignup' });
+    this.setState({ user: user, unlocked: this.state.unlocked || !!code, pf: { name: user.name, email: user.email, tel: '', mail: true },
+      screen: 'mypage', my: 'code', authError: '', authNotice: false,
+      su: { code: '', name: '', y: '', m: '', d: '', email: '', pw: '', pw2: '', agree: false } });
+    window.scrollTo(0, 0);
+  }
+  ageFrom(y, m, d) {
+    const t = new Date();
+    let a = t.getFullYear() - y;
+    if (t.getMonth() + 1 < m || (t.getMonth() + 1 === m && t.getDate() < d)) a--;
+    return a;
+  }
+  newCode() {
+    const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const seg = n => Array.from({ length: n }, () => abc[Math.floor(Math.random() * abc.length)]).join('');
+    return 'VQ-' + seg(4) + '-' + seg(4);
+  }
+  logout() { lsSet(SESSION_KEY, null); if (window.VQFire && window.VQFire.user) window.VQFire.signOut().catch(() => {}); if (this.unA) { this.unA(); this.unA = null; }
+    if (isProd()) this.setState({ addresses: [], favs: [], defaultAddr: null });
+    this.setState({ user: null, admin: null, adminView: 'admin', screen: 'auth', authTab: 'login', authNotice: false, authError: '', my: 'orders' }); window.scrollTo(0, 0); }
+  checkout() {
+    if (!this.state.user) return this.openAuth(true);
+    this.setState(s => ({ shipAddr: s.shipAddr || s.defaultAddr, pay: s.pay || 'bank' })); this.go('checkout');
+  }
+  placeOrder() {
+    const s = this.state;
+    const sub = s.cart.reduce((a, l) => a + MASTER.find(x => x.id === l.id).price * l.qty, 0);
+    const total = sub + (sub >= this.shipRule().th ? 0 : this.shipRule().fee);
+    const d0 = new Date(); const no = 'VQ-' + String(d0.getFullYear()).slice(2) + String(d0.getMonth() + 1).padStart(2, '0') + String(d0.getDate()).padStart(2, '0') + '-' + String(Date.now()).slice(-4);
+    // PayPay: replace with the payment URL returned by the PayPay API (Create a QR Code / Web Payment)
+    const addr = s.addresses.find(a => a.id === (s.shipAddr || s.defaultAddr)) || s.addresses[0];
+    if (!addr) { this.setState({ my: 'addr', af: Object.assign({}, s.af, { open: true }) }); return this.go('mypage'); }
+    const rec = { no: no, date: jpDate(), pay: s.pay, payStatus: 'unpaid', shipStatus: 'pending', total: total, subtotal: sub, shippingFee: total - sub,
+      lines: s.cart.map(l => { const p = byId(l.id); return { id: l.id, qty: l.qty, name: p ? p.name : l.id, sku: p ? p.sku : '', price: p ? p.price : 0 }; }),
+      memberId: s.user ? s.user.id : '', customer: s.user ? s.user.name : '', email: s.user ? s.user.email : '',
+      shipTo: addr ? addr.name + ' ' + addr.zip + ' ' + addr.addr : '',
+      ship: addr ? { name: addr.name, zip: addr.zip, addr: addr.addr, tel: addr.tel } : null };
+    const list = VQO() ? VQO().add(rec) : [rec];
+    this.setState({ orders: list, done: { no: no, pay: s.pay, total: total, url: '#paypay-' + no }, cart: [] });
+    this.go('thanks');
+  }
+  reorder(lines) {
+    this.setState(s => {
+      const cart = s.cart.slice();
+      lines.forEach(l => {
+        const i = cart.findIndex(c => c.id === l.id);
+        if (i >= 0) cart[i] = { id: l.id, qty: cart[i].qty + l.qty }; else cart.push({ id: l.id, qty: l.qty });
+      });
+      return { cart: cart, screen: 'cart' };
+    });
+    window.scrollTo(0, 0);
+  }
+  changePw() {
+    const f = this.state.pwf, u = this.state.user, F = window.VQFire;
+    if (u && u.fire && F) {
+      if (!f.cur) return this.setState({ pwMsg: '現在のパスワードを入力してください。', pwOk: false });
+      if (f.a.length < 8) return this.setState({ pwMsg: '新しいパスワードは8文字以上で設定してください。', pwOk: false });
+      if (f.a !== f.b) return this.setState({ pwMsg: '新しいパスワード（確認）が一致しません。', pwOk: false });
+      F.changePassword(f.cur, f.a).then(() => this.setState({ pwf: { cur: '', a: '', b: '' }, pwMsg: 'パスワードを変更しました。次回のログインから新しいパスワードをご利用ください。', pwOk: true }))
+        .catch(e => this.setState({ pwMsg: e && (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password') ? '現在のパスワードが正しくありません。' : F.msg(e), pwOk: false }));
+      return;
+    }
+    if (f.cur !== (this.state.user ? this.state.user.pw : '')) return this.setState({ pwMsg: '現在のパスワードが正しくありません。', pwOk: false });
+    if (f.a.length < 8) return this.setState({ pwMsg: '新しいパスワードは8文字以上で設定してください。', pwOk: false });
+    if (f.a !== f.b) return this.setState({ pwMsg: '新しいパスワード（確認）が一致しません。', pwOk: false });
+    this.setState(s => ({ user: Object.assign({}, s.user, { pw: f.a }), pwf: { cur: '', a: '', b: '' },
+      pwMsg: 'パスワードを変更しました。次回のログインから新しいパスワードをご利用ください。', pwOk: true }));
+  }
+  openProduct(id) {
+    const p = MASTER.find(x => x.id === id);
+    if (p && p.locked && !this.state.unlocked) return this.setState({ lockPid: id, lockCode: '', lockErr: '' });
+    this.setState({ screen: 'detail', pid: id, qty: 1, lockPid: null }); window.scrollTo(0, 0);
+  }
+  unlock() {
+    const code = this.state.lockCode.trim().toUpperCase();
+    if (!code) return this.setState({ lockErr: '紹介コードを入力してください。' });
+    const bad = () => this.setState({ lockErr: '紹介コードが確認できません。コードをご確認のうえ、再度入力してください。' });
+    const F = window.VQFire, fu = !!(this.state.user && this.state.user.fire);
+    if (!fu && !isProd() && VALID_CODES.indexOf(code) >= 0) return this.finishUnlock();
+    if (!F) return bad();
+    F.checkCode(code).then(ok => {
+      if (!ok) return bad();
+      if (fu) F.grantCodeAccess(code).catch(e => console.warn('[VQFire code]', e.code || e));
+      this.finishUnlock();
+    }).catch(bad);
+  }
+
+  add(id, n) {
+    this.setState(s => {
+      const cart = s.cart.slice();
+      const i = cart.findIndex(l => l.id === id);
+      if (i >= 0) cart[i] = { id: id, qty: cart[i].qty + n };
+      else cart.push({ id: id, qty: n });
+      return { cart: cart, screen: 'cart' };
+    });
+    window.scrollTo(0, 0);
+  }
+  bump(id, d) {
+    this.setState(s => ({ cart: s.cart.map(l => l.id === id ? { id: l.id, qty: Math.max(1, l.qty + d) } : l) }));
+  }
+  drop(id) { this.setState(s => ({ cart: s.cart.filter(l => l.id !== id) })); }
+
+  su(k, v) { this.setState(s => ({ su: Object.assign({}, s.su, { [k]: v }) })); }
+  pf(k, v) { this.setState(s => ({ pf: Object.assign({}, s.pf, { [k]: v }), saved: false })); }
+  pwf(k, v) { this.setState(s => ({ pwf: Object.assign({}, s.pwf, { [k]: v }), pwMsg: '' })); }
+
+  card(p) {
+    return { name: p.name, img: p.img, cat: p.cat, price: YEN(p.price), was: p.was ? '¥' + YEN(p.was) : '', spec: p.spec, slot: p.slot, rank: p.rank, hasOff: !!p.was, off: p.was ? Math.round((1 - p.price / p.was) * 100) + '%OFF' : '', priceColor: p.was ? '#b5452f' : '#1c1b19', showRank: false, locked: !!p.locked && !this.state.unlocked, open: () => this.openProduct(p.id) };
+  }
+
+  renderVals() {
+    this.persist();
+    const s = this.state;
+    const u = s.user;
+    const pf = s.pf || { name: '', email: '', tel: '', mail: true };
+    const threshold = this.shipRule().th;
+    const authed = !!(s.user || s.admin);
+    const gate = (this.props.ageGate ?? true) && !s.verified && !s.declined && !authed;
+    const p = MASTER.find(x => x.id === s.pid) || null;
+    const hk = GROUPS.some(g => g.key === s.homeTab) ? s.homeTab : 'ALL';
+    const fk = GROUPS.some(g => g.key === s.filter) ? s.filter : 'ALL';
+    const listed = fk === 'ALL' ? PRODUCTS : PRODUCTS.filter(x => inGroup(x, fk));
+    const lines = s.cart.map(l => {
+      const it = MASTER.find(x => x.id === l.id);
+      return { id: l.id, name: it.name, img: it.img, cat: it.cat, spec: it.spec, qty: l.qty, total: YEN(it.price * l.qty),
+        inc: () => this.bump(l.id, 1), dec: () => this.bump(l.id, -1), remove: () => this.drop(l.id) };
+    });
+    const subtotal = s.cart.reduce((a, l) => a + MASTER.find(x => x.id === l.id).price * l.qty, 0);
+    const ship = subtotal >= threshold || subtotal === 0 ? 0 : this.shipRule().fee;
+    const bank = (s.settings && s.settings.bankAccount) || {};
+    const ppOff = !!(s.settings && s.settings.paypayEnabled === false);
+
+    const lp = s.lockPid ? MASTER.find(x => x.id === s.lockPid) : null;
+    const v = {
+      lockOpen: !!lp, lockName: lp ? lp.name : '', lockImg: lp ? lp.img : '', lockCode: s.lockCode, lockErr: s.lockErr, hasLockErr: !!s.lockErr,
+      setLockCode: e => this.setState({ lockCode: e.target.value, lockErr: '' }),
+      doUnlock: () => this.unlock(), closeLock: () => this.setState({ lockPid: null }),
+      lockDemo: VALID_CODES[0],
+      shopName: this.props.shopName ?? 'v_Q',
+      showRanking: this.props.showRanking ?? true,
+      gateOpen: gate, declined: s.declined && !authed,
+      retryAge: () => this.setState({ declined: false }),
+      acceptAge: () => { lsSet(AGE_KEY, { ts: Date.now() }); this.setState({ verified: true }); },
+      declineAge: () => this.setState({ declined: true }),
+      noop: e => e.preventDefault(),
+      goHome: e => { if (e) e.preventDefault(); this.go('home'); },
+      goList: e => { if (e) e.preventDefault(); this.go('list'); },
+      goCart: e => { if (e) e.preventDefault(); this.go('cart'); },
+      isHome: s.screen === 'home', isList: s.screen === 'list', isDetail: s.screen === 'detail', isCart: s.screen === 'cart',
+      isLegal: s.screen === 'legal',
+      isCheckout: s.screen === 'checkout' && !!s.user, isThanks: s.screen === 'thanks' && !!s.done,
+      coAddrs: s.addresses.map(a => { const on = a.id === (s.shipAddr || s.defaultAddr); return { name: a.name, zip: a.zip, addr: a.addr, tel: a.tel,
+        bd: on ? '#1c1b19' : '#e2ddd4', dot: on ? '#1c1b19' : 'transparent', pick: () => this.setState({ shipAddr: a.id }) }; }),
+      isBank: (s.pay || 'bank') === 'bank',
+      bankBd: (s.pay || 'bank') === 'bank' ? '#1c1b19' : '#e2ddd4', bankDot: (s.pay || 'bank') === 'bank' ? '#1c1b19' : 'transparent',
+      ppBd: s.pay === 'paypay' ? '#1c1b19' : '#e2ddd4', ppDot: s.pay === 'paypay' ? '#1c1b19' : 'transparent',
+      payBank: () => this.setState({ pay: 'bank' }), payPaypay: () => { if (!ppOff) this.setState({ pay: 'paypay' }); },
+      ppDesc: ppOff ? '現在準備中です。銀行振込をご利用ください。' : 'ご注文確定後に表示される決済リンクから、PayPayアプリでお支払いください。',
+      bankName: bank.bank || 'PayPay銀行', bankBranch: bank.branch || 'うぐいす支店（ウグイス）', bankType: bank.type || '普通',
+      bankBranchNo: bank.branchNo || '008', bankNo: bank.number || '5245559', bankHolder: bank.holder || 'タカキナオキ',
+      placeOrder: () => this.placeOrder(),
+      doneNo: s.done ? s.done.no : '', doneTotal: s.done ? YEN(s.done.total) : '',
+      doneBank: !!s.done && s.done.pay === 'bank', donePaypay: !!s.done && s.done.pay === 'paypay',
+      paypayUrl: s.done ? s.done.url : '#',
+      doneLead: s.done && s.done.pay === 'paypay' ? '下のボタンからPayPayの決済ページへ進み、お支払いを完了してください。お支払い確認後に発送準備を開始します。' : '以下の口座へお振込みください。ご入金を確認した後、発送準備を開始します。ご注文内容は登録メールアドレスにもお送りしています。',
+      isAuth: s.screen === 'auth', isMypage: s.screen === 'mypage' && !!s.user,
+      accountEn: s.user ? 'MY PAGE' : 'LOGIN', accountJa: s.user ? 'マイページ' : '会員',
+      goAccount: e => { if (e) e.preventDefault(); this.goAccount(); },
+      goCheckout: () => this.checkout(),
+      isLoginTab: s.authTab === 'login', isSignupTab: s.authTab === 'signup',
+      tabLogin: e => { if (e) e.preventDefault(); this.setState({ authTab: 'login', authError: '' }); },
+      tabSignup: e => { if (e) e.preventDefault(); this.setState({ authTab: 'signup', authError: '' }); },
+      loginTabBg: s.authTab === 'login' ? '#1c1b19' : 'transparent',
+      loginTabFg: s.authTab === 'login' ? '#ffffff' : '#5a5751',
+      signupTabBg: s.authTab === 'signup' ? '#1c1b19' : 'transparent',
+      signupTabFg: s.authTab === 'signup' ? '#ffffff' : '#5a5751',
+      authNotice: s.authNotice, authError: s.authError, hasAuthError: !!s.authError,
+      demoEmail: DEMO_USER.email, demoPw: DEMO_USER.pw, demoAdmin: ADMIN_USER.email + ' / ' + ADMIN_USER.pw,
+      showAdmin: !!s.admin && s.adminView === 'admin', showStore: !s.admin || s.adminView === 'store', adminPreview: !!s.admin && s.adminView === 'store',
+      adminLogout: () => this.logout(),
+      adminViewStore: () => { this.setState({ adminView: 'store', screen: 'home' }); window.scrollTo(0, 0); },
+      backToAdmin: () => { this.setState({ adminView: 'admin' }); window.scrollTo(0, 0); }, demoCode: VALID_CODES[0],
+      liEmail: s.li.email, liPw: s.li.pw,
+      setLiEmail: e => this.setState(st => ({ li: Object.assign({}, st.li, { email: e.target.value }) })),
+      setLiPw: e => this.setState(st => ({ li: Object.assign({}, st.li, { pw: e.target.value }) })),
+      doLogin: () => this.login(), doSignup: () => this.signup(), doLogout: () => this.logout(),
+      suCode: s.su.code, suName: s.su.name, suY: s.su.y, suM: s.su.m, suD: s.su.d,
+      suEmail: s.su.email, suPw: s.su.pw, suPw2: s.su.pw2, suAgree: s.su.agree,
+      setSuCode: e => this.su('code', e.target.value), setSuName: e => this.su('name', e.target.value),
+      setSuY: e => this.su('y', e.target.value), setSuM: e => this.su('m', e.target.value), setSuD: e => this.su('d', e.target.value),
+      setSuEmail: e => this.su('email', e.target.value), setSuPw: e => this.su('pw', e.target.value),
+      setSuPw2: e => this.su('pw2', e.target.value), setSuAgree: e => this.su('agree', e.target.checked),
+      userName: u ? u.name : '', userId: u ? u.id : '', userCode: u ? u.code : '',
+      userDob: u ? u.dob : '', userInvitedBy: u ? u.invitedBy : '—',
+      myTabs: MY_TABS.map(t => ({ label: t.label,
+        bg: s.my === t.key ? '#ebe7df' : 'transparent',
+        fg: s.my === t.key ? '#1c1b19' : '#46443f',
+        select: () => this.setState({ my: t.key, pwMsg: '', saved: false }) })),
+      myIsOrders: s.my === 'orders', myIsSubs: s.my === 'subs', myIsFavs: s.my === 'favs',
+      myIsAddr: s.my === 'addr', myIsProfile: s.my === 'profile', myIsPw: s.my === 'pw',
+      myIsCode: s.my === 'code', myIsQuit: s.my === 'quit',
+      orders: (s.orders || []).filter(o => u && o.memberId === u.id).map(o => {
+        const paid = o.payStatus === 'paid' || o.payStatus === 'refunded', ship = o.shipStatus || 'pending', cancelled = o.payStatus === 'cancelled' || o.payStatus === 'expired';
+        const lvl = !paid ? 1 : ship === 'pending' ? 2 : ship === 'preparing' ? 3 : ship === 'shipped' ? 4 : 5;
+        const shipMap = { pending: '入金確認待ち', preparing: '発送準備中', shipped: '発送済み', delivered: '配達完了' };
+        const no = o.no;
+        return { no: no, date: o.date, total: YEN(o.total),
+        payLabel: o.pay === 'paypay' ? 'PayPay' : '銀行振込',
+        payStatus: cancelled ? (o.payStatus === 'expired' ? '期限切れ' : 'キャンセル') : o.payStatus === 'refunded' ? '返金済み' : paid ? '入金確認済み' : '入金待ち', payFg: cancelled ? '#77736b' : paid ? '#1c1b19' : '#b0452e',
+        payNote: paid ? (o.paidAt ? o.paidAt + ' 確認' : '') : (o.pay === 'paypay' ? '決済リンクからお支払いください' : 'ご注文から7日以内にお振込みください'),
+        shipStatus: cancelled ? '—' : ship === 'returned' ? '返品' : paid && ship === 'pending' ? '発送準備中' : shipMap[ship], shipFg: lvl >= 4 ? '#1c1b19' : '#77736b',
+        shipNote: ship === 'delivered' ? (o.deliveredAt || '') + ' 受領' : ship === 'shipped' ? (o.carrier || '') + ' / 追跡番号 ' + (o.trackNo || '') : paid ? '発送手続き後に追跡番号をお知らせします' : 'ご入金確認後に発送します',
+        track: '',
+        steps: ['ご注文受付', '入金確認', '発送準備中', '発送済み', '配達完了'].map((label, i) => ({ label: label, bar: i < lvl ? '#1c1b19' : '#e2ddd4', fg: i < lvl ? '#1c1b19' : '#a9a49a' })),
+        sim: !!this.props.adminSim && !isProd(),
+        simPay: () => this.updateOrder(no, { payStatus: 'paid', paidAt: jpDate(), shipStatus: 'preparing' }),
+        simShip: () => this.updateOrder(no, { shipStatus: 'shipped', shippedAt: jpDate(), carrier: 'ヤマト運輸', trackNo: '4821-' + String(Date.now()).slice(-8, -4) + '-' + String(Date.now()).slice(-4) }),
+        simDeliver: () => this.updateOrder(no, { shipStatus: 'delivered', deliveredAt: jpDate() }),
+        items: o.lines.map(l => { const p = byId(l.id); return { name: p ? p.name : l.id, img: p ? p.img : '', qty: l.qty }; }),
+        reorder: () => this.reorder(o.lines) }; }),
+      subs: (isProd() ? [] : SUBS).map(sb => { const p = byId(sb.id); return { name: p ? p.name : sb.id, img: p ? p.img : '',
+        cycle: sb.cycle, next: sb.next, priceNote: sb.priceNote }; }),
+      favs: s.favs.map(id => { const p = byId(id); return p ? { name: p.name, img: p.img, price: YEN(p.price),
+        open: () => this.openProduct(p.id), add: () => this.add(p.id, 1),
+        remove: () => this.setState(st => ({ favs: st.favs.filter(f => f !== id) })) } : null; }).filter(Boolean),
+      addresses: s.addresses.map(a => ({ name: a.name, zip: a.zip, addr: a.addr, tel: a.tel,
+        isDefault: a.id === s.defaultAddr, bd: a.id === s.defaultAddr ? '#efebe4' : '#e2ddd4',
+        makeDefault: () => this.setDefaultAddr(a.id),
+        remove: () => this.removeAddress(a.id) })),
+      afIsOpen: !!s.af.open, afClosed: !s.af.open, afName: s.af.name, afZip: s.af.zip, afAddr: s.af.addr, afTel: s.af.tel,
+      afErr: s.af.err, afHasErr: !!s.af.err,
+      setAfName: e => this.afSet('name', e.target.value), setAfZip: e => this.afSet('zip', e.target.value),
+      setAfAddr: e => this.afSet('addr', e.target.value), setAfTel: e => this.afSet('tel', e.target.value),
+      afOpen: () => this.afSet('open', true), afCancel: () => this.setState({ af: { open: false, name: '', zip: '', addr: '', tel: '', err: '' } }),
+      afSave: () => this.saveAddress(),
+      coNoAddr: s.addresses.length === 0,
+      coAddAddr: () => { this.setState({ my: 'addr', af: Object.assign({}, s.af, { open: true }) }); this.go('mypage'); },
+      showDemo: !isProd(),
+      pfName: pf.name, pfEmail: pf.email, pfTel: pf.tel, pfMail: !!pf.mail,
+      setPfName: e => this.pf('name', e.target.value), setPfEmail: e => this.pf('email', e.target.value),
+      setPfTel: e => this.pf('tel', e.target.value), setPfMail: e => this.pf('mail', e.target.checked),
+      saveProfile: () => {
+        const F = window.VQFire;
+        if (u && u.fire && F) F.updateProfile({ name: pf.name, tel: pf.tel, mailOptIn: !!pf.mail }).catch(e => console.warn('[VQFire profile]', e.code || e));
+        this.setState(st => ({ user: Object.assign({}, st.user, { name: st.pf.name, tel: st.pf.tel, mail: st.pf.mail }), saved: true }));
+      },
+      saveLabel: s.saved ? '保存しました' : '変更を保存',
+      pwCur: s.pwf.cur, pwNew: s.pwf.a, pwNew2: s.pwf.b,
+      setPwCur: e => this.pwf('cur', e.target.value), setPwNew: e => this.pwf('a', e.target.value),
+      setPwNew2: e => this.pwf('b', e.target.value), savePw: () => this.changePw(),
+      pwMsg: s.pwMsg, hasPwMsg: !!s.pwMsg,
+      pwMsgBd: s.pwOk ? '#efebe4' : '#e59d99', pwMsgFg: s.pwOk ? '#1c1b19' : '#c62f2a',
+      codeStatus: u && u.invitedBy && u.invitedBy !== '—' ? '有効 — 紹介コード限定製品を閲覧できます' : '未登録 — 紹介コードをお持ちの方は限定製品ページから入力できます',
+      quitAgree: s.quitAgree, setQuitAgree: e => this.setState({ quitAgree: e.target.checked }),
+      quitBd: s.quitAgree ? '#c62f2a' : '#f0c6c3', quitFg: s.quitAgree ? '#c62f2a' : '#77736b',
+      doQuit: () => { if (!this.state.quitAgree) return; const F = window.VQFire;
+        if (u && u.fire && F) F.withdraw().catch(e => console.warn('[VQFire withdraw]', e.code || e)).then(() => this.logout()); else this.logout(); },
+      goTokusho: e => { if (e) e.preventDefault(); this.openLegal('tokusho'); },
+      goPrivacy: e => { if (e) e.preventDefault(); this.openLegal('privacy'); },
+      goTerms: e => { if (e) e.preventDefault(); this.openLegal('terms'); },
+      goCompany: e => { if (e) e.preventDefault(); this.openLegal('company'); },
+      legalIsTokusho: s.legal === 'tokusho', legalIsPrivacy: s.legal === 'privacy',
+      legalIsTerms: s.legal === 'terms', legalIsCompany: s.legal === 'company',
+      legalTabs: LEGAL_TABS.map(t => ({ label: t.label,
+        bd: s.legal === t.key ? '#1c1b19' : '#d3cdc2',
+        bg: s.legal === t.key ? '#1c1b19' : 'transparent',
+        fg: s.legal === t.key ? '#ffffff' : '#46443f',
+        select: () => this.setState({ legal: t.key }) })),
+      tokushoRows: TOKUSHO.map(r => r.v === '__SHIPPING__'
+        ? { k: r.k, v: '配送料 ' + YEN(this.shipRule().fee) + '円（全国一律）。税込' + YEN(threshold) + '円以上のご注文で配送料無料。\nインターネット接続に係る通信費はお客様のご負担となります。' }
+        : r), privacySections: PRIVACY, termsSections: TERMS, companyRows: COMPANY,
+      legalRevised: LEGAL_REVISED,
+      freeShipLabel: YEN(threshold),
+      cartCount: s.cart.reduce((a, l) => a + l.qty, 0),
+      quick: ['vq-day', 'vq-night', 'vq-chill', 'vq-focus'].map(id => { const q = MASTER.find(x => x.id === id); return { vibe: q.vibe, flavor: q.flavor + ' / 1.0 mL', img: q.img, open: () => this.openProduct(id) }; }),
+      vibes: ['vq-day', 'vq-night', 'vq-chill', 'vq-focus'].map(id => { const q = MASTER.find(x => x.id === id); return { en: q.vibe, flavor: q.flavor, img: q.img, bg: VIBE[q.vibe].bg, fg: VIBE[q.vibe].fg, open: () => this.openProduct(id) }; }),
+      goDay: e => { if (e) e.preventDefault(); this.openProduct('vq-day'); },
+      goNight: e => { if (e) e.preventDefault(); this.openProduct('vq-night'); },
+      slides: SLIDES.map((sl, i) => ({ badge: sl.badge, name: sl.name, h1: sl.h1, h2: sl.h2, jp: sl.jp, bg: sl.bg, base: sl.base, pos: sl.pos, justify: sl.justify, fg: sl.fg, btnBg: sl.btnBg, btnFg: sl.btnFg, open: () => this.openProduct(sl.pid),
+        op: i === s.slide ? 1 : 0, dot: i === s.slide ? '#1c1b19' : 'rgba(28,27,25,0.25)', w: i === s.slide ? '56px' : '24px', select: () => this.setState({ slide: i }) })),
+      cats: CATS.map((c, ci) => ({ bg: ['#1c1a33','#15291c','#132631','#2a1822','#1f2917','#141416'][ci % 6], fg: '#ffffff', mark: c.mark, en: c.en, ja: c.ja, open: () => { this.setState({ filter: c.key }); this.go('list'); } })),
+      ranked: PRODUCTS.slice().sort((a, b) => a.rank - b.rank).slice(0, 6).map(x => this.card(x)),
+      newItems: PRODUCTS.filter(x => x.isNew).concat(PRODUCTS.filter(x => !x.isNew)).slice(0, 6).map(x => this.card(x)),
+      homeTabs: GROUPS.map(c => ({ label: c.label, bg: hk === c.key ? '#ffffff' : 'transparent', color: hk === c.key ? '#000000' : '#ffffff', bd: hk === c.key ? '#ffffff' : 'rgba(255,255,255,0.35)', select: () => this.setState({ homeTab: c.key }) })),
+      genreTiles: GROUPS.filter(g => g.key !== 'ALL').map(g => ({ label: g.label, img: IMG(g.img), isRef: g.key === 'REF', count: PRODUCTS.filter(x => inGroup(x, g.key)).length + ' ITEMS', open: () => { this.setState({ filter: g.key }); this.go('list'); } })),
+      faqs: [
+        ['購入するにはどうすればいいですか？', '会員登録（生年月日による年齢確認）のうえ、ログインしてご購入いただけます。NIGHT・CBX・VIBE SETは紹介コードをお持ちの方限定です。'],
+        ['紹介コードは何に使いますか？', '紹介コード限定の製品（NIGHT・CBX・VIBE SET）の閲覧とご購入に必要です。会員の方から共有された紹介コードをご利用ください。会員の方はマイページで自分の紹介コードを確認できます。'],
+        ['THCは含まれていますか？', '全ロットで第三者機関の分析を実施しており、THCは検出限界以下です。成分分析書（COA）は商品ページで確認できます。'],
+        ['送料と発送について教えてください。', '全国一律 ¥550、¥' + YEN(threshold) + ' 以上で送料無料です。14時までのご注文は当日発送します。']
+      ].map(([q, a], i) => ({ q, a, open: s.faq === i, icon: s.faq === i ? '−' : '+', iconBg: s.faq === i ? '#1c1b19' : '#efebe4', iconFg: s.faq === i ? '#ffffff' : '#1c1b19', toggle: () => this.setState({ faq: s.faq === i ? -1 : i }) })),
+      activeCat: (GROUPS.find(g => g.key === fk) || GROUPS[0]).label,
+      resultCount: listed.length,
+      filters: GROUPS.map(c => ({ label: c.label, color: fk === c.key ? '#ffffff' : '#1c1b19', bg: fk === c.key ? (c.key === 'REF' ? '#c8272d' : '#1c1b19') : 'rgba(255,255,255,0.85)', select: () => this.setState({ filter: c.key }) })),
+      listSections: GROUPS.filter(g => g.key !== 'ALL' && (fk === 'ALL' || fk === g.key)).map(g => { const items = PRODUCTS.filter(x => inGroup(x, g.key)); return { label: g.label, en: g.en, note: g.note, count: items.length + '件', accent: g.key === 'REF' ? '#c8272d' : '#77736b', lineColor: g.key === 'REF' ? '#c8272d' : '#1c1b19', items: items.map(x => this.card(x)) }; }).filter(g => g.items.length),
+      listed: listed.map(x => this.card(x)),
+      qty: s.qty,
+      incQty: () => this.setState(st => ({ qty: st.qty + 1 })),
+      decQty: () => this.setState(st => ({ qty: Math.max(1, st.qty - 1) })),
+      cartEmpty: s.cart.length === 0, cartFilled: s.cart.length > 0,
+      cartLines: lines,
+      subtotal: YEN(subtotal),
+      shipping: ship === 0 ? '無料' : '¥' + YEN(ship),
+      grandTotal: YEN(subtotal + ship),
+      freeShipNote: subtotal >= threshold ? 'FREE SHIPPING APPLIED' : '¥' + YEN(threshold) + ' 以上で送料無料',
+      related: PRODUCTS.filter(x => x.id !== s.pid).slice(0, 4).map(x => this.card(x))
+    };
+
+    if (p) {
+      Object.assign(v, {
+        detailCat: p.cat, detailSku: p.sku, detailName: p.name, detailNameJa: p.nameJa,
+        detailPrice: YEN(p.price), detailBody: p.body, detailSlot: p.slot, detailLot: p.lot,
+        detailWas: p.was ? '¥' + YEN(p.was) : '', detailStock: p.stock ? '在庫 ' + p.stock + '個' : '',
+        detailNotes: p.notes.map(n => ({ t: n })),
+        detailImg: p.main || p.img, detailLocked: !!p.locked,
+        detailWide: p.wide || { DAY: IMG('scene-day'), NIGHT: IMG('night-lying'), CHILL: IMG('scene-set'), FOCUS: IMG('hero-lineup'), SET: IMG('night-row') }[p.cat] || IMG('hero-lineup'),
+        th: (() => { const th = THEME[p.theme || p.cat] || THEME.DAY; return Object.assign({}, th, { logo: th.light ? 'assets/vq-s/logo-light2.png' : 'assets/vq-s/logo-dark2.png', fade: th.light ? 'rgba(0,0,0,0.75)' : 'rgba(239,235,228,0.85)', wideFg: th.light ? '#ffffff' : '#1c1b19' }); })(), detailThumbs: p.thumbs.map(u => ({ url: u })),
+        detailSpecs: p.specs.map(r => ({ k: r[0], v: r[1] })),
+        shipNote: '送料 ¥550 / ¥' + YEN(threshold) + ' 以上で無料 — 14時までのご注文で当日発送',
+        addToCart: () => this.add(p.id, s.qty)
+      });
+    }
+    return v;
+  }
+}
+
+</script>
+</body>
+</html>
