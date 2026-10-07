@@ -896,13 +896,39 @@
           <sc-if value="{{ myIsCode }}" hint-placeholder-val="{{ false }}">
             <div>
               <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: 0.03em; margin-bottom: 8px">紹介コード</div>
-              <p style="font-size: 13px; line-height: 1.9; color: #77736b; margin: 0 0 22px">ご登録時に入力された紹介コードです。紹介コード限定製品の閲覧・購入に使用されます。</p>
+              <p style="font-size: 13px; line-height: 1.9; color: #77736b; margin: 0 0 22px">ご登録時に入力された紹介コードと、あなたが発行できる紹介コードです。</p>
               <div style="border: 1px solid #efebe4; background: #f8f6f2; padding: 30px 24px; text-align: center; margin-bottom: 22px">
                 <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #1c1b19; margin-bottom: 14px">REGISTERED CODE</div>
                 <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 28px; letter-spacing: 0.04em; color: #1c1b19">{{ userInvitedBy }}</div>
-                <div style="font-size: 12px; color: #77736b; margin-top: 12px">{{ codeStatus }}</div>
+                <sc-if value="{{ hasInviter }}" hint-placeholder-val="{{ false }}"><div style="font-size: 13px; color: #1c1b19; margin-top: 12px">{{ inviterLabel }}</div></sc-if>
+                <div style="font-size: 12px; color: #77736b; margin-top: 8px">{{ codeStatus }}</div>
               </div>
-              <div style="font-size: 12px; line-height: 1.9; color: #77736b; margin-top: 16px">紹介コードは管理者のみが発行します。会員の方が新たにコードを発行することはできません。第三者への公開や不正利用が確認された場合、コードを無効化することがあります。</div>
+              <sc-if value="{{ myCanIssue }}" hint-placeholder-val="{{ false }}">
+                <div style="border: 1px solid #1c1b19; background: #ffffff; padding: 30px 24px; margin-bottom: 22px">
+                  <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: #1c1b19; margin-bottom: 8px">YOUR REFERRAL CODE</div>
+                  <div style="font-size: 13px; line-height: 1.9; color: #46443f; margin-bottom: 18px">ご家族やご友人を招待できるあなた専用のコードです。このコードで登録した方には、あなたが紹介者として記録されます。</div>
+                  <sc-if value="{{ myNoCode }}" hint-placeholder-val="{{ false }}">
+                    <div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start">
+                      <button type="button" onClick="{{ issueMyCode }}" style="border: none; background: #1c1b19; color: #ffffff; padding: 15px 32px; border-radius: 999px; font-family: inherit; font-size: 14px; font-weight: 500; letter-spacing: 0.04em; cursor: pointer" style-hover="background:#6e7257">{{ myIssueLabel }}</button>
+                      <sc-if value="{{ myHasIssueErr }}" hint-placeholder-val="{{ false }}"><div style="font-size: 13px; color: #c62f2a">{{ myIssueErr }}</div></sc-if>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ myHasCode }}" hint-placeholder-val="{{ false }}">
+                    <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: center; justify-content: space-between">
+                      <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 28px; letter-spacing: 0.04em; color: #1c1b19">{{ myOwnCode }}</div>
+                      <button type="button" onClick="{{ copyMyCode }}" style="border: 1px solid #1c1b19; background: transparent; color: #1c1b19; padding: 11px 22px; border-radius: 999px; font-family: inherit; font-size: 13px; cursor: pointer" style-hover="background:#1c1b19;color:#ffffff">{{ myCopyLabel }}</button>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 24px; margin-top: 18px; padding-top: 16px; border-top: 1px solid #efebe4; font-size: 13px; color: #46443f">
+                      <span>このコードでの登録　<b style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 16px; color: #1c1b19">{{ myCodeUses }}</b> 名</span>
+                      <span>状態　{{ myCodeState }}</span>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+              <sc-if value="{{ myCannotIssue }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size: 13px; line-height: 1.9; color: #46443f; background: #f8f6f2; padding: 16px 18px; margin-bottom: 6px">紹介コードの発行は、管理者が発行したコードでご登録いただいた会員の方のみご利用いただけます。</div>
+              </sc-if>
+              <div style="font-size: 12px; line-height: 1.9; color: #77736b; margin-top: 16px">紹介コードの第三者への公開（SNS・掲示板など）や不正利用が確認された場合、コードを無効化することがあります。</div>
             </div>
           </sc-if>
 
@@ -1085,7 +1111,8 @@ const COMPANY = [
 const ADMIN_USER = { id: 'ADMIN-001', name: '管理者', email: 'admin@v-q.jp', pw: 'vqadmin', role: 'admin' };
 const DEMO_USER = {
   id: 'VQ-0001842', name: '佐藤 慶', email: 'demo@v-q.jp', pw: 'vqdemo2026',
-  tel: '090-1234-5678', dob: '1994年7月3日', code: 'VQ-8F2K-QN41', invitedBy: 'VQ-1A9C-TT02', mail: true
+  tel: '090-1234-5678', dob: '1994年7月3日', code: 'VQ-8F2K-QN41', invitedBy: 'VQ-1A9C-TT02', mail: true,
+  canIssue: true, ownCode: 'VQ-8F2K-QN41', inviter: '森本 涼 様', ownUses: 2
 };
 
 const MASTER = PRODUCTS.slice();
@@ -1234,7 +1261,11 @@ class Component extends DCLogic {
       if (window.VQFire) window.VQFire.signOut().catch(() => {});
       return this.setState({ screen: 'auth', authTab: 'login', authError: pr.status === 'withdrawn' ? 'このアカウントは退会済みです。' : 'このアカウントは現在ご利用いただけません。お問い合わせください。' });
     }
-    const user = { id: u.uid, name: pr.name || u.email, email: u.email, tel: pr.tel || '', dob: pr.birthDate || '', invitedBy: pr.referralCode || '—', mail: pr.mailOptIn !== false, fire: true };
+    const user = { id: u.uid, name: pr.name || u.email, email: u.email, tel: pr.tel || '', dob: pr.birthDate || '', invitedBy: pr.referralCode || '—', mail: pr.mailOptIn !== false, fire: true,
+      canIssue: !!pr.canIssue, ownCode: pr.ownCode || null, ownUses: 0,
+      inviter: pr.referredBy ? (pr.referredBy.type === 'member' ? (pr.referredBy.name || '会員') + ' 様' : '管理者') : (pr.referralCode ? '管理者' : '') };
+    if (user.ownCode && window.VQFire) window.VQFire.getCode(user.ownCode).then(c => { if (c && this.state.user && this.state.user.id === user.id)
+      this.setState(st => ({ user: Object.assign({}, st.user, { ownUses: c.usedCount || 0, ownActive: c.active !== false }) })); });
     const patch = { verified: true, declined: false, user: user, unlocked: this.state.unlocked || !!pr.codeAccess, pf: { name: user.name, email: user.email, tel: user.tel, mail: user.mail },
       authError: '', authNotice: false, li: { email: '', pw: '' } };
     if (nav) Object.assign(patch, { screen: 'home', my: 'orders' });
@@ -1244,6 +1275,23 @@ class Component extends DCLogic {
     if (this.unA) this.unA();
     if (F) this.unA = F.subscribeAddresses(list => this.setState(st => ({ addresses: list,
       defaultAddr: st.defaultAddr && list.some(a => a.id === st.defaultAddr) ? st.defaultAddr : (list[0] ? list[0].id : null) })), e => console.warn('[VQFire addr]', e.code || e));
+  }
+  issueMyCode() {
+    const u = this.state.user, F = window.VQFire;
+    if (!u || !u.canIssue || this.state.myIssueBusy) return;
+    if (u.fire && F) {
+      this.setState({ myIssueBusy: true, myIssueErr: '' });
+      F.issueMyCode().then(code => this.setState(st => ({ myIssueBusy: false, user: Object.assign({}, st.user, { ownCode: code, ownUses: 0, ownActive: true }) })))
+        .catch(e => this.setState({ myIssueBusy: false, myIssueErr: F.msg(e) }));
+      return;
+    }
+    const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', seg = n => Array.from({ length: n }, () => abc[Math.floor(Math.random() * abc.length)]).join('');
+    this.setState(st => ({ user: Object.assign({}, st.user, { ownCode: 'VQ-' + seg(4) + '-' + seg(4), ownUses: 0, ownActive: true }) }));
+  }
+  copyMyCode() {
+    const c = this.state.user && this.state.user.ownCode; if (!c) return;
+    const done = () => { this.setState({ myCopied: true }); clearTimeout(this.copyT); this.copyT = setTimeout(() => this.setState({ myCopied: false }), 2000); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(c).then(done).catch(done); else done();
   }
   finishUnlock() { const id = this.state.lockPid; this.setState({ unlocked: true, lockPid: null, screen: 'detail', pid: id, qty: 1 }); window.scrollTo(0, 0); }
   updateOrder(no, patch) { if (!VQO()) return; this.setState({ orders: VQO().update(no, patch).list }); }
@@ -1569,6 +1617,14 @@ class Component extends DCLogic {
       setPwNew2: e => this.pwf('b', e.target.value), savePw: () => this.changePw(),
       pwMsg: s.pwMsg, hasPwMsg: !!s.pwMsg,
       pwMsgBd: s.pwOk ? '#efebe4' : '#e59d99', pwMsgFg: s.pwOk ? '#1c1b19' : '#c62f2a',
+      inviterLabel: u && u.inviter ? '発行者：' + u.inviter : '', hasInviter: !!(u && u.inviter),
+      myCanIssue: !!(u && u.canIssue), myCannotIssue: !!(u && !u.canIssue),
+      myHasCode: !!(u && u.canIssue && u.ownCode), myNoCode: !!(u && u.canIssue && !u.ownCode),
+      myOwnCode: u && u.ownCode ? u.ownCode : '', myCodeUses: u ? String(u.ownUses || 0) : '0',
+      myCodeState: u && u.ownActive === false ? '停止中（管理者により無効化されています）' : '有効',
+      issueMyCode: () => this.issueMyCode(), myIssueLabel: s.myIssueBusy ? '発行中…' : '紹介コードを発行する',
+      myIssueErr: s.myIssueErr || '', myHasIssueErr: !!s.myIssueErr,
+      copyMyCode: () => this.copyMyCode(), myCopyLabel: s.myCopied ? 'コピーしました' : 'コードをコピー',
       codeStatus: u && u.invitedBy && u.invitedBy !== '—' ? '有効 — 紹介コード限定製品を閲覧できます' : '未登録 — 紹介コードをお持ちの方は限定製品ページから入力できます',
       quitAgree: s.quitAgree, setQuitAgree: e => this.setState({ quitAgree: e.target.checked }),
       quitBd: s.quitAgree ? '#c62f2a' : '#f0c6c3', quitFg: s.quitAgree ? '#c62f2a' : '#77736b',

@@ -45,6 +45,7 @@ const MSG = {
   'auth/network-request-failed': '通信に失敗しました。接続を確認してください。',
   'auth/configuration-not-found': 'ログイン機能が未設定です（Firebase Authentication を有効にしてください）。',
   'auth/operation-not-allowed': 'メール/パスワードでのログインが無効です（Firebase コンソールで有効にしてください）。',
+  'vq/not-allowed': '紹介コードを発行できるのは、管理者発行のコードでご登録いただいた会員の方のみです。',
   'auth/requires-recent-login': 'セキュリティのため、再度ログインしてからお試しください。',
   'permission-denied': '権限がありません。'
 };
@@ -74,9 +75,17 @@ const VQFire = {
     const cred = await signInWithEmailAndPassword(auth, email, pw);
     current = await resolveUser(cred.user); emit(); return current;
   },
+  async getCode(code) {
+    const d = await getDoc(doc(db, 'referralCodes', code)).catch(() => null);
+    return d && d.exists() ? Object.assign({ id: d.id }, d.data()) : null;
+  },
   async signUp(f) {
+    const c = f.code ? await VQFire.getCode(f.code) : null;
+    const type = c ? (c.issuerType || 'admin') : null;
+    const referredBy = c ? { type: type, id: c.issuerId || c.createdBy || '', name: type === 'member' ? (c.issuerName || '会員') : '管理者' } : null;
     const cred = await createUserWithEmailAndPassword(auth, f.email, f.pw);
     const profile = { name: f.name, email: f.email, tel: '', birthDate: f.birthDate, referralCode: f.code || null, codeAccess: !!f.code,
+      referredBy: referredBy, canIssue: type === 'admin', ownCode: null,
       status: 'active', favorites: [], mailOptIn: true, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
     await setDoc(doc(db, 'members', cred.user.uid), profile);
     if (f.code) await updateDoc(doc(db, 'referralCodes', f.code), { usedCount: increment(1) }).catch(() => {});
@@ -177,14 +186,29 @@ const VQFire = {
   subscribeSettings: (cb, onErr) => onSnapshot(doc(db, 'settings', 'store'), d => cb(d.exists() ? d.data() : null), e => onErr && onErr(e)),
 
   subscribeCodes: (cb, onErr) => onSnapshot(collection(db, 'referralCodes'), s => cb(mapSnap(s)), e => onErr && onErr(e)),
-  issueCode: (code, label) => setDoc(doc(db, 'referralCodes', code), { active: true, label: label, maxUses: null, usedCount: 0, expiresAt: null, createdBy: current ? current.uid : '', createdAt: serverTimestamp() }),
+  issueCode: (code, label) => setDoc(doc(db, 'referralCodes', code), { active: true, label: label, maxUses: null, usedCount: 0, expiresAt: null,
+    issuerType: 'admin', issuerId: current ? current.uid : '', issuerName: '管理者', createdBy: current ? current.uid : '', createdAt: serverTimestamp() }),
+  async issueMyCode() {
+    if (!current || !current.profile) throw { code: 'permission-denied' };
+    if (!current.profile.canIssue) throw { code: 'vq/not-allowed' };
+    if (current.profile.ownCode) return current.profile.ownCode;
+    const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const seg = n => Array.from({ length: n }, () => abc[Math.floor(Math.random() * abc.length)]).join('');
+    const code = 'VQ-' + seg(4) + '-' + seg(4);
+    await setDoc(doc(db, 'referralCodes', code), { active: true, label: current.profile.name || '', maxUses: null, usedCount: 0, expiresAt: null,
+      issuerType: 'member', issuerId: current.uid, issuerName: current.profile.name || '', createdBy: current.uid, createdAt: serverTimestamp() });
+    await updateDoc(doc(db, 'members', current.uid), { ownCode: code, updatedAt: serverTimestamp() });
+    current.profile.ownCode = code;
+    return code;
+  },
+  setMemberCanIssue: (uid, v) => updateDoc(doc(db, 'members', uid), { canIssue: !!v, updatedAt: serverTimestamp() }),
   setCodeActive: (code, active) => updateDoc(doc(db, 'referralCodes', code), { active: active }),
 
   async seed() {
     const b = writeBatch(db);
     SEED_PRODUCTS.forEach((p, i) => b.set(doc(db, 'products', p.id), Object.assign({}, p, { stock: 50, published: true, sort: i, updatedAt: serverTimestamp() }), { merge: true }));
     b.set(doc(db, 'settings', 'store'), SEED_SETTINGS, { merge: true });
-    SEED_CODES.forEach(c => b.set(doc(db, 'referralCodes', c), { active: true, label: '初期コード', maxUses: null, usedCount: 0, expiresAt: null, createdBy: current ? current.uid : '', createdAt: serverTimestamp() }, { merge: true }));
+    SEED_CODES.forEach(c => b.set(doc(db, 'referralCodes', c), { active: true, label: '初期コード', maxUses: null, usedCount: 0, expiresAt: null, issuerType: 'admin', issuerName: '管理者', issuerId: current ? current.uid : '', createdBy: current ? current.uid : '', createdAt: serverTimestamp() }, { merge: true }));
     await b.commit();
   }
 };

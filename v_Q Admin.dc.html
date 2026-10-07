@@ -53,7 +53,7 @@
     <div style="padding: 22px 20px; border-bottom: 1px solid #262a30">
       <div style="font-family: 'Roboto Mono', monospace; font-size: 11px; letter-spacing: 0.22em; color: #8fd694">V_Q ADMIN</div>
       <div style="font-size: 11px; color: #7b828c; margin-top: 7px">{{ staffName }}／{{ staffRole }}</div>
-      <div style="font-family: 'Roboto Mono', monospace; font-size: 10px; color: #5b616b; margin-top: 6px">ver 2026.10.01-b2</div>
+      <div style="font-family: 'Roboto Mono', monospace; font-size: 10px; color: #5b616b; margin-top: 6px">ver 2026.10.07-ref</div>
     </div>
     <sc-for list="{{ nav }}" as="n" hint-placeholder-count="9">
       <button type="button" onClick="{{ n.select }}" style="display: block; width: 100%; border: none; border-left: 3px solid {{ n.mark }}; background: {{ n.bg }}; color: {{ n.fg }}; padding: 12px 18px; text-align: left; font-size: 12.5px; cursor: pointer" style-hover="color:#ffffff">{{ n.label }}</button>
@@ -265,17 +265,18 @@
       <sc-if value="{{ isCustomers }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; overflow-x: auto">
-            <div style="min-width: 1000px">
-              <div style="display: grid; grid-template-columns: 116px minmax(0, 1fr) 190px 132px 132px 76px 104px 88px; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #e0e2e6; background: #f7f8f9; font-size: 11px; font-weight: 700; color: #4b5563">
-                <span>会員ID</span><span>氏名</span><span>メール</span><span>限定製品</span><span>紹介元コード</span><span>注文数</span><span>累計購入額</span><span>状態</span>
+            <div style="min-width: 1120px">
+              <div style="display: grid; grid-template-columns: 104px minmax(0, 1fr) 180px 92px 150px 96px 64px 100px 80px; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #e0e2e6; background: #f7f8f9; font-size: 11px; font-weight: 700; color: #4b5563">
+                <span>会員ID</span><span>氏名</span><span>メール</span><span>限定製品</span><span>紹介者（使用コード）</span><span>紹介権限</span><span>注文数</span><span>累計購入額</span><span>状態</span>
               </div>
               <sc-for list="{{ customerRows }}" as="c" hint-placeholder-count="6">
-                <div style="display: grid; grid-template-columns: 116px minmax(0, 1fr) 190px 132px 132px 76px 104px 88px; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #eceef1; font-size: 12px; align-items: center">
+                <div style="display: grid; grid-template-columns: 104px minmax(0, 1fr) 180px 92px 150px 96px 64px 100px 80px; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #eceef1; font-size: 12px; align-items: center">
                   <span title="{{ c.fullId }}" style="font-family: 'Roboto Mono', monospace; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0">{{ c.shortId }}</span>
                   <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ c.name }}</span>
                   <span style="font-size: 11.5px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ c.email }}</span>
                   <span style="font-family: 'Roboto Mono', monospace; font-size: 11px; color: #1a6b3c">{{ c.code }}</span>
-                  <span style="font-family: 'Roboto Mono', monospace; font-size: 11px; color: #6b7280">{{ c.invitedBy }}</span>
+                  <span style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ c.inviter }}</span><span style="font-family: 'Roboto Mono', monospace; font-size: 10.5px; color: #9ca3af">{{ c.invitedBy }}</span></span>
+                  <span style="display: flex; flex-direction: column; gap: 3px; align-items: flex-start"><button type="button" onClick="{{ c.toggleIssue }}" style="border: 1px solid {{ c.ciBd }}; background: #ffffff; color: {{ c.ciFg }}; padding: 4px 8px; font-size: 10.5px; border-radius: 2px; cursor: pointer; white-space: nowrap">{{ c.ciLabel }}</button><span style="font-family: 'Roboto Mono', monospace; font-size: 10px; color: #9ca3af">{{ c.ownCode }}</span></span>
                   <span style="font-family: 'Roboto Mono', monospace; text-align: right">{{ c.orders }}</span>
                   <span style="font-family: 'Roboto Mono', monospace; text-align: right">¥{{ c.ltv }}</span>
                   <span><button type="button" onClick="{{ c.toggle }}" style="border: 1px solid {{ c.bd }}; background: {{ c.bg }}; color: {{ c.fg }}; padding: 5px 9px; font-size: 10.5px; border-radius: 2px; cursor: pointer; white-space: nowrap">{{ c.state }}</button></span>
@@ -296,12 +297,12 @@
             <div style="border: 1px solid #e0e2e6; border-radius: 3px; overflow-x: auto">
               <div style="min-width: 720px">
                 <div style="display: grid; grid-template-columns: 148px minmax(0, 1fr) 106px 86px 92px 92px; gap: 12px; padding: 10px 14px; border-bottom: 1px solid #e0e2e6; background: #f7f8f9; font-size: 11px; font-weight: 700; color: #4b5563">
-                  <span>コード</span><span>保有者</span><span>発行日</span><span>利用回数</span><span>状態</span><span>操作</span>
+                  <span>コード</span><span>発行者</span><span>発行日</span><span>利用回数</span><span>状態</span><span>操作</span>
                 </div>
                 <sc-for list="{{ codeRows }}" as="r" hint-placeholder-count="4">
                   <div style="display: grid; grid-template-columns: 148px minmax(0, 1fr) 106px 86px 92px 92px; gap: 12px; padding: 11px 14px; border-bottom: 1px solid #eceef1; font-size: 12px; align-items: center">
                     <span style="font-family: 'Roboto Mono', monospace; font-size: 11.5px; letter-spacing: 0.04em">{{ r.code }}</span>
-                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ r.owner }}</span>
+                    <span style="display: flex; gap: 8px; align-items: center; min-width: 0"><span style="background: {{ r.tBg }}; color: {{ r.tFg }}; padding: 2px 7px; font-size: 10px; border-radius: 2px; white-space: nowrap">{{ r.type }}</span><span title="{{ r.ownerTitle }}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ r.owner }}</span></span>
                     <span style="font-family: 'Roboto Mono', monospace; font-size: 11px; color: #6b7280">{{ r.issued }}</span>
                     <span style="font-family: 'Roboto Mono', monospace; text-align: right">{{ r.uses }}</span>
                     <span style="color: {{ r.stFg }}; font-size: 11px">{{ r.state }}</span>
@@ -588,19 +589,21 @@ const ST_COLOR = {
 };
 
 const CUSTOMERS = [
-  { id: 'VQ-0000875', name: '森本 涼', email: 'ryo.m@example.com', code: 'VQ-1A9C-TT02', invitedBy: '管理者発行', orders: 14, ltv: 184800, active: true },
-  { id: 'VQ-0001120', name: '青山 恵', email: 'megumi.a@example.com', code: 'VQ-6D3M-LZ88', invitedBy: 'VQ-1A9C-TT02', orders: 9, ltv: 96800, active: true },
-  { id: 'VQ-0001842', name: '佐藤 慶', email: 'demo@v-q.jp', code: 'VQ-8F2K-QN41', invitedBy: 'VQ-1A9C-TT02', orders: 11, ltv: 132400, active: true },
-  { id: 'VQ-0002044', name: '石田 美咲', email: 'misaki.i@example.com', code: 'VQ-3K7P-WD19', invitedBy: 'VQ-8F2K-QN41', orders: 5, ltv: 61600, active: true },
-  { id: 'VQ-0002488', name: '林 千尋', email: 'chihiro.h@example.com', code: 'VQ-9R2B-XC53', invitedBy: 'VQ-6D3M-LZ88', orders: 3, ltv: 33000, active: true },
-  { id: 'VQ-0002931', name: '中村 拓海', email: 'takumi.n@example.com', code: 'VQ-5T8J-MV27', invitedBy: 'VQ-8F2K-QN41', orders: 2, ltv: 17600, active: false }
+  { id: 'VQ-0000875', name: '森本 涼', email: 'ryo.m@example.com', code: '限定製品 可', invitedBy: 'VQ-ADM0-0001', canIssue: true, ownCode: 'VQ-1A9C-TT02', orders: 14, ltv: 184800, active: true },
+  { id: 'VQ-0001120', name: '青山 恵', email: 'megumi.a@example.com', code: '限定製品 可', invitedBy: 'VQ-ADM0-0002', canIssue: true, ownCode: 'VQ-6D3M-LZ88', orders: 9, ltv: 96800, active: true },
+  { id: 'VQ-0001842', name: '佐藤 慶', email: 'demo@v-q.jp', code: '限定製品 可', invitedBy: 'VQ-1A9C-TT02', canIssue: true, ownCode: 'VQ-8F2K-QN41', orders: 11, ltv: 132400, active: true },
+  { id: 'VQ-0002044', name: '石田 美咲', email: 'misaki.i@example.com', code: '限定製品 可', invitedBy: 'VQ-8F2K-QN41', canIssue: false, ownCode: '', orders: 5, ltv: 61600, active: true },
+  { id: 'VQ-0002488', name: '林 千尋', email: 'chihiro.h@example.com', code: '限定製品 可', invitedBy: 'VQ-6D3M-LZ88', canIssue: false, ownCode: '', orders: 3, ltv: 33000, active: true },
+  { id: 'VQ-0002931', name: '中村 拓海', email: 'takumi.n@example.com', code: '—', invitedBy: 'VQ-8F2K-QN41', canIssue: false, ownCode: 'VQ-5T8J-MV27', orders: 2, ltv: 17600, active: false }
 ];
 
 const CODES = [
-  { code: 'VQ-1A9C-TT02', owner: '森本 涼（VQ-0000875）', issued: '2025/11/04', uses: 3, active: true },
-  { code: 'VQ-8F2K-QN41', owner: '佐藤 慶（VQ-0001842）', issued: '2026/01/22', uses: 2, active: true },
-  { code: 'VQ-6D3M-LZ88', owner: '青山 恵（VQ-0001120）', issued: '2026/03/09', uses: 1, active: true },
-  { code: 'VQ-5T8J-MV27', owner: '中村 拓海（VQ-0002931）', issued: '2026/08/30', uses: 0, active: false }
+  { code: 'VQ-ADM0-0001', owner: '管理者', issuerType: 'admin', issuerId: '', issued: '2025/10/20', uses: 1, active: true },
+  { code: 'VQ-ADM0-0002', owner: '管理者', issuerType: 'admin', issuerId: '', issued: '2025/12/02', uses: 1, active: true },
+  { code: 'VQ-1A9C-TT02', owner: '森本 涼', issuerType: 'member', issuerId: 'VQ-0000875', issuerName: '森本 涼', issued: '2025/11/04', uses: 1, active: true },
+  { code: 'VQ-8F2K-QN41', owner: '佐藤 慶', issuerType: 'member', issuerId: 'VQ-0001842', issuerName: '佐藤 慶', issued: '2026/01/22', uses: 2, active: true },
+  { code: 'VQ-6D3M-LZ88', owner: '青山 恵', issuerType: 'member', issuerId: 'VQ-0001120', issuerName: '青山 恵', issued: '2026/03/09', uses: 1, active: true },
+  { code: 'VQ-5T8J-MV27', owner: '中村 拓海', issuerType: 'member', issuerId: 'VQ-0002931', issuerName: '中村 拓海', issued: '2026/08/30', uses: 0, active: false }
 ];
 
 const COA = [
@@ -732,9 +735,11 @@ class Component extends DCLogic {
     if (this.unM) this.unM();
     this.unM = F.subscribeMembers(list => this.setState({ customers: list.map(m => ({ id: m.id, name: m.name || '—', email: m.email || '',
       code: m.codeAccess ? '限定製品 可' : '—', invitedBy: m.referralCode || '—', orders: 0, ltv: 0, active: m.status === 'active', status: m.status,
+      referredBy: m.referredBy || null, canIssue: !!m.canIssue, ownCode: m.ownCode || '',
       joined: m.createdAt && m.createdAt.toDate ? m.createdAt.toDate() : null })) }),
       e => this.setState({ fireErr: e.code || String(e) }));
     this.unC = F.subscribeCodes(list => { this.setState({ codes: list.map(c => ({ code: c.id, owner: c.label || '—',
+      issuerType: c.issuerType || 'admin', issuerId: c.issuerId || '', issuerName: c.issuerName || '',
       issued: c.createdAt && c.createdAt.toDate ? ymd(c.createdAt.toDate()) : '', uses: c.usedCount || 0, active: !!c.active })) }); },
       e => this.setState({ fireErr: e.code || String(e) }));
   }
@@ -955,7 +960,7 @@ class Component extends DCLogic {
     const t = new Date();
     const owner = this.state.issueTo.trim() || '管理者発行（未割当）';
     if (this.state.fireOn) { window.VQFire.issueCode(code, owner).then(() => this.setState({ issueTo: '' })).catch(e => this.setState({ fireErr: e.code || String(e) })); return; }
-    this.setState(s => ({ codes: [{ code: code, owner: owner,
+    this.setState(s => ({ codes: [{ code: code, owner: owner, issuerType: 'admin', issuerId: '',
       issued: t.getFullYear() + '/' + String(t.getMonth() + 1).padStart(2, '0') + '/' + String(t.getDate()).padStart(2, '0'),
       uses: 0, active: true }].concat(s.codes), issueTo: '' }));
   }
@@ -1115,7 +1120,15 @@ class Component extends DCLogic {
         save: () => this.saveProduct(p) })),
 
       customerRows: s.customers.map(c => { const mine = s.fireOn ? s.orders.filter(o => o.memberId === c.id && o.payStatus !== 'cancelled' && o.payStatus !== 'expired') : null;
-        return { id: c.id, fullId: c.id, shortId: c.id.length > 12 ? c.id.slice(0, 8) + '…' : c.id, name: c.name, email: c.email, code: c.code, invitedBy: c.invitedBy,
+        const rc = c.invitedBy && c.invitedBy !== '—' ? s.codes.find(x => x.code === c.invitedBy) : null;
+        const rb = c.referredBy || (rc ? { type: rc.issuerType, id: rc.issuerId, name: rc.issuerName } : null);
+        const inviter = rb ? (rb.type === 'member' ? ((s.customers.find(x => x.id === rb.id) || {}).name || rb.name || '会員') + '（会員）' : '管理者')
+          : c.invitedBy === '管理者発行' ? '管理者' : (c.invitedBy && c.invitedBy !== '—' ? '管理者' : '—');
+        const canIssue = c.canIssue != null ? !!c.canIssue : c.invitedBy === '管理者発行';
+        return { id: c.id, fullId: c.id, inviter: inviter, ownCode: c.ownCode || '',
+        ciLabel: canIssue ? '可' : '不可', ciFg: canIssue ? '#1a6b3c' : '#9ca3af', ciBd: canIssue ? '#bcd9c6' : '#e0e2e6',
+        toggleIssue: () => s.fireOn ? window.VQFire.setMemberCanIssue(c.id, !canIssue).catch(e => this.setState({ fireErr: e.code || String(e) }))
+          : this.setState(st => ({ customers: st.customers.map(x => x.id === c.id ? Object.assign({}, x, { canIssue: !canIssue }) : x) })), shortId: c.id.length > 12 ? c.id.slice(0, 8) + '…' : c.id, name: c.name, email: c.email, code: c.code, invitedBy: c.invitedBy,
         orders: mine ? mine.length : c.orders, ltv: YEN(mine ? mine.reduce((n, o) => n + (o.total || 0), 0) : c.ltv),
         state: c.status === 'withdrawn' ? '退会' : c.active ? '有効' : '停止中',
         bd: c.active ? '#1a6b3c' : '#f0c2c2', bg: c.active ? '#e8f3ec' : '#fdeeee', fg: c.active ? '#1a6b3c' : '#a32222',
@@ -1123,11 +1136,14 @@ class Component extends DCLogic {
           : this.setState(st => ({ customers: st.customers.map(x => x.id === c.id ? Object.assign({}, x, { active: !x.active }) : x) })) }; }),
       issueTo: s.issueTo, setIssueTo: e => this.setState({ issueTo: e.target.value }),
       issueCode: () => this.issue(),
-      codeRows: s.codes.map(r => ({ code: r.code, owner: r.owner, issued: r.issued, uses: r.uses,
+      codeRows: s.codes.map(r => { const mem = r.issuerType === 'member';
+        const who = mem ? (s.customers.find(c => c.id === r.issuerId) || {}).name || r.issuerName || '会員' : (r.owner && r.owner !== '—' && r.owner !== '初期コード' ? r.owner : '管理者');
+        return { code: r.code, owner: who + (mem && r.issuerId ? '（' + (String(r.issuerId).length > 12 ? String(r.issuerId).slice(0, 8) + '…' : r.issuerId) + '）' : ''), ownerTitle: mem ? String(r.issuerId) : '', issued: r.issued, uses: r.uses,
+        type: mem ? '会員' : '管理者', tBg: mem ? '#eef2ff' : '#f0f1f3', tFg: mem ? '#3b4aa0' : '#4b5563',
         state: r.active ? '有効' : '停止中', stFg: r.active ? '#1a6b3c' : '#a32222',
         action: r.active ? '停止' : '再開',
         toggle: () => s.fireOn ? window.VQFire.setCodeActive(r.code, !r.active).catch(e => this.setState({ fireErr: e.code || String(e) }))
-          : this.setState(st => ({ codes: st.codes.map(x => x.code === r.code ? Object.assign({}, x, { active: !x.active }) : x) })) })),
+          : this.setState(st => ({ codes: st.codes.map(x => x.code === r.code ? Object.assign({}, x, { active: !x.active }) : x) })) }; }),
 
       coaRows: s.coaList.map(c => { const p = s.products.find(x => x.id === c.productId); return { name: p ? p.name : c.productId, lot: c.lot, lab: c.lab,
         thc: c.thc, date: c.date, file: c.fileName || '未添付', hasFile: !!(c.url || c.chunks),
