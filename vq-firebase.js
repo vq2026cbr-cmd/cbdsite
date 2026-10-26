@@ -19,10 +19,10 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const SEED_PRODUCTS = [
-  { id: 'vq-day', name: 'v_Q DAY — CITRUS 1.0 mL', sku: 'VQ-DAY-CT10', price: 4980, category: 'cbg', requiresCode: false, img: 'assets/vq/box-day.png' },
-  { id: 'vq-chill', name: 'v_Q CHILL — OG KUSH 1.0 mL', sku: 'VQ-CHL-OG10', price: 4980, category: 'cbd', requiresCode: false, img: 'assets/vq/box-chill.png' },
-  { id: 'vq-focus', name: 'v_Q FOCUS — LEMON HAZE 1.0 mL', sku: 'VQ-FCS-LH10', price: 4980, category: 'cbd', requiresCode: false, img: 'assets/vq/box-focus.png' },
-  { id: 'vq-night', name: 'v_Q NIGHT — CBX 1.0 mL', sku: 'VQ-NGT-GL10', price: 4980, category: 'cbx', requiresCode: true, img: 'assets/vq/box-night.png' },
+  { id: 'vq-day', name: 'v_Q DAY — CITRUS 1.0 mL', sku: 'VQ-DAY-CT10', price: 4980, category: 'cbg', requiresCode: false, img: '' },
+  { id: 'vq-chill', name: 'v_Q CHILL — OG KUSH 1.0 mL', sku: 'VQ-CHL-OG10', price: 4980, category: 'cbd', requiresCode: false, img: '' },
+  { id: 'vq-focus', name: 'v_Q FOCUS — LEMON HAZE 1.0 mL', sku: 'VQ-FCS-LH10', price: 4980, category: 'cbd', requiresCode: false, img: '' },
+  { id: 'vq-night', name: 'v_Q NIGHT — CBX 1.0 mL', sku: 'VQ-NGT-GL10', price: 4980, category: 'cbx', requiresCode: true, img: '' },
   { id: 'vq-tron', name: 'v_Q CBX — TRON Pro 1.0 mL', sku: 'VQ-CBX-TRN10', price: 6980, category: 'cbx', requiresCode: true, img: '' },
   { id: 'vq-glo', name: 'v_Q CBX — GLO Pro 1.0 mL', sku: 'VQ-CBX-GLO10', price: 7480, category: 'cbx', requiresCode: true, img: '' },
   { id: 'vq-set', name: 'v_Q VIBE SET — 4本セット', sku: 'VQ-SET-4', price: 17800, category: 'referral', requiresCode: true, img: '' }
