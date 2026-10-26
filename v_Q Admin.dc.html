@@ -687,6 +687,10 @@ const loadEncoding = () => window.Encoding ? Promise.resolve(window.Encoding) : 
 
 const isProd = () => !!window.VQ_PROD || /github\.io$/.test(location.hostname);
 
+const __blobCache = {};
+const safeImg = u => { if (!u || !/^data:/.test(u)) return u; if (__blobCache[u]) return __blobCache[u];
+  try { const m = u.match(/^data:([^;,]+)?(;base64)?,(.*)$/); const bin = m[2] ? atob(m[3]) : decodeURIComponent(m[3]); const a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+    return (__blobCache[u] = URL.createObjectURL(new Blob([a], { type: m[1] || 'image/jpeg' }))); } catch (e) { return u; } };
 class Component extends DCLogic {
   state = { auth: false, email: '', pw: '', err: '', page: 'dash', orderFilter: 'ALL',
     orders: [], shipFor: null, shipCarrier: 'ヤマト運輸', shipTrack: '',
@@ -1115,7 +1119,7 @@ class Component extends DCLogic {
       setNpName: e => this.npSet('name', e.target.value), setNpSku: e => this.npSet('sku', e.target.value.toUpperCase()),
       setNpPrice: e => this.npSet('price', e.target.value.replace(/[^0-9]/g, '')), setNpStock: e => this.npSet('stock', e.target.value.replace(/[^0-9]/g, '')),
       setNpCat: e => this.npSet('cat', e.target.value), setNpImg: e => this.npSet('img', e.target.value),
-      npImgPreview: s.np.img ? "'" + s.np.img + "'" : 'none',
+      npImgPreview: s.np.img ? "'" + safeImg(s.np.img) + "'" : 'none',
       npImgUrlField: s.np.img.startsWith('data:') ? '' : s.np.img,
       npImgBtn: s.np.img.startsWith('data:') ? '画像を変更' : 'ファイルを選択',
       pickNpImg: e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) this.loadImgFile(f); },
@@ -1142,7 +1146,7 @@ class Component extends DCLogic {
       seedFire: () => { if (s.seeding) return; this.setState({ seeding: true });
         window.VQFire.seed().then(() => this.setState({ seeding: false })).catch(e => this.setState({ seeding: false, fireErr: e.code || String(e) })); },
 
-      productRows: s.products.map(p => ({ name: p.name, sku: p.sku, imgUrl: "'" + p.img + "'",
+      productRows: s.products.map(p => ({ name: p.name, sku: p.sku, imgUrl: "'" + safeImg(p.img) + "'",
         price: String(p.price), stock: String(p.stock),
         stockBd: Number(p.stock) < 10 ? '#f0c2c2' : '#d3d6db',
         stockFg: Number(p.stock) < 10 ? '#a32222' : '#16181c',

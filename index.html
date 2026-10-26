@@ -1126,8 +1126,12 @@ const MASTER = PRODUCTS.slice();
 const byId = id => MASTER.find(p => p.id === id);
 const CAT_MAP = { cbg: { line: 'CBG', vibe: 'DAY', cat: 'DAY', spec: 'CBG' }, cbd: { line: 'CBD', vibe: 'CHILL', cat: 'CHILL', spec: 'CBD' },
   cbx: { vibe: 'NIGHT', cat: 'NIGHT', spec: 'CBX' }, referral: { vibe: 'NIGHT', cat: 'NIGHT', spec: 'CBX', locked: true } };
+const __blobCache = {};
+const safeImg = u => { if (!u || !/^data:/.test(u)) return u; if (__blobCache[u]) return __blobCache[u];
+  try { const m = u.match(/^data:([^;,]+)?(;base64)?,(.*)$/); const bin = m[2] ? atob(m[3]) : decodeURIComponent(m[3]); const a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+    return (__blobCache[u] = URL.createObjectURL(new Blob([a], { type: m[1] || 'image/jpeg' }))); } catch (e) { return u; } };
 const makeProduct = d => { const base = byId(d.category === 'cbg' ? 'vq-day' : d.category === 'cbd' ? 'vq-chill' : 'vq-night'); const m = CAT_MAP[d.category] || CAT_MAP.cbd;
-  const img = d.img || base.img;
+  const img = safeImg(d.img) || base.img;
   return Object.assign({}, base, { id: d.id, line: m.line, vibe: m.vibe, cat: m.cat, spec: m.spec, locked: !!(m.locked || d.requiresCode), flavor: '', img: img, main: img, thumbs: [img],
     sku: d.sku || '', name: d.name || d.id, nameJa: '', price: d.price || 0, was: 0, stock: d.stock || 0, rank: 99, isNew: true, lot: '',
     body: d.body || '', specs: [['内容量', '1.0 mL'], ['THC', '不検出（検出限界以下）']] }); };
@@ -1140,7 +1144,7 @@ const syncProducts = list => {
   const ids = {};
   list.forEach(d => { ids[d.id] = 1; let p = byId(d.id); if (!p) { p = makeProduct(d); MASTER.push(p); }
     if (typeof d.price === 'number') p.price = d.price; if (typeof d.stock === 'number') p.stock = d.stock;
-    if (d.img && /^(https?:|data:)/.test(d.img) && d.img !== p.fireImg) { if (!p.origThumbs) p.origThumbs = (p.thumbs || []).slice(); p.fireImg = d.img; p.img = d.img; p.main = d.img; p.thumbs = [d.img].concat(p.origThumbs.filter(u => u !== d.img)).slice(0, 4); }
+    if (d.img && /^(https?:|data:)/.test(d.img) && d.img !== p.fireImg) { if (!p.origThumbs) p.origThumbs = (p.thumbs || []).slice(); p.fireImg = d.img; const si = safeImg(d.img); p.img = si; p.main = si; p.thumbs = [si].concat(p.origThumbs.filter(u => u !== si)).slice(0, 4); }
     if (d.name && p.isNew && p.rank === 99) p.name = d.name; p.hidden = d.published === false; });
   MASTER.forEach(p => { if (!ids[p.id]) p.hidden = true; });
   PRODUCTS.length = 0; MASTER.filter(p => !p.hidden).forEach(p => PRODUCTS.push(p));
