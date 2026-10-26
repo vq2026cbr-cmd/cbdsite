@@ -30,6 +30,9 @@
 </sc-if>
 
 <sc-if value="{{ showStore }}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{ prodNotice }}" hint-placeholder-val="{{ false }}">
+  <div style="background: #1c1b19; color: #ffffff; padding: 12px 24px; font-size: 13px; line-height: 1.8; text-align: center">{{ prodNoticeText }}</div>
+</sc-if>
 <sc-if value="{{ adminPreview }}" hint-placeholder-val="{{ false }}">
   <div style="position: sticky; top: 0; z-index: 200; background: #16181c; color: #ffffff; display: flex; align-items: center; gap: 14px; padding: 10px 24px; font-size: 13px; flex-wrap: wrap">
     <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #8fd1a8">ADMIN</span>
@@ -249,6 +252,7 @@
             <button type="button" onClick="{{ p.open }}" style="border: none; background: #f8f6f2; color: #1c1b19; padding: 0; cursor: pointer; text-align: left; display: flex; flex-direction: column; border-radius: 4px; overflow: hidden; font-family: inherit; transition: box-shadow 250ms" style-hover="box-shadow:0 16px 40px rgba(28,27,25,0.10)">
               <div style="position: relative; width: 100%; aspect-ratio: 3 / 4; background-color: #dcd6cc; background-image: url('{{ p.img }}'); background-size: cover; background-position: center 45%">
                 
+                <sc-if value="{{ p.soldOut }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; background: rgba(255,255,255,0.62); display: flex; align-items: center; justify-content: center; pointer-events: none"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: clamp(18px, 2.2vw, 26px); font-weight: 400; letter-spacing: 0.3em; color: #3a3a38">COMING SOON</span></span></sc-if>
                 <sc-if value="{{ p.locked }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; background: rgba(28,27,25,0.45); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #ffffff"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5" y="11" width="14" height="10" rx="1"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; letter-spacing: 0.2em">紹介コード限定</span></span></sc-if>
                 <sc-if value="{{ p.hasOff }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: 16px; right: 16px; background: #b5452f; color: #ffffff; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0.1em; padding: 6px 12px">{{ p.off }}</span></sc-if>
               </div>
@@ -274,10 +278,10 @@
       <div style="font-size: 13px; color: {{ th.sub }}; margin-bottom: 24px"><a href="#" onClick="{{ goHome }}" style="color: {{ th.sub }}">ホーム</a> / <a href="#" onClick="{{ goList }}" style="color: {{ th.sub }}">製品</a> / {{ detailCat }}</div>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 48px; align-items: start">
         <div style="display: flex; flex-direction: column; gap: 12px">
-          <div style="aspect-ratio: 4 / 5; background-color: {{ th.panel }}; background-image: url('{{ detailImg }}'); background-size: cover; background-position: center"></div>
+          <div style="position: relative; aspect-ratio: 4 / 5; background-color: {{ th.panel }}; background-image: url('{{ detailImg }}'); background-size: cover; background-position: center; transition: background-image .2s"><sc-if value="{{ detailSoldOut }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; background: rgba(255,255,255,0.62); display: flex; align-items: center; justify-content: center; pointer-events: none"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: clamp(24px, 3.4vw, 40px); font-weight: 400; letter-spacing: 0.3em; color: #3a3a38">COMING SOON</span></span></sc-if></div>
           <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px">
             <sc-for list="{{ detailThumbs }}" as="t" hint-placeholder-count="4">
-              <div style="aspect-ratio: 1 / 1; background-color: {{ th.panel }}; background-image: url('{{ t.url }}'); background-size: cover; background-position: center"></div>
+              <div onMouseEnter="{{ t.show }}" onClick="{{ t.show }}" style="aspect-ratio: 1 / 1; background-color: {{ th.panel }}; background-image: url('{{ t.url }}'); background-size: cover; background-position: center; cursor: pointer; outline: {{ t.ring }}; outline-offset: -1px; opacity: {{ t.op }}; transition: opacity .2s"></div>
             </sc-for>
           </div>
         </div>
@@ -308,8 +312,9 @@
               <span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 18px; width: 40px; text-align: center">{{ qty }}</span>
               <button type="button" onClick="{{ incQty }}" style="border: none; background: transparent; color: {{ th.fg }}; width: 48px; height: 48px; border-radius: 50%; font-size: 20px; cursor: pointer">＋</button>
             </div>
-            <button type="button" onClick="{{ addToCart }}" style="flex: 1; min-width: 220px; border: none; background: {{ th.btnBg }}; color: {{ th.btnFg }}; height: 58px; border-radius: 999px; font-family: inherit; font-size: 16px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer" style-hover="opacity:0.88">カートに入れる</button>
+            <button type="button" onClick="{{ addToCart }}" style="flex: 1; min-width: 220px; border: none; background: {{ th.btnBg }}; color: {{ th.btnFg }}; height: 58px; border-radius: 999px; font-family: inherit; font-size: 16px; font-weight: 500; letter-spacing: 0.06em; cursor: {{ addCursor }}; opacity: {{ addOpacity }}">{{ addLabel }}</button>
           </div>
+          <sc-if value="{{ hasStockMsg }}" hint-placeholder-val="{{ false }}"><div style="border: 1px solid #e8b4ae; background: #fdf0ef; color: #c62f2a; padding: 12px 14px; font-size: 13px; line-height: 1.8">{{ stockMsg }}</div></sc-if>
           <div style="font-size: 13px; color: {{ th.sub }}">{{ shipNote }}</div>
           <div style="border-top: 1px solid {{ th.accent }}">
             <sc-for list="{{ detailSpecs }}" as="s" hint-placeholder-count="5">
@@ -348,6 +353,7 @@
             <button type="button" onClick="{{ p.open }}" style="border: none; background: #f8f6f2; color: #1c1b19; padding: 0; cursor: pointer; text-align: left; display: flex; flex-direction: column; border-radius: 4px; overflow: hidden; font-family: inherit; transition: box-shadow 250ms" style-hover="box-shadow:0 16px 40px rgba(28,27,25,0.10)">
               <div style="position: relative; width: 100%; aspect-ratio: 3 / 4; background-color: #dcd6cc; background-image: url('{{ p.img }}'); background-size: cover; background-position: center 45%">
                 
+                <sc-if value="{{ p.soldOut }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; background: rgba(255,255,255,0.62); display: flex; align-items: center; justify-content: center; pointer-events: none"><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: clamp(18px, 2.2vw, 26px); font-weight: 400; letter-spacing: 0.3em; color: #3a3a38">COMING SOON</span></span></sc-if>
                 <sc-if value="{{ p.locked }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; background: rgba(28,27,25,0.45); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #ffffff"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5" y="11" width="14" height="10" rx="1"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; letter-spacing: 0.2em">紹介コード限定</span></span></sc-if>
                 <sc-if value="{{ p.hasOff }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: 16px; right: 16px; background: #b5452f; color: #ffffff; font-family: Jost, 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0.1em; padding: 6px 12px">{{ p.off }}</span></sc-if>
               </div>
@@ -407,6 +413,7 @@
             <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 18px 0 24px"><span style="font-size: 15px; font-weight: 500">合計（税込）</span><span style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 30px">¥{{ grandTotal }}</span></div>
             <button type="button" onClick="{{ goCheckout }}" style="border: none; background: #1c1b19; color: #ffffff; padding: 18px 40px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 12px; transition: background 200ms; width: 100%" style-hover="background:#6e7257">レジに進む</button>
             <div style="font-size: 13px; color: #77736b; text-align: center; margin-top: 14px">{{ freeShipNote }}</div>
+            <sc-if value="{{ hasStockMsg }}" hint-placeholder-val="{{ false }}"><div style="margin-top: 14px; border: 1px solid #e8b4ae; background: #fdf0ef; color: #c62f2a; padding: 12px 14px; font-size: 13px; line-height: 1.8">{{ stockMsg }}</div></sc-if>
           </div>
         </div>
       </sc-if>
@@ -1124,8 +1131,12 @@ const makeProduct = d => { const base = byId(d.category === 'cbg' ? 'vq-day' : d
   return Object.assign({}, base, { id: d.id, line: m.line, vibe: m.vibe, cat: m.cat, spec: m.spec, locked: !!(m.locked || d.requiresCode), flavor: '', img: img, main: img, thumbs: [img],
     sku: d.sku || '', name: d.name || d.id, nameJa: '', price: d.price || 0, was: 0, stock: d.stock || 0, rank: 99, isNew: true, lot: '',
     body: d.body || '', specs: [['内容量', '1.0 mL'], ['THC', '不検出（検出限界以下）']] }); };
+const PSTATE = { loaded: false, error: '' };
+const prodMode = () => !!window.VQ_PROD || /github\.io$/.test(location.hostname);
+if (prodMode()) { MASTER.forEach(p => { p.hidden = true; p.stock = 0; }); PRODUCTS.length = 0; }
 const syncProducts = list => {
-  if (!list.length) return;
+  PSTATE.loaded = true; PSTATE.error = '';
+  if (!list.length && !prodMode()) return;
   const ids = {};
   list.forEach(d => { ids[d.id] = 1; let p = byId(d.id); if (!p) { p = makeProduct(d); MASTER.push(p); }
     if (typeof d.price === 'number') p.price = d.price; if (typeof d.stock === 'number') p.stock = d.stock;
@@ -1173,6 +1184,7 @@ const sessionValid = () => { const v = lsGet(SESSION_KEY); return v && Date.now(
 const isProd = () => !!window.VQ_PROD || /github\.io$/.test(location.hostname);
 
 class Component extends DCLogic {
+  curImg(p) { const hi = this.state.heroImg; return hi && hi.id === p.id ? hi.url : (p.main || p.img); }
   state = { verified: false, declined: false, screen: 'auth', legal: 'tokusho', filter: 'ALL', pid: null, qty: 1, slide: 0, cart: [], unlocked: false, lockPid: null, lockCode: '', lockErr: '', homeTab: 'ALL', faq: 0,
     user: null, admin: null, adminView: 'admin', authTab: 'login', authNotice: false, authError: '',
     li: { email: '', pw: '' },
@@ -1236,7 +1248,8 @@ class Component extends DCLogic {
     this.onFire = e => this.fireAuth(e.detail);
     window.addEventListener('vqfire-auth', this.onFire);
     const fireStart = () => { const F = window.VQFire; if (!F) return;
-      this.unP = F.subscribeProducts(list => { syncProducts(list); this.forceUpdate(); }, e => console.warn('[VQFire products]', e.code || e.message || e));
+      this.unP = F.subscribeProducts(list => { syncProducts(list); this.setState(st => ({ cart: st.cart.filter(l => { const p = byId(l.id); return p && !p.hidden; }) })); this.forceUpdate(); },
+        e => { PSTATE.error = e.code || e.message || String(e); console.warn('[VQFire products]', PSTATE.error); this.forceUpdate(); });
       this.unS = F.subscribeSettings(st => this.setState({ settings: st }), e => console.warn('[VQFire settings]', e.code || e));
       if (F.user) this.fireAuth(F.user); };
     if (window.VQFire) fireStart(); else window.addEventListener('vqfire-ready', fireStart, { once: true });
@@ -1386,10 +1399,12 @@ class Component extends DCLogic {
     if (isProd()) this.setState({ addresses: [], favs: [], defaultAddr: null });
     this.setState({ user: null, admin: null, adminView: 'admin', screen: 'auth', authTab: 'login', authNotice: false, authError: '', my: 'orders' }); window.scrollTo(0, 0); }
   checkout() {
+    const pb = this.cartProblem(); if (pb) { this.setState({ stockMsg: pb, screen: 'cart' }); return window.scrollTo(0, 0); }
     if (!this.state.user) return this.openAuth(true);
     this.setState(s => ({ shipAddr: s.shipAddr || s.defaultAddr, pay: s.pay || 'bank' })); this.go('checkout');
   }
   placeOrder() {
+    const pb = this.cartProblem(); if (pb) { this.setState({ stockMsg: pb }); return this.go('cart'); }
     const s = this.state;
     const sub = s.cart.reduce((a, l) => a + MASTER.find(x => x.id === l.id).price * l.qty, 0);
     const total = sub + (sub >= this.shipRule().th ? 0 : this.shipRule().fee);
@@ -1433,7 +1448,9 @@ class Component extends DCLogic {
     this.setState(s => ({ user: Object.assign({}, s.user, { pw: f.a }), pwf: { cur: '', a: '', b: '' },
       pwMsg: 'パスワードを変更しました。次回のログインから新しいパスワードをご利用ください。', pwOk: true }));
   }
+  openProductGuard(id) { this.setState({ stockMsg: '' }); }
   openProduct(id) {
+    this.openProductGuard(id);
     const p = MASTER.find(x => x.id === id);
     if (p && p.locked && !this.state.unlocked) return this.setState({ lockPid: id, lockCode: '', lockErr: '' });
     this.setState({ screen: 'detail', pid: id, qty: 1, lockPid: null }); window.scrollTo(0, 0);
@@ -1452,18 +1469,35 @@ class Component extends DCLogic {
     }).catch(bad);
   }
 
+  stockOf(id) { const p = byId(id); if (!p || p.hidden) return 0; return typeof p.stock === 'number' ? p.stock : 0; }
   add(id, n) {
+    const st = this.stockOf(id), inCart = (this.state.cart.find(l => l.id === id) || { qty: 0 }).qty;
+    if (st <= 0) return this.setState({ stockMsg: '申し訳ございません。この商品は在庫切れです。' });
+    if (inCart + n > st) {
+      if (inCart >= st) return this.setState({ stockMsg: 'この商品の在庫は ' + st + '個です。すでにカートに ' + inCart + '個入っています。' });
+      n = st - inCart;
+    }
     this.setState(s => {
       const cart = s.cart.slice();
       const i = cart.findIndex(l => l.id === id);
       if (i >= 0) cart[i] = { id: id, qty: cart[i].qty + n };
       else cart.push({ id: id, qty: n });
-      return { cart: cart, screen: 'cart' };
+      return { cart: cart, screen: 'cart', stockMsg: '' };
     });
     window.scrollTo(0, 0);
   }
   bump(id, d) {
-    this.setState(s => ({ cart: s.cart.map(l => l.id === id ? { id: l.id, qty: Math.max(1, l.qty + d) } : l) }));
+    const st = this.stockOf(id);
+    this.setState(s => ({ stockMsg: '', cart: s.cart.map(l => l.id === id ? { id: l.id, qty: Math.max(1, Math.min(st || 1, l.qty + d)) } : l) }));
+  }
+  cartProblem() {
+    for (const l of this.state.cart) {
+      const p = byId(l.id), st = this.stockOf(l.id);
+      if (!p || p.hidden) return '販売を終了した商品がカートに含まれています。カートから削除してください。';
+      if (st <= 0) return '「' + p.name + '」は在庫切れです。カートから削除してください。';
+      if (l.qty > st) return '「' + p.name + '」の在庫は ' + st + '個です。数量を変更してください。';
+    }
+    return '';
   }
   drop(id) { this.setState(s => ({ cart: s.cart.filter(l => l.id !== id) })); }
 
@@ -1472,7 +1506,7 @@ class Component extends DCLogic {
   pwf(k, v) { this.setState(s => ({ pwf: Object.assign({}, s.pwf, { [k]: v }), pwMsg: '' })); }
 
   card(p) {
-    return { name: p.name, img: p.img, cat: p.cat, price: YEN(p.price), was: p.was ? '¥' + YEN(p.was) : '', spec: p.spec, slot: p.slot, rank: p.rank, hasOff: !!p.was, off: p.was ? Math.round((1 - p.price / p.was) * 100) + '%OFF' : '', priceColor: p.was ? '#b5452f' : '#1c1b19', showRank: false, locked: !!p.locked && !this.state.unlocked, open: () => this.openProduct(p.id) };
+    return { name: p.name, img: p.img, cat: p.cat, price: YEN(p.price), was: p.was ? '¥' + YEN(p.was) : '', spec: p.spec, slot: p.slot, rank: p.rank, hasOff: !!p.was, off: p.was ? Math.round((1 - p.price / p.was) * 100) + '%OFF' : '', priceColor: p.was ? '#b5452f' : '#1c1b19', showRank: false, locked: !!p.locked && !this.state.unlocked, soldOut: this.stockOf(p.id) <= 0 && !(p.locked && !this.state.unlocked), open: () => this.openProduct(p.id) };
   }
 
   renderVals() {
@@ -1670,9 +1704,12 @@ class Component extends DCLogic {
       listSections: GROUPS.filter(g => g.key !== 'ALL' && (fk === 'ALL' || fk === g.key)).map(g => { const items = PRODUCTS.filter(x => inGroup(x, g.key)); return { label: g.label, en: g.en, note: g.note, count: items.length + '件', accent: g.key === 'REF' ? '#c8272d' : '#77736b', lineColor: g.key === 'REF' ? '#c8272d' : '#1c1b19', items: items.map(x => this.card(x)) }; }).filter(g => g.items.length),
       listed: listed.map(x => this.card(x)),
       qty: s.qty,
-      incQty: () => this.setState(st => ({ qty: st.qty + 1 })),
+      incQty: () => this.setState(st => ({ qty: Math.min(Math.max(1, this.stockOf(st.pid)), st.qty + 1) })),
       decQty: () => this.setState(st => ({ qty: Math.max(1, st.qty - 1) })),
       cartEmpty: s.cart.length === 0, cartFilled: s.cart.length > 0,
+      stockMsg: s.stockMsg || '', hasStockMsg: !!s.stockMsg,
+      prodNotice: prodMode() && (!!PSTATE.error || (PSTATE.loaded && PRODUCTS.length === 0)),
+      prodNoticeText: PSTATE.error ? '商品情報を読み込めませんでした。時間をおいて再度お試しください。' : '現在、販売中の商品はありません。',
       cartLines: lines,
       subtotal: YEN(subtotal),
       shipping: ship === 0 ? '無料' : '¥' + YEN(ship),
@@ -1685,11 +1722,12 @@ class Component extends DCLogic {
       Object.assign(v, {
         detailCat: p.cat, detailSku: p.sku, detailName: p.name, detailNameJa: p.nameJa,
         detailPrice: YEN(p.price), detailBody: p.body, detailSlot: p.slot, detailLot: p.lot,
-        detailWas: p.was ? '¥' + YEN(p.was) : '', detailStock: p.stock ? '在庫 ' + p.stock + '個' : '',
+        detailWas: p.was ? '¥' + YEN(p.was) : '', detailStock: this.stockOf(p.id) > 0 ? (this.stockOf(p.id) < 10 ? '残り ' + this.stockOf(p.id) + '個' : '在庫あり') : '在庫切れ',
+        addLabel: this.stockOf(p.id) > 0 ? 'カートに入れる' : '在庫切れ', addOpacity: this.stockOf(p.id) > 0 ? '1' : '0.4', addCursor: this.stockOf(p.id) > 0 ? 'pointer' : 'not-allowed',
         detailNotes: p.notes.map(n => ({ t: n })),
-        detailImg: p.main || p.img, detailLocked: !!p.locked,
+        detailImg: this.curImg(p), detailSoldOut: this.stockOf(p.id) <= 0, detailLocked: !!p.locked,
         detailWide: p.wide || { DAY: IMG('scene-day'), NIGHT: IMG('night-lying'), CHILL: IMG('scene-set'), FOCUS: IMG('hero-lineup'), SET: IMG('night-row') }[p.cat] || IMG('hero-lineup'),
-        th: (() => { const th = THEME[p.theme || p.cat] || THEME.DAY; return Object.assign({}, th, { logo: th.light ? 'assets/vq-s/logo-light2.png' : 'assets/vq-s/logo-dark2.png', fade: th.light ? 'rgba(0,0,0,0.75)' : 'rgba(239,235,228,0.85)', wideFg: th.light ? '#ffffff' : '#1c1b19' }); })(), detailThumbs: p.thumbs.map(u => ({ url: u })),
+        th: (() => { const th = THEME[p.theme || p.cat] || THEME.DAY; return Object.assign({}, th, { logo: th.light ? 'assets/vq-s/logo-light2.png' : 'assets/vq-s/logo-dark2.png', fade: th.light ? 'rgba(0,0,0,0.75)' : 'rgba(239,235,228,0.85)', wideFg: th.light ? '#ffffff' : '#1c1b19' }); })(), detailThumbs: p.thumbs.map(u => ({ url: u, show: () => this.setState({ heroImg: { id: p.id, url: u } }), ring: this.curImg(p) === u ? '1px solid currentColor' : 'none', op: this.curImg(p) === u ? '1' : '0.7' })),
         detailSpecs: p.specs.map(r => ({ k: r[0], v: r[1] })),
         shipNote: '送料 ¥550 / ¥' + YEN(threshold) + ' 以上で無料 — 14時までのご注文で当日発送',
         addToCart: () => this.add(p.id, s.qty)
