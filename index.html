@@ -327,7 +327,14 @@
           <div style="background: {{ th.panel }}; padding: 26px; border: 1px solid {{ th.line }}">
             <div style="font-family: Jost, 'Noto Sans JP', sans-serif; font-size: 12px; letter-spacing: 0.2em; color: {{ th.accent }}; margin-bottom: 10px">COA — {{ detailLot }}</div>
             <p style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}; margin: 0 0 14px">第三者機関による分析結果を公開しています。THCは検出されていません（検出限界以下）。</p>
-            <a href="#" onClick="{{ noop }}" style="font-size: 14px; color: {{ th.fg }}; text-decoration: underline; text-underline-offset: 4px">成分分析書を見る →</a>
+            <sc-if value="{{ detailHasCoa }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; flex-direction: column; gap: 10px">
+                <sc-for list="{{ detailCoa }}" as="f" hint-placeholder-count="1">
+                  <a href="#" onClick="{{ f.open }}" style="display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font-size: 14px; color: {{ th.fg }}; text-decoration: none"><span style="text-decoration: underline; text-underline-offset: 4px">{{ f.label }}</span><span style="font-size: 12px; color: {{ th.sub }}">{{ f.meta }}</span></a>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ detailNoCoa }}" hint-placeholder-val="{{ true }}"><span style="font-size: 13px; color: {{ th.sub }}">成分分析書は準備中です。</span></sc-if>
           </div>
           <div>
             <div style="font-size: 15px; font-weight: 500; margin-bottom: 12px">取扱いと使用上の注意</div>
@@ -1145,7 +1152,10 @@ const syncProducts = list => {
   list.forEach(d => { ids[d.id] = 1; let p = byId(d.id); if (!p) { p = makeProduct(d); MASTER.push(p); }
     if (typeof d.price === 'number') p.price = d.price; if (typeof d.stock === 'number') p.stock = d.stock;
     if (d.img && /^(https?:|data:)/.test(d.img) && d.img !== p.fireImg) { if (!p.origThumbs) p.origThumbs = (p.thumbs || []).slice(); p.fireImg = d.img; const si = safeImg(d.img); p.img = si; p.main = si; p.thumbs = [si].concat(p.origThumbs.filter(u => u !== si)).slice(0, 4); }
-    if (d.name && p.isNew && p.rank === 99) p.name = d.name; p.hidden = d.published === false; });
+    if (d.name && p.isNew && p.rank === 99) p.name = d.name; if (typeof d.body === 'string' && d.body.trim()) p.body = d.body;
+    if (typeof d.specs === 'string' && d.specs.trim()) p.specs = d.specs.split('\n').map(l => l.trim()).filter(Boolean).map(l => { const i = l.search(/[：:]/); return i > 0 ? [l.slice(0, i).trim(), l.slice(i + 1).trim()] : ['', l]; });
+    if (typeof d.notes === 'string' && d.notes.trim()) p.notes = d.notes.split('\n').map(l => l.trim()).filter(Boolean);
+    p.hidden = d.published === false; });
   MASTER.forEach(p => { if (!ids[p.id]) p.hidden = true; });
   PRODUCTS.length = 0; MASTER.filter(p => !p.hidden).forEach(p => PRODUCTS.push(p));
 };
@@ -1189,6 +1199,13 @@ const sessionValid = () => { const v = lsGet(SESSION_KEY); return v && Date.now(
 const isProd = () => !!window.VQ_PROD || /github\.io$/.test(location.hostname);
 
 class Component extends DCLogic {
+  openCoa(c) {
+    const F = window.VQFire; if (!F || !F.getCoaBlob) return;
+    if (this.coaUrls && this.coaUrls[c.id]) return window.open(this.coaUrls[c.id], '_blank');
+    const w = window.open('', '_blank');
+    F.getCoaBlob(c.id).then(b => { const u = URL.createObjectURL(b); (this.coaUrls = this.coaUrls || {})[c.id] = u; if (w) w.location.href = u; else window.open(u, '_blank'); })
+      .catch(e => { if (w) w.close(); console.warn('[VQFire coa]', e.code || e); alert('分析書を開けませんでした。時間をおいて再度お試しください。'); });
+  }
   curImg(p) { const hi = this.state.heroImg; return hi && hi.id === p.id ? hi.url : (p.main || p.img); }
   state = { verified: false, declined: false, screen: 'auth', legal: 'tokusho', filter: 'ALL', pid: null, qty: 1, slide: 0, cart: [], unlocked: false, lockPid: null, lockCode: '', lockErr: '', homeTab: 'ALL', faq: 0,
     user: null, admin: null, adminView: 'admin', authTab: 'login', authNotice: false, authError: '',
@@ -1255,6 +1272,8 @@ class Component extends DCLogic {
     const fireStart = () => { const F = window.VQFire; if (!F) return;
       this.unP = F.subscribeProducts(list => { syncProducts(list); this.setState(st => ({ cart: st.cart.filter(l => { const p = byId(l.id); return p && !p.hidden; }) })); this.forceUpdate(); },
         e => { PSTATE.error = e.code || e.message || String(e); console.warn('[VQFire products]', PSTATE.error); this.forceUpdate(); });
+      if (this.unCoa) this.unCoa();
+      if (F.subscribeCoa) this.unCoa = F.subscribeCoa(list => this.setState({ coa: list }), e => console.warn('[VQFire coa]', e.code || e));
       this.unS = F.subscribeSettings(st => this.setState({ settings: st }), e => console.warn('[VQFire settings]', e.code || e));
       if (F.user) this.fireAuth(F.user); };
     if (window.VQFire) fireStart(); else window.addEventListener('vqfire-ready', fireStart, { once: true });
@@ -1724,9 +1743,12 @@ class Component extends DCLogic {
     };
 
     if (p) {
+      const coaOf = (s.coa || []).filter(c => c.productId === p.id && c.chunks).sort((x, y) => String(y.date || '').localeCompare(String(x.date || ''))).slice(0, 10);
       Object.assign(v, {
         detailCat: p.cat, detailSku: p.sku, detailName: p.name, detailNameJa: p.nameJa,
-        detailPrice: YEN(p.price), detailBody: p.body, detailSlot: p.slot, detailLot: p.lot,
+        detailPrice: YEN(p.price), detailBody: p.body, detailSlot: p.slot, detailLot: (coaOf[0] && coaOf[0].lot) || p.lot,
+        detailCoa: coaOf.map((c, i) => ({ label: '成分分析書を見る' + (coaOf.length > 1 ? '（' + (i + 1) + '）' : '') + ' →', meta: [c.lot, c.date && c.date !== '—' ? c.date : ''].filter(Boolean).join(' / '), open: e => { if (e) e.preventDefault(); this.openCoa(c); } })),
+        detailHasCoa: coaOf.length > 0, detailNoCoa: coaOf.length === 0,
         detailWas: p.was ? '¥' + YEN(p.was) : '', detailStock: this.stockOf(p.id) > 0 ? (this.stockOf(p.id) < 10 ? '残り ' + this.stockOf(p.id) + '個' : '在庫あり') : '在庫切れ',
         addLabel: this.stockOf(p.id) > 0 ? 'カートに入れる' : '在庫切れ', addOpacity: this.stockOf(p.id) > 0 ? '1' : '0.4', addCursor: this.stockOf(p.id) > 0 ? 'pointer' : 'not-allowed',
         detailNotes: p.notes.map(n => ({ t: n })),
