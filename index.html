@@ -337,13 +337,17 @@
             <sc-if value="{{ detailNoCoa }}" hint-placeholder-val="{{ true }}"><span style="font-size: 13px; color: {{ th.sub }}">成分分析書は準備中です。</span></sc-if>
           </div>
           <div>
-            <div style="font-size: 15px; font-weight: 500; margin-bottom: 12px">取扱いと使用上の注意</div>
-            <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px">
-              <sc-for list="{{ detailNotes }}" as="n" hint-placeholder-count="4">
-                <li style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}">{{ n.t }}</li>
-              </sc-for>
-            </ul>
-            <p style="font-size: 12px; line-height: 1.9; color: {{ th.sub }}; margin: 16px 0 0">※本製品は疾病の診断・治療・予防を目的とするものではなく、効果効能を保証するものではありません。妊娠中・授乳中の方、治療中の方は医師にご相談ください。20歳未満の方はご購入いただけません。</p>
+            <div style="display: flex; flex-direction: column; gap: 24px">
+            <div>
+              <div style="font-size: 14px; font-weight: 500; color: {{ th.fg }}; margin: 0 0 8px">【製品の取扱いについて】</div>
+              <div style="display: flex; flex-direction: column; gap: 4px"><p style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}; margin: 0">本商品は、低出力での使用を推奨しております。</p><p style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}; margin: 0">推奨電圧：2.2V〜2.8V</p><p style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}; margin: 0">初めて使用する際は2.2V付近の低出力から開始し、状態を確認しながら少しずつ電圧を調整してください。</p><p style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}; margin: 0">高出力での使用や長時間の連続吸引は、焦げ・風味の変化・液漏れ・アトマイザーの劣化や故障等の原因となる場合があります。</p><p style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}; margin: 0">本来の風味を損なわず、アトマイザーを快適にご使用いただくためにも、低出力での使用をおすすめしております。</p></div>
+            </div>
+            <div>
+              <div style="font-size: 14px; font-weight: 500; color: {{ th.fg }}; margin: 0 0 8px">【ご購入・ご使用前に必ずご確認ください】</div>
+              <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px"><li style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}">当店では20歳未満の方への販売は行っておりません。</li><li style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}">感じ方には個人差があります。一度に過度な使用はせず、少量から時間を空けながらご自身の状態を確認してください。</li><li style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}">使用後の車両運転、機械操作、その他危険を伴う作業はお控えください。</li><li style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}">体調や体質に合わないと感じた場合は、直ちに使用を中止してください。</li><li style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}">妊娠中、授乳中の方は使用をお控えください。服薬中・通院中の方は、事前に医師等の専門家へご相談ください。</li><li style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}">原料および配合成分の特性上、香り・色味・粘度等に個体差が生じる場合があります。</li><li style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}">温度環境や成分の特性により、結晶化・粘度・色味の変化が生じる場合があります。変化が見られた場合は、無理に使用せず商品状態をご確認ください。</li><li style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}">高温多湿、直射日光を避け、お子様やペットの手の届かない場所で保管してください。</li><li style="font-size: 14px; line-height: 1.9; color: {{ th.sub }}">本商品は疾病の診断、治療、予防を目的としたものではありません。</li></ul>
+            </div>
+            <p style="font-size: 14px; line-height: 1.9; color: {{ th.fg }}; margin: 0; padding-top: 16px; border-top: 1px solid {{ th.line }}">商品説明および上記注意事項をご確認・ご了承の上、ご購入ください。</p>
+          </div>
           </div>
         </div>
       </div>
