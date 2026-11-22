@@ -251,7 +251,7 @@
               <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">在庫</span><input type="text" value="{{ npStock }}" onChange="{{ setNpStock }}" style="width: 80px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-family: 'Roboto Mono', monospace; font-size: 12px; text-align: right" /></label>
               <label style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">カテゴリ</span>
                 <select value="{{ npCat }}" onChange="{{ setNpCat }}" style="width: 150px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px; background: #ffffff">
-                  <option value="cbg">CBG</option><option value="cbd">CBD</option><option value="cbx">CBX</option><option value="referral">紹介コード限定</option>
+                  <option value="cbg">CBG</option><option value="cbd">CBD</option><option value="cbx">CBX</option>
                 </select>
               </label>
               <div style="display: block"><span style="display: block; font-size: 11px; font-weight: 500; color: #4b5563; margin-bottom: 6px">画像（任意）</span><div style="display: flex; align-items: center; gap: 8px"><span style="width: 36px; height: 36px; flex: none; background: #eceef1 url({{ npImgPreview }}) center/cover no-repeat; border: 1px solid #d3d6db; border-radius: 3px; display: block"></span><label style="border: 1px solid #16181c; background: #ffffff; color: #16181c; padding: 8px 12px; font-size: 12px; font-weight: 600; border-radius: 3px; cursor: pointer; white-space: nowrap" style-hover="background:#f3f4f6">{{ npImgBtn }}<input type="file" accept="image/*" onChange="{{ pickNpImg }}" style="display: none" /></label><input type="text" value="{{ npImgUrlField }}" onChange="{{ setNpImg }}" placeholder="またはURL https://…" style="width: 170px; box-sizing: border-box; border: 1px solid #d3d6db; border-radius: 3px; padding: 8px 10px; font-size: 12px" /></div></div>
@@ -292,6 +292,7 @@
               </sc-for>
             </div>
           </div>
+          <sc-if value="{{ false }}" hint-placeholder-val="{{ false }}">
           <div style="background: #ffffff; border: 1px solid #e0e2e6; border-radius: 4px; padding: 18px; margin-top: 16px">
             <div style="font-size: 13px; font-weight: 700; margin-bottom: 4px">紹介コードの発行</div>
             <p style="font-size: 12px; line-height: 1.85; color: #6b7280; margin: 0 0 16px">会員登録には紹介コードが必須です。新規会員へ渡すコードをここで発行します。停止したコードは登録に使用できません。</p>
@@ -320,6 +321,7 @@
               </div>
             </div>
           </div>
+          </sc-if>
         </div>
       </sc-if>
 
@@ -564,7 +566,7 @@ const NAV = [
   { key: 'orders', label: '注文管理', title: '注文管理', sub: 'ステータスの更新と出荷処理' },
   { key: 'products', label: '商品管理', title: '商品管理', sub: '在庫・価格・公開状態' },
   { key: 'stock', label: '在庫アラート', title: '在庫アラート', sub: '閾値を下回った商品' },
-  { key: 'customers', label: '顧客・紹介コード管理', title: '顧客・紹介コード管理', sub: '会員情報と紹介コードの発行・停止' },
+  { key: 'customers', label: '顧客管理', title: '顧客管理', sub: '会員情報' },
   { key: 'coa', label: 'COA／分析書管理', title: 'COA／分析書管理', sub: 'ロットごとの成分分析書' },
   { key: 'coupon', label: 'クーポン発行', title: 'クーポン発行', sub: '割引コードの作成と停止' },
   { key: 'mail', label: 'メルマガ配信', title: 'メルマガ配信', sub: '受信同意済み会員への配信' },
@@ -902,7 +904,7 @@ class Component extends DCLogic {
   updateProduct() {
     const n = this.state.np, F = window.VQFire, id = n.editId;
     if (!n.name.trim() || !n.sku.trim() || !n.price) return this.npSet('msg', '商品名・SKU・価格を入力してください。');
-    const data = { name: n.name.trim(), sku: n.sku.trim().toUpperCase(), price: Number(n.price) || 0, stock: Number(n.stock) || 0, category: n.cat, requiresCode: n.cat === 'referral', img: n.img.trim(), body: n.body.trim(), specs: n.specs.trim(), notes: n.notes.trim() };
+    const data = { name: n.name.trim(), sku: n.sku.trim().toUpperCase(), price: Number(n.price) || 0, stock: Number(n.stock) || 0, category: n.cat, requiresCode: false, img: n.img.trim(), body: n.body.trim(), specs: n.specs.trim(), notes: n.notes.trim() };
     const done = () => this.setState({ savedId: id, np: { name: '', sku: '', price: '', stock: '', cat: n.cat, img: '', body: '', specs: '', notes: '', msg: '「' + data.name + '」を更新しました。', ok: true, editId: null } });
     if (this.state.fireOn) return F.saveProduct(id, data).then(done).catch(e => this.npSet('msg', F.msg(e)));
     this.setState(s => ({ products: s.products.map(p => p.id === id ? Object.assign({}, p, data) : p) })); done();
@@ -914,7 +916,7 @@ class Component extends DCLogic {
     const id = n.sku.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || ('p-' + Date.now());
     if (this.state.products.some(p => p.id === id)) return this.npSet('msg', '同じSKUの商品がすでにあります。');
     const data = { name: n.name.trim(), sku: n.sku.trim().toUpperCase(), price: Number(n.price) || 0, stock: Number(n.stock) || 0, category: n.cat,
-      requiresCode: n.cat === 'referral', img: n.img.trim(), body: n.body.trim(), specs: n.specs.trim(), notes: n.notes.trim(), published: true, sort: this.state.products.length };
+      requiresCode: false, img: n.img.trim(), body: n.body.trim(), specs: n.specs.trim(), notes: n.notes.trim(), published: true, sort: this.state.products.length };
     const done = () => this.setState({ np: { name: '', sku: '', price: '', stock: '', cat: n.cat, img: '', body: '', specs: '', notes: '', msg: '「' + data.name + '」を追加しました。', ok: true, editId: null } });
     if (this.state.fireOn) return F.createProduct(id, data).then(done).catch(e => this.npSet('msg', F.msg(e)));
     this.setState(s => ({ products: s.products.concat([{ id: id, name: data.name, sku: data.sku, price: data.price, stock: data.stock, pub: true, img: data.img, category: data.category, body: data.body, specs: data.specs, notes: data.notes }]) })); done();
@@ -1083,8 +1085,7 @@ class Component extends DCLogic {
         { label: '発送待ちの注文', n: orders.filter(o => o.status === '発送準備中').length, dot: '#a32222', go: () => this.setState({ page: 'orders', orderFilter: '発送準備中' }) },
         { label: '入金待ちの注文', n: orders.filter(o => o.status === '入金待ち').length, dot: '#8a6116', go: () => this.setState({ page: 'orders', orderFilter: '入金待ち' }) },
         { label: '在庫10個未満の商品', n: low.length, dot: '#8a6116', go: () => this.go('stock') },
-        { label: 'COA未登録の商品', n: s.products.filter(p => !s.coaList.some(c => c.productId === p.id && c.fileName)).length, dot: '#a32222', go: () => this.go('coa') },
-        { label: '停止中の紹介コード', n: s.codes.filter(c => !c.active).length, dot: '#4b5563', go: () => this.go('customers') }
+        { label: 'COA未登録の商品', n: s.products.filter(p => !s.coaList.some(c => c.productId === p.id && c.fileName)).length, dot: '#a32222', go: () => this.go('coa') }
       ],
       mix: mixList.map(x => ({ name: nameOf(x.id), amount: YEN(x.amt), pct: Math.round(x.amt / mixTot * 100) + '%', w: Math.round(x.amt / mixTot * 100) + '%' })),
 
